@@ -1,0 +1,46 @@
+[
+  {
+    "name": "REPOSITORY_NAME",
+    "organization": "U.S. Geological Survey",
+    "description": "This R package was developed to identify priority recovery sites for at-risk species while optimizing for spatial efficiency and other priorities that can be spatialized.
+The tool uses an optimization algorithm to prioritize selection of sites based on a highly customizable greedy algorithm.",
+    "version": "RELEASE_VERSION",
+    "status": "RELEASE_STATUS",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/raw/RELEASE_VERSION/LICENSE.md"
+        }
+      ]
+    },
+
+    "homepageURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME",
+    "downloadURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/archive/RELEASE_VERSION/REPOSITORY_NAME-RELEASE_VERSION.zip",
+    "disclaimerURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/raw/RELEASE_VERSION/DISCLAIMER.md",
+    "repositoryURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME.git",
+    "vcs": "git",
+
+    "laborHours": 100,
+
+    "tags": [
+      "TOPIC_TAG_1",
+      "TOPIC_TAG_2"
+    ],
+
+    "languages": [
+      "R"
+    ],
+
+    "contact": {
+      "name": "Christina Leopold",
+      "email": "cleopold@usgs.gov"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2024-0-25"
+    }
+  }
+]

@@ -1,0 +1,19 @@
+Type: Package
+Package: greedyOpt
+Title: Conservation Prioritization via Greedy Optimization
+Version: 0.1.0
+Author: Devin R Leopold
+Maintainer: Devin R Leopold <devin.leopold@gmail.com>
+Description: ...
+License: TBD
+Imports: 
+    arrow,
+    crayon,
+    collapse,
+    dplyr,
+    furrr,
+    here,
+    progressr,
+    stringr
+Encoding: UTF-8
+RoxygenNote: 7.3.1

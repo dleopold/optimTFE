@@ -1,93 +1,73 @@
-# optimTFE
+---
+title: "README"
+author: "Christina Leopold"
+date: "2024-04-18"
+output: html_document
+---
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://code.usgs.gov/cleopold/optimTFE.git
-git branch -M main
-git push -uf origin main
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Integrate with your tools
+## Introduction
 
-- [ ] [Set up project integrations](https://code.usgs.gov/cleopold/optimTFE/-/settings/integrations)
+**OptimTFE** is a spatial decision-support tool designed to help conservation practitioners identify priority recovery areas for species/taxonomic groups based on known location data, habitat suitability values, and other relevant data inputs. The tool can be used for any dataset that includes habitat suitability values for each species and a target number of priority recovery areas for each.
+This tool was designed for spatial visualization, but the optimization algorithm does not require spatial data.
+This tool is based on the spatial conservation prioritization tool, Marxan, and our terminology is largely adopted from it (Ball et al., 2009).
 
-## Collaborate with your team
+(When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```{r cars}
+summary(cars)
+```
+)
+## Including Plots
 
-## Test and Deploy
+You can also embed plots, for example:
 
-Use the built-in continuous integration in GitLab.
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-***
+## Suggested citations
+Berio Fortini, L., Leopold, C.R., ConBio paper
+Data release
+Ball 2009 paper
 
-# Editing this README
+## Disclaimer
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+This software is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely best science. The software has not received final approval by the U.S. Geological Survey (USGS). No warranty, expressed or implied, is made by the USGS or the U.S. Government as to the functionality of the software and related material nor shall the fact of release constitute any such warranty. The software is provided on the condition that neither the USGS nor the U.S. Government shall be held liable for any damages resulting from the authorized or unauthorized use of the software.
 
-## Suggestions for a good README
+Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Getting started: optimizing for priority recovery areas
 
-## Name
-Choose a self-explaining name for your project.
+### Software requirements
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+optimTFE is an algorithm with associated visualization outputs built using R version 2023.09.1. The application relies on the following R packages (as well as any dependencies). 
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Package name      |  Version      
+----------------- |--------------
+dplyr             | 1.1.4
+ggplot2           | 3.5.0
+htmltools         | 0.5.8.1
+htmlwidgets       | 1.6.2
+rmarkdown         | 2.25
+leaflet           | 2.2.2
+leaflet.providers | 2.0.0
+sf                | 1.0-16
+tidyverse         | 2.0.0
+tidyr             | 1.3.1
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+To run the application locally, users must first install Rstudio (with R version 2023.09.1) and the required packages. Next, clone or download this repository (without changing the directory structure). The application will then open in the default browser. 
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Input data required
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+This package requires a minimum of 2 files:
+(1) .csv with Planning Units as row names and features (species, taxon group, etc.) as columns. The Planning Unit identifier must occur in the first column for all files. For each column there must be a value 0-1 indicating target suitability for each PU. NA and empty values are acceptable where a Feature does not have representation. 
+(2) .csv with Feature Targets, where each row is the Feature name matching that from previous file, and the second column with Targets.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Note: The Planning Unit identifier must occur in the first column for all files. It is renamed to unit_id in the output files.
