@@ -1,10 +1,7 @@
-library(greedyOpt)
 library(sf)
 library(terra)
 library(dplyr)
 library(ggplot2)
-library(prioritizr)
-library(prioritizrdata)
 library(vegan)
 library(cluster)
 library(magrittr)
@@ -13,9 +10,10 @@ library(tibble)
 library(topsis)
 library(withr)
 library(stars)
+library(optimTFE)
 
 # create spp suitability from spatial data, make sure PU column is first!
-spp_suit <- read_sf("dev/units_spp_suit.gpkg")
+spp_suit <- optimTFE::units_spp_suit
 spp_suit_df <- spp_suit |>
   as.data.frame() |>
   select(-geom)
@@ -25,29 +23,38 @@ write.csv(spp_suit_df, "./spp_suitability.csv", row.names = FALSE)
 ## read in files if you want to visually assess; not needed
 # spp_suit <- read.csv("spp_suitability.csv")
 # # read in targets file
-# spp_targets_subregions <- read.csv("dev/targets.csv")
+# spp_targets_subregions <- read.csv(system.file("targets.csv", package = "optimTFE"))
 
 # read in spatial data with PU id's and background files
-pu_data <- read_sf("./dev/unit_spp_suit.gpkg")
+pu_data <- optimTFE::units_spp_suit
 pu_data <- pu_data |>
   select(-c(2:37))
 # plot(pu_data)
 
 # try simple greedy algo, no known pops or occurences yet
 # input files must be .csv format; supply filepath
-test1 <- greedyOpt::greedyOpt(dir = "C:/Christina_learning_2022/greedyOpt_testing/",
+test1 <- optimTFE(dir = "C:/Christina_learning_2022/greedyOpt_testing/",
                               spp_targets_fn = "C:/Christina_learning_2022/greedyOpt_testing/testData/targets.csv",
                               spp_suit_fn = "C:/Christina_learning_2022/greedyOpt_testing/testData/spp_suitability.csv",
                               #spp_occ_fn = "C:/Christina_learning_2022/greedyOpt_testing/testData/known_occurrences.csv",
                               rand_tolerance = 5,
                               min_spp_suit_score = 0.1,
                               sub_regions_fn = "C:/Christina_learning_2022/greedyOpt_testing/testData/subregions.csv",
-                              n = 500,
+                              n = 100,
                               cores = 6,
                               output_csv = T,
                               return_df = T)
+sample_sols100 <- optimTFE(dir = path,
+                           spp_targets_fn = file.path(path, "data/targets.csv"),
+                           spp_suit_fn = file.path(path, "data/spp_suitability.csv"),
+                           rand_tolerance = 5,
+                           min_spp_suit_score = 0.1,
+                           n = 100,
+                           cores = 6,
+                           output_csv = T, # save solutions to .csv
+                           return_df = T)
 
-## Get unit_id count for all solutions in the output data.fram, and print range
+## Get unit_id count for all solutions in the output data.frame, and print range
 # read in solution
 sol1_result <- read.csv("greedyOpt_testing/output/solutions.csv")
 
@@ -96,20 +103,21 @@ PU_ct_freq_plot <- all_solutions_footprint_size(get_mins)
 ############
 # plot and save unit frequency map across all solutions
 
-all_PUs_by_solct <- sol1_result |>
+pu_ct_freq_map <- function(solution_output, pu_spatial_data){
+  all_PUs_by_solct <- solution_output |>
   filter(solution > 0) |>
   group_by(unit_id) |>
   summarise(count = n())
 # Join solution PU_counts with pu_data to include all PUs considered
-PU_freq <- pu_data |>
+PU_freq <- pu_spatial_data |>
   left_join(all_PUs_by_solct, by = c("PU_num" = "unit_id")) |>
   mutate(count = ifelse(is.na(count), 0, count))
 
 # Calculate the proportion frequency of occurrence for each unique PU_num
 PU_freq <- PU_freq %>%
-  mutate(total_solutions = n_distinct(sol1_result$solution),
+  mutate(total_solutions = n_distinct(solution_output$solution),
          freq = count / total_solutions)
-ggplot(data = PU_freq) +
+freq_map <- ggplot(data = PU_freq) +
   geom_sf(aes(fill = freq)) +
   scale_fill_gradient(low = "white", high = "steelblue", limits = c(0, 1), name = "Frequency") +
   theme(
@@ -118,23 +126,20 @@ ggplot(data = PU_freq) +
   ) +
   labs(title = "Frequency of planning unit inclusion across all solutions") +
   theme(plot.title = element_text(hjust = 0.5))
-
+print(freq_map)
+}
 
 
 ############################
 # pull out a solution with min PU count and plot
-
-sol1 <- left_join(pu_data, sol1_result, by = c("PU_num" = "unit_id")) |>
-  filter(!is.na(solution))
-# sol1 obs count should match sol1_result obs count
-
+# this can be found in the PU_ct_freq
 # get solutions with minimum unit_id counts; find from 'solutions_unit_ct' output df
 sol141 <- subset(sol1, solution==141)
 # plot solution 141
-ggplot() +
+sol44_plot <- ggplot() +
   geom_sf(data = mn_coastline, color = "blue") +
-  geom_sf(data = sol141, aes(fill = solution), alpha = 0.5) +
-  theme_minimal()
+  geom_sf(data = sol44, aes(fill = solution), alpha = 0.5) +
+  theme_minimal()...
 
 # now get suitability values across all species
 
@@ -324,5 +329,7 @@ ggplot(bind_rows(all_long, top_10_pct)) +
   ggthemes::theme_few()
 
 
-
+## added .rda files to data folder
+units_spp_suit <- read_sf(system.file("/data/units_spp_suit.gpkg", package = "optimTFE"))
+usethis::use_data(units_spp_suit)
 

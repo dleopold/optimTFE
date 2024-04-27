@@ -1,20 +1,3 @@
-rm(list = ls()) #remove all past worksheet variables #run this on local
-library(sf)
-library(dplyr)
-library(tidyverse)
-library(leaflet)
-library(leaflet.providers)
-library(htmltools)
-library(htmlwidgets)
-
-wds <- c(
-  "C:/Christina_learning_2022/greedyOpt_testing/",
-  "D:/projects/2023_maui_nui_optim/git_repos/GreedyOptTests/",
-  "/hdd/git_repos/GreedyOptTests/"
-)
-wd <- wds[which(dir.exists(wds))][1] # grab filepath to directory that exists on local device
-setwd(wd)
-
 #################################################
 ####webmap!
 #################################################
@@ -23,7 +6,7 @@ setwd(wd)
 #' Generates an interactive map visualizing conservation solutions and
 #' additional layers specified by the user.
 #'
-#' @param solution_result_file A optimTFE output dataframe containing the solution results.
+#' @param solution_result_file A .csv optimTFE output dataframe containing the solution results.
 #' @param original_PU_polygons Spatial dataframe with unit ids and species scores.
 #' @param selected_sol_index Integer, index of the solution to map.
 #' @param auxiliaryLayers (Optional) List of auxiliary layers to add to the map.
@@ -41,19 +24,19 @@ setwd(wd)
 #'                                 auxiliaryLayers, map_individual_spp)
 
 #MAIN vars for function:
-solution_result_file <- read.csv("output/solutions.csv") #the csv with all solution results
-original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg") #spatial data with PU ids and species scores
-selected_sol_index=141 #number of solution to map
-auxiliaryLayers <- list( #last optional arg is a list of auxiliary layers to add to webmap and their names
-  list(name = "Fenced units", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/ung_units_reproj.shp", hidden=T),
-  list(name = "Native habitat", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/native_habitat_polygons.gpkg", hidden=T),
-  list(name = "Conservation lands", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/reserves_reproj.shp", hidden=T)
-)
-map_individual_spp <- list( #last optional arg is a list of species to add to webmap
-  list(species = "Cyanea_duvalliorum",  hidden=T),
-  list(species = "Bidens_campylotheca_waihoienss", hidden=T),
-  list(species = "Phyllostegia_mannii", hidden=T)
-)
+# solution_result_file <- read.csv("output/solutions.csv") #the csv with all solution results
+# original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg") #spatial data with PU ids and species scores
+# selected_sol_index=141 #number of solution to map
+# auxiliaryLayers <- list( #last optional arg is a list of auxiliary layers to add to webmap and their names
+#   list(name = "Fenced units", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/ung_units_reproj.shp", hidden=T),
+#   list(name = "Native habitat", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/native_habitat_polygons.gpkg", hidden=T),
+#   list(name = "Conservation lands", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/reserves_reproj.shp", hidden=T)
+# )
+# map_individual_spp <- list( #last optional arg is a list of species to add to webmap
+#   list(species = "Cyanea_duvalliorum",  hidden=T),
+#   list(species = "Bidens_campylotheca_waihoienss", hidden=T),
+#   list(species = "Phyllostegia_mannii", hidden=T)
+# )
 
 
 create_solution_interactive_map=function(solution_result_file, original_PU_polygons,
@@ -223,13 +206,13 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
   return(map)
 }
 
-map_no_spp=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-                                    selected_sol_index, auxiliaryLayers)
-
-map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-                                             selected_sol_index, auxiliaryLayers=NULL, map_individual_spp)
-map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-                                    selected_sol_index, auxiliaryLayers, map_individual_spp,
-                                    save_HTML_loc ="/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/greedyOpt_leaflet_webmap2.html")
-
+# map_no_spp=create_solution_interactive_map(solution_result_file, original_PU_polygons,
+#                                     selected_sol_index, auxiliaryLayers)
+#
+# map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
+#                                              selected_sol_index, auxiliaryLayers=NULL, map_individual_spp)
+# map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
+#                                     selected_sol_index, auxiliaryLayers, map_individual_spp,
+#                                     save_HTML_loc ="/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/greedyOpt_leaflet_webmap2.html")
+#
 

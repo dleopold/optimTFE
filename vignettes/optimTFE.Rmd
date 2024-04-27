@@ -1,0 +1,156 @@
+---
+title: "optimTFE how-to"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{optimTFE how-to}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+* This vignette will show you how to bring in data for use in the optimTFE
+algorithm to generate conservation solutions. It will then provide examples of
+how to generate relevant summary statistics in order to explore solutions and 
+tradeoffs.
+* It will also demonstrate how to generate an interactive leaflet application 
+for visually exploring solutions.
+
+First, we will attach the packages needed for the example. Then we will use a
+sample dataset to generate input files needed for the optimTFE algorithm and
+subsequent output explorations.
+
+```{r setup}
+knitr::opts_chunk$set(warning = FALSE)
+library(dplyr)
+library(ggplot2)
+library(htmltools)
+library(htmlwidgets)
+library(leaflet)
+library(leaflet.providers)
+library(optimTFE)
+library(rmarkdown)
+library(sf)
+library(tidyr)
+library(tidyverse)
+```
+
+Now we will bring in our file with species suitability values by planning unit.
+Here our example is with a spatial dataset and we need to create a .csv.
+The .csv file should include ONLY the planning unit column (first), and then
+species suitability values for each species/feature for each unit,
+e.g. sp_01, sp_01, etc. Ensure you also have a .csv with species targets, and
+other input files as desired.
+
+```{r species suitabtility}
+knitr::opts_chunk$set(warning = TRUE, echo = TRUE)
+#  first we'll setup a filepath to reference as we save files; likely your
+# project folder:
+path <- "C:/optimTFE"
+spp_suit <- optimTFE::units_spp_suit
+spp_suit_df <- spp_suit |>
+  as.data.frame() |>
+  dplyr::select(-geom)
+#  relocate planning unit column to be first if needed
+# add your filepath in next line
+
+write.csv(spp_suit_df, file = file.path(path, "data/spp_suitability.csv"), row.names = FALSE)
+```
+
+We are ready to run the optimization algorithm:
+```{r Run optimization, warning=TRUE, echo=TRUE}
+
+# simple optimization with only suitability values and targets, without
+# subregion targets. I will set the random tolerance to 5, and clip to include
+# only units for a given species if the suitability value is >= 0.1.
+# all input files must be .csv format; supply filepath
+sample_sols100 <- optimTFE(
+                  dir = tempdir(),
+                  spp_targets_fn = system.file("targets.csv", package = "optimTFE"),
+                  spp_suit_fn = system.file("spp_suitability.csv", package = "optimTFE"),
+                  rand_tolerance = 5,
+                  min_spp_suit_score = 0.1,
+                  n = 100,
+                  cores = 6,
+                  output_csv = T,
+                  return_df = T) # return data.frame as object, named above
+
+```
+
+Take a look at the solutions output. Note that the first column is named
+unit_id. The select_order column indicates the order in which a planning unit
+was selected for the solution. Species columns indicate whether a unit was
+selected for (1) within a given unit_id.
+```{r view solutions}
+head(sample_sols100, 5)
+```
+
+The rest of vignette provides examples of exploring the solutions dataset through
+summary statistics and inclusion of associated spatial data.
+If >100,000 solutions were generated, and depending on your computer RAM, you may want to subset solutions before creating many summary statistics.
+
+If you did not save the solutions output as an object, read in now.
+The file location is printed in the console after running the algorithm:
+'Saving csv output: C:\...'
+
+```{r Solution summary statistics, echo=TRUE, fig.show='asis'}
+# read in solution output
+# sample_sols100 <- read.csv("solution_filepath")
+
+# get planning unit count for each solution
+sols_unit_ct <- solutions_unit_ct(sample_sols100)
+
+# find solutions with minimum unit counts
+min_PU_ct <- min(sols_unit_ct$PU_ct)
+print(sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ])
+
+# bring in spatial data
+# read in spatial data with PU id's and background files
+pu_data <- optimTFE::units_spp_suit
+pu_data <- pu_data |>
+  select(-c(2:37))
+# plot(pu_data) - eastern portion of Maui Island
+
+# Return a dataframe of unit count frequencies
+PU_ct_freq <- all_solutions_freq(sols_unit_ct)
+
+# make a distribution plot of PU_counts
+plot_solutions_freq(PU_ct_freq)
+
+```
+Now we can take a look at a map of the planning unit count frequencies across all solutions.
+
+```{r Plot frequency of planning units across all solutions, echo=TRUE, fig.show='asis'}
+pu_ct_freq_map(solution_output = sample_sols100 , pu_spatial_data = pu_data)
+```
+
+Next we may want to plot a single solution. Here we will plot one with a minimum
+planning unit count, and identify a solution from the sols_unit_ct object generated
+using the solutions_unit_ct function.
+Note, the solution number here will be different from ones generated in future examples.
+
+```{r Plot single solution, fig.show='asis'}
+single_solution_map <- function(solution_number, solution_output, pu_data){
+
+sol_to_plot <- subset(solution_output, solution==solution_number)
+sol_to_plot <- sol_to_plot |>
+  left_join()
+# this number will be different upon each optimTFE algorithm run
+# plot solution 44
+ggplot() +
+  geom_sf(data = sol44, aes(fill = solution), alpha = 0.5) +
+  theme(
+    panel.background = element_rect(fill = "transparent", color = NA),
+    plot.background = element_rect(fill = "transparent", color = NA)
+  ) +
+  labs(title = "Solution 44 conservation footprint") +
+  theme(plot.title = element_text(hjust = 0.5))
+}
+```

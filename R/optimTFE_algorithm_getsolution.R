@@ -31,9 +31,11 @@ get_solution <- function(
     single_pu_pop) {
 
   # Use collapse for faster data manipulations
-  suppressMessages({
+  suppressPackageStartupMessages({
     require(dplyr)
-    require(collapse)
+    suppressWarnings({
+      require(collapse)
+    })
     set_collapse(mask = "manip")
   })
 
