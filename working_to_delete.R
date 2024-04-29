@@ -231,16 +231,6 @@ all_sols_stats <- all_sols_prep |>
   )
 
 #
-# this only gets means at the PU level - doesn't tell you about total footprint area, etc.
-# sum_stat_means <- function(solutions_prep){
-#   mean_values <- solutions_prep |>
-#   group_by(solutions_prep[[2]]) |>
-#   summarise(across(-1, mean, na.rm = TRUE)) |>
-#   select(-1)
-#   return(mean_values)
-#   }
-# example
-# test_sum_stat_means <- sum_stat_means(all_sols_means_prep)
 
 # now identify summaries you want by solution. Example uses output from sum_stat_means function.
 min_max_solutions <- function(data, metrics, summary_type = "max") {

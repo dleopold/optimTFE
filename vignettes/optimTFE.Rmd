@@ -54,6 +54,10 @@ knitr::opts_chunk$set(warning = TRUE, echo = TRUE)
 #  first we'll setup a filepath to reference as we save files; likely your
 # project folder:
 path <- "C:/optimTFE"
+# Here we have created tempdir() for calling output files later; likely best to keep
+# in the project folder when running analysis. This is for the tutorial example.
+# dir <- gsub("\\\\", "/", tempdir())
+
 spp_suit <- optimTFE::units_spp_suit
 spp_suit_df <- spp_suit |>
   as.data.frame() |>
@@ -153,4 +157,23 @@ ggplot() +
   labs(title = "Solution 44 conservation footprint") +
   theme(plot.title = element_text(hjust = 0.5))
 }
+```
+
+Explore habitat suitability values for each, and across, species within a given solution.
+Conservation practitioners may prefer a larger footprint than a minimum size if it
+yields habitat more suited to species to be recovered.
+Now we can explore the tradeoff between habitat suitability and conservation footprint area.
+We will again use the optimTFE solutions output as well as the solution number of interest, and the metadata filepath.
+This function calculates it one solution as a time, as it could be computationally 
+consuming with >10,000 solutions. (And we create it as part of another evaluation
+tool later.)
+
+```{r Get suitability values for input features for a given solution, echo=FALSE}
+# You must read in the solutions file as a data.frame; solution number is the solution to plot; meta_filepath is the filepath to the solutions.meta file.
+# This returns a data.frame with unit_id, solution number, selection order of the unit_id, and species suitability values. # All 0s are NAs unless you convert them.
+
+# Again I will use solution 44 as an example:
+sol44_suit_values <- solution_suit_values(sample_sols100, 44, file.path(dir, "output", "solutions.meta"))
+
+
 ```

@@ -89,3 +89,25 @@ pu_ct_freq_map <- function(solution_output, pu_spatial_data){
     theme(plot.title = element_text(hjust = 0.5))
   print(freq_map)
 }
+
+#' Generate suitability value summaries for a solution
+#'
+#' @param solution_output solution output object from optimTFE algorithm
+#' @param solution_number solution number for which to generate values
+#' @param meta_filepath solutions.meta file from optimTFE algorithm; saved with
+#' the solution output
+#'
+#' @return Dataframe with suitability values by each input feature
+#' @export
+#'
+solution_suit_values <- function(solution_output, solution_number, meta_filepath) {
+  print(meta_filepath)
+  suitability <- jsonlite::fromJSON(meta_filepath)$suitability
+  sol_subset <- solution_output |>
+    filter(solution_output$solution==solution_number)
+  sol_subset <- sol_subset |>
+    select(unit_id, solution, select_order) %>%
+    left_join(., suitability, by = c("unit_id" = colnames(suitability)[1]))
+  print(mean(as.matrix(sol_subset[,4:ncol(sol_subset)]), na.rm = T))
+  return(sol_subset)
+}
