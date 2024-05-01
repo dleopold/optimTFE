@@ -2,17 +2,18 @@
 % Please edit documentation in R/optimTFE_summary_functions.R
 \name{all_solutions_freq}
 \alias{all_solutions_freq}
-\title{Plot unit count frequencies}
+\title{Plot unit count frequencies across all solutions}
 \usage{
 all_solutions_freq(pu_count_by_solution_df)
 }
 \arguments{
-\item{pu_count_by_solution_df}{}
+\item{pu_count_by_solution_df}{dataframe with solution column and unit count
+per solution column}
 }
 \value{
 Return the data.frame of unit
 count frequencies
 }
 \description{
-Plot unit count frequencies
+Plot unit count frequencies across all solutions
 }

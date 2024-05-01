@@ -3,7 +3,7 @@
 export(all_solutions_freq)
 export(create_solution_interactive_map)
 export(get_solution)
-export(min_max_solutions)
+export(metrics_top_solutions)
 export(optimTFE)
 export(plot_solution_metric)
 export(plot_solutions_freq)

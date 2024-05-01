@@ -56,7 +56,7 @@ knitr::opts_chunk$set(warning = TRUE, echo = TRUE)
 path <- "C:/optimTFE"
 # Here we have created tempdir() for calling output files later; likely best to keep
 # in the project folder when running analysis. This is for the tutorial example.
-# dir <- gsub("\\\\", "/", tempdir())
+dir <- gsub("\\\\", "/", tempdir())
 
 spp_suit <- optimTFE::units_spp_suit
 spp_suit_df <- spp_suit |>
@@ -226,13 +226,12 @@ all_sols_metrics <- sample_sols100_metrics_df |>
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
-sol_metrics <- all_sols_metrics[2:8]
-# Then run min_max_solutions function to generate dateframe with min, max, or both
+sol_metrics <- names(all_sols_metrics[2:8])
+# Then run metrics_top_solutions function to generate dateframe with min, max, or both
 # for each metric across all solutions
-max_sol_calcs <- min_max_solutions(all_sols_metrics, sol_metrics, summary_type = "max")
-min_sol_calcs <- min_max_solutions(all_sols_metrics, sol_metrics, summary_type = "min")
-# Combine min and max dataframes
-min_max_solution_metrics <- bind_rows(max_rows, min_rows)
+max_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = max)
+min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = min)
+
 ```
 
 Plot a solution and show where the solution falls compared to the rest of the values

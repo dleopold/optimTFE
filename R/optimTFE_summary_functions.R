@@ -21,9 +21,10 @@ solutions_unit_ct <- function(solution_output) {
   return(PU_ct_sols)
 }
 
-#' Plot unit count frequencies
+#' Plot unit count frequencies across all solutions
 #'
-#' @param pu_count_by_solution_df
+#' @param pu_count_by_solution_df dataframe with solution column and unit count
+#' per solution column
 #'
 #' @return Return the data.frame of unit
 #' count frequencies
@@ -109,7 +110,7 @@ solution_suit_values <- function(solution_number, solution_output, meta_filepath
     select(unit_id, solution, select_order) %>%
     left_join(., suitability, by = c("unit_id" = colnames(suitability)[1]))
   cat("Solution", solution_number, "has a mean suitability value of",
-      mean(as.matrix(sol44_suit_values[,4:ncol(sol44_suit_values)]), na.rm = T),
+      mean(as.matrix(sol_subset[,4:ncol(sol_subset)]), na.rm = T),
       "across all feature inputs.\n")
   return(sol_subset)
 }
@@ -191,7 +192,7 @@ selected_spp_suit <- function(solution_number, solution_output, meta_filepath){
 #' @return dataframe with minimum or maximum values across all metrics
 #' @export
 
-min_max_solutions <- function(data, metrics, summary_type = min) {
+metrics_top_solutions <- function(data, metrics, summary_type = min) {
   # Group by solution and find extreme values for each metric
   summary_values <- data |>
     summarise(across(all_of(metrics), ~summary_type(., na.rm=T)), .by = "solution")
@@ -206,23 +207,6 @@ min_max_solutions <- function(data, metrics, summary_type = min) {
 
   summary_values |>
     filter(solution %in% which_sols)
-
-  # # Empty dataframe to store summary solution rows
-  # summary_df <- data[0, ]
-  #
-  # # Loop through each metric
-  # for (metric in metrics) {
-  #   # Extract the solution IDs corresponding to the summary value for this metric
-  #   if (summary_type == "max") {
-  #     summary_solution_ids <- summary_values$solution[which.max(summary_values[[metric]])]
-  #   } else {
-  #     summary_solution_ids <- summary_values$solution[which.min(summary_values[[metric]])]
-  #   }
-  #
-  #   # Filter the original data to get rows corresponding to summary solution IDs
-  #   summary_df <- bind_rows(summary_df, data %>% filter(solution %in% summary_solution_ids))
-  # }
-  # return(summary_df)
 }
 
 #' Title
