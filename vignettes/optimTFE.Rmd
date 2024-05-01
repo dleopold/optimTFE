@@ -106,7 +106,7 @@ The file location is printed in the console after running the algorithm:
 
 ```{r Solution summary statistics, echo=TRUE, fig.show='asis'}
 # read in solution output
-# sample_sols100 <- read.csv("solution_filepath")
+# sample_sols100 <- read.csv(file.path(dir, "output", "solutions.csv"))
 
 # get planning unit count for each solution
 sols_unit_ct <- solutions_unit_ct(sample_sols100)
@@ -141,39 +141,107 @@ using the solutions_unit_ct function.
 Note, the solution number here will be different from ones generated in future examples.
 
 ```{r Plot single solution, fig.show='asis'}
-single_solution_map <- function(solution_number, solution_output, pu_data){
-
-sol_to_plot <- subset(solution_output, solution==solution_number)
-sol_to_plot <- sol_to_plot |>
-  left_join()
-# this number will be different upon each optimTFE algorithm run
-# plot solution 44
-ggplot() +
-  geom_sf(data = sol44, aes(fill = solution), alpha = 0.5) +
-  theme(
-    panel.background = element_rect(fill = "transparent", color = NA),
-    plot.background = element_rect(fill = "transparent", color = NA)
-  ) +
-  labs(title = "Solution 44 conservation footprint") +
-  theme(plot.title = element_text(hjust = 0.5))
-}
+# Assign solution_number; optional.
+solution_number <- 44
+map_sol_44 <- single_solution_map(solution_number, sample_sols100, pu_data)
 ```
 
-Explore habitat suitability values for each, and across, species within a given solution.
+Next let's generate habitat suitability values for each species within a given solution.
 Conservation practitioners may prefer a larger footprint than a minimum size if it
 yields habitat more suited to species to be recovered.
-Now we can explore the tradeoff between habitat suitability and conservation footprint area.
-We will again use the optimTFE solutions output as well as the solution number of interest, and the metadata filepath.
-This function calculates it one solution as a time, as it could be computationally 
-consuming with >10,000 solutions. (And we create it as part of another evaluation
+Now we can explore this tradeoff.
+We will again use the optimTFE solutions output as well as the solution number of
+interest, and the metadata filepath.
+This function calculates one solution at a time, as it could be computationally 
+consuming with >10,000 solutions. (And we create them collectively as part of another evaluation
 tool later.)
 
 ```{r Get suitability values for input features for a given solution, echo=FALSE}
-# You must read in the solutions file as a data.frame; solution number is the solution to plot; meta_filepath is the filepath to the solutions.meta file.
-# This returns a data.frame with unit_id, solution number, selection order of the unit_id, and species suitability values. # All 0s are NAs unless you convert them.
+# You must read in the solutions file as a data.frame; solution number is the solution to evaluate; meta_filepath is the filepath to the solutions.meta file.
+ # All 0s are NAs unless you convert them.
 
 # Again I will use solution 44 as an example:
-sol44_suit_values <- solution_suit_values(sample_sols100, 44, file.path(dir, "output", "solutions.meta"))
+sol44_suit_values <- solution_suit_values(44, sample_sols100, file.path(dir, "output", "solutions.meta"))
 
 
+```
+Next let's get the suitability values for features that were selected for within a given planning unit.
+For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate
+suitability only for the 1s. 
+In contrast, the previous calculation gave the suitability across all species that had suitability values
+> 0.
+
+The first input comes from the output of solution_suit_values, here it is sol44. If you do not want to use that input, your input dataframe must include the unit_id column first, and remaining columns are the feature columns with 1s and 0s from the solution output file.
+
+```{r Generate species suitability list for target units only}
+sol44_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(dir, "output", "solutions.meta"))
+```
+Now let's generate some metrics about solutions so we can compare.
+We will read-in .shp or .gpkg file with unit_id as the first column and the rest
+have metrics of interest for selecting a solution. For example, this dataset has 
+area_km2 because units are not uniform, percent of unit within an existing conservation
+reserve, percent of unit considered 'good' quality habitat, etc.
+
+You will need to determine how to summarize your data, and provided below is an example.
+Then functions are provided to generate visuals for tradeoff evaluations.
+
+```{r Setup dataset and create a solution summary with selection metrics}
+# read in variables that are aggregated at the unit_id level; again, unit_id must
+# be the first column.
+
+PU_metrics <- read_sf("./data/PU_metrics.gpkg")
+# get rid of any unneccessary columns and keep track of order/naming
+
+# Merge to get all summary data and solution info, and spatial data. This could get
+# big,so you may want to subset based on footprint unit count, etc.
+
+# Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
+# (area, conservation lands, etc.)
+
+sample_sols100_metrics <- left_join(PU_metrics, sample_sols100, by = c("PU_num" = "unit_id"))
+# renaming so we can pull spatial data later if desired
+sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
+  relocate(solution, .after = PU_num) |>
+  select(-c(select_order, geom))
+# confirm no geometry or geom column
+
+# Make a new df, summarized by solution number. Get solution-level metrics:
+# example of creating summary metrics:
+all_sols_metrics <- sample_sols100_metrics_df |>
+  filter(!is.na(solution)) |> #some units do not occur in any solution
+  group_by(solution) |>
+  summarise(
+    total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
+    good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
+          = TRUE)) * 100, #mean percent of footprint with 'good' habitat
+    area_unfenced_mean_pct = (sum(not_fenced_kmsq, na.rm = TRUE) / sum(area_km2,
+          na.rm = TRUE)) * 100, #mean percent of footprint unfenced
+    area_fenced_mean_pct = (sum(fenced_kmsq, na.rm = TRUE) / sum(area_km2,
+          na.rm = TRUE)) * 100,
+    cons_lands_mean_pct = (sum(reserved_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
+          = TRUE)) * 100,
+    FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
+    accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
+  )
+
+# Now we will calculate solutions with minimum and maximum values across each metric
+# First, define which columns are metrics
+sol_metrics <- all_sols_metrics[2:8]
+# Then run min_max_solutions function to generate dateframe with min, max, or both
+# for each metric across all solutions
+max_sol_calcs <- min_max_solutions(all_sols_metrics, sol_metrics, summary_type = "max")
+min_sol_calcs <- min_max_solutions(all_sols_metrics, sol_metrics, summary_type = "min")
+# Combine min and max dataframes
+min_max_solution_metrics <- bind_rows(max_rows, min_rows)
+```
+
+Plot a solution and show where the solution falls compared to the rest of the values
+across all solutions, and the top 10% of all solutions.
+
+```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.show='asis'}
+# 53 has smallest footprint in this round of solutions, so we will see how it does compared to other solutions for the percent of the footprint with 'good habitat'
+# We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
+
+plot_my_metric <- plot_solution_metric(53, all_sols_metrics, "good_hab_mean_pct", 0.9)
+plot_my_metric
 ```

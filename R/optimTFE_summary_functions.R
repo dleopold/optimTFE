@@ -92,22 +92,181 @@ pu_ct_freq_map <- function(solution_output, pu_spatial_data){
 
 #' Generate suitability value summaries for a solution
 #'
-#' @param solution_output solution output object from optimTFE algorithm
 #' @param solution_number solution number for which to generate values
+#' @param solution_output solution output object from optimTFE algorithm
 #' @param meta_filepath solutions.meta file from optimTFE algorithm; saved with
 #' the solution output
 #'
-#' @return Dataframe with suitability values by each input feature
+#' @return Dataframe with suitability values by each input feature including columns:
+#' unit_id, solution, select_order, feature suitability columns.
 #' @export
 #'
-solution_suit_values <- function(solution_output, solution_number, meta_filepath) {
-  print(meta_filepath)
+solution_suit_values <- function(solution_number, solution_output, meta_filepath) {
   suitability <- jsonlite::fromJSON(meta_filepath)$suitability
   sol_subset <- solution_output |>
     filter(solution_output$solution==solution_number)
   sol_subset <- sol_subset |>
     select(unit_id, solution, select_order) %>%
     left_join(., suitability, by = c("unit_id" = colnames(suitability)[1]))
-  print(mean(as.matrix(sol_subset[,4:ncol(sol_subset)]), na.rm = T))
+  cat("Solution", solution_number, "has a mean suitability value of",
+      mean(as.matrix(sol44_suit_values[,4:ncol(sol44_suit_values)]), na.rm = T),
+      "across all feature inputs.\n")
   return(sol_subset)
+}
+
+#' Single solution map
+#'
+#' @param solution_number solution number to plot
+#' @param solution_output output from optimTFE algorithm, as data.frame object
+#' @param pu_data sf object with first column the unit_id or planning unit number
+#' and second column the geom; no other data.
+#'
+#' @return Map of the selected solution; a potential conservation footprint
+#' @export
+
+single_solution_map <- function(solution_number, solution_output, pu_data){
+
+  sol_to_plot <- subset(solution_output, solution==solution_number)
+  pu_data <- pu_data |>
+    rename(unit_id = names(pu_data)[1])
+  sol_sp_data <-
+    left_join(pu_data, sol_to_plot, by = "unit_id")
+  sol_sp_data_map <- ggplot() +
+    geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.5) +
+    theme(
+      panel.background = element_rect(fill = "transparent", color = NA),
+      plot.background = element_rect(fill = "transparent", color = NA)
+    ) +
+    labs(title = paste("Solution", solution_number, "conservation footprint")) +
+    theme(plot.title = element_text(hjust = 0.5))
+  print(sol_sp_data_map)
+}
+
+#' Select solution: suitability values for 'picked' features
+#'
+#' @param solution_number Solution number to calculate suitability value
+#' @param solution_output output from optimTFE algorithm, as data.frame object
+#' @param meta_filepath solutions.meta file from optimTFE algorithm; saved with
+#' the solution output
+#'
+#' @return Suitability value across selected features for a solution
+#' @export
+#'
+selected_spp_suit <- function(solution_number, solution_output, meta_filepath){
+  sol_subset <- subset(solution_output, solution==solution_number) |>
+    select(-c(2:3))
+  sol_long <- sol_subset |>
+    pivot_longer(-all_of(names(sol_subset)[1]), names_to = "Species", values_to = "Suitability")
+  sol_long$Suitability[sol_long$Suitability == 0] <- NA
+  # double-check just 1s (selected for the unit, and NAs, not selected for but could occur within the unit)
+  # unique(sol_long$Suitability)
+  # [1] NA  1
+
+  # now make dataframe of species suitability that's long form
+  spp_suitability <- jsonlite::fromJSON(meta_filepath)$suitability
+  spp_suit_long <- spp_suitability |>
+    pivot_longer(-all_of(names(spp_suitability)[1]), names_to = "Species", values_to = "Suitability")
+
+  # make an index to match by column location, not name
+  index_solution <- c(1,2)
+  index_suitability <- c(1,2)
+  selected_suitability <- merge(sol_long, spp_suit_long, by.x = index_solution, by.y = index_suitability, all.x = TRUE)|>
+    filter(Suitability.x ==1) |>
+    select(-Suitability.x)
+  meansuit_sol_by_species <- selected_suitability |>
+    group_by(Species) |>
+    summarise(mean_suitability = mean(Suitability.y, na.rm = TRUE))
+  # get overall mean suitability for entire footprint
+  message(glue::glue("Suitability across selected features = {paste(mean(meansuit_sol_by_species$mean_suitability))}"))
+  return(meansuit_sol_by_species)
+}
+
+#' Title
+#'
+#' @param data Dataframe with metrics summarized by solution. See 'all_sols_metric'
+#' dataframe in vignette for setup.
+#' @param metrics Columns in data that contain metrics to calculate
+#' @param summary_type "min" or "max" (minimum or maximum value)
+#'
+#' @return dataframe with minimum or maximum values across all metrics
+#' @export
+
+min_max_solutions <- function(data, metrics, summary_type = min) {
+  # Group by solution and find extreme values for each metric
+  summary_values <- data |>
+    summarise(across(all_of(metrics), ~summary_type(., na.rm=T)), .by = "solution")
+
+  which_sols <- summary_values |>
+    pivot_longer(all_of(metrics)) |>
+    slice(
+      which(value==summary_type(value, na.rm=T)),
+      .by = "name"
+    ) |>
+    pull(solution)
+
+  summary_values |>
+    filter(solution %in% which_sols)
+
+  # # Empty dataframe to store summary solution rows
+  # summary_df <- data[0, ]
+  #
+  # # Loop through each metric
+  # for (metric in metrics) {
+  #   # Extract the solution IDs corresponding to the summary value for this metric
+  #   if (summary_type == "max") {
+  #     summary_solution_ids <- summary_values$solution[which.max(summary_values[[metric]])]
+  #   } else {
+  #     summary_solution_ids <- summary_values$solution[which.min(summary_values[[metric]])]
+  #   }
+  #
+  #   # Filter the original data to get rows corresponding to summary solution IDs
+  #   summary_df <- bind_rows(summary_df, data %>% filter(solution %in% summary_solution_ids))
+  # }
+  # return(summary_df)
+}
+
+#' Title
+#'
+#' @param solution_number Solution number to identify in the distribution plot
+#' @param solution_metric_df Dataframe with metrics summarized across each solution.
+#' See example all_sols_metric in vignette for setup
+#' @param metric Metric within solution_metric_df to plot. This must be in in text
+#' format, e.g. "minimum_area"
+#' @param quantile Optional. Quantile to highlight, e.g. top 10% of solutions
+#' then quantile = 0.9
+#'
+#' @return object, then call object to view ggplot
+#' @export
+#'
+plot_solution_metric <- function(solution_number, solution_metric_df, metric, quantile=NA){
+  solution_value <- solution_metric_df[[metric]][solution_metric_df$solution==solution_number]
+  top_solutions <- quantile(solution_metric_df[[metric]], quantile)
+  solution_metric_df$above_quantile <- solution_metric_df[[metric]] > top_solutions
+  # Adjust the y axis ticks
+  max_count <- ceiling(max(ggplot_build(ggplot(solution_metric_df, aes(x = .data[[metric]])) +
+                                          geom_histogram(bins = 33))$data[[1]]$count))
+
+  # Wrap the second label text
+  wrapped_label <- paste0("Top ", quantile * 100, "%\n", metric)
+  # Plot
+  plot <- ggplot(solution_metric_df, aes(x = .data[[metric]], fill = above_quantile)) +
+    geom_histogram(color = "black", bins = 33) +
+    scale_fill_manual(values = c("gray80", "skyblue"),
+                      labels = c("Solutions", wrapped_label),
+                      name = "") +
+    geom_vline(xintercept = solution_value, color = "red", linetype = "dashed") +
+    labs(title = paste0("Distribution of ", metric),
+         x = metric,
+         y = "Count") +
+    scale_y_continuous(breaks = seq(0, max_count, by = 1),
+                       labels = function(x) format(x, scientific = FALSE)) +
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill='transparent'),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.text.y = element_text(size = 8),
+          legend.text = element_text(size = 8),
+          plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+
+  return(plot)
 }

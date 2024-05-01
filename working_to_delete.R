@@ -172,12 +172,14 @@ sol141_spp_sol <- sol141|>
   select(., -c(2:4))
 
 # make a function
-feature_suit_selected_units <- function(solution, meta_filepath){
-  sol_long <- solution |>
-    pivot_longer(-all_of(names(solution)[1]), names_to = "Species", values_to = "Suitability")
+feature_suit_selected_units <- function(solution_number, solution_output, meta_filepath){
+  sol_subset <- subset(solution_output, solution==solution_number) |>
+    select(-c(2:3))
+  sol_long <- sol_subset |>
+    pivot_longer(-all_of(names(sol_subset)[1]), names_to = "Species", values_to = "Suitability")
   sol_long$Suitability[sol_long$Suitability == 0] <- NA
   # double-check just 1s (selected for the unit, and NAs, not selected for but could occur within the unit)
-  # unique(sol141_long$Suitability)
+  # unique(sol_long$Suitability)
   # [1] NA  1
 
   # now make dataframe of species suitability that's long form
@@ -240,9 +242,9 @@ min_max_solutions <- function(data, metrics, summary_type = "max") {
   }
 
   # Group by solution and find extreme values for each metric
-  summary_values <- data %>%
-    group_by(solution) %>%
-    summarise(across(all_of(metrics), .fns = if (summary_type == "max") max else min)) %>%
+  summary_values <- data |>
+    group_by(solution) |>
+    summarise(across(all_of(metrics), ~if (summary_type == "max") max(.) else min(.))) |>
     ungroup()
 
   # Empty dataframe to store summary solution rows
@@ -262,9 +264,12 @@ min_max_solutions <- function(data, metrics, summary_type = "max") {
   }
   return(summary_df)
 }
-metrics <- colnames(all_sols_stats)[2:4]
-min_rows <- min_max_solutions(all_sols_stats, metrics, summary_type = "min")
-max_rows <- min_max_solutions(all_sols_stats, metrics, summary_type = "max")
+# define columns of the metrics, here total_area_kmsp through accessibility_max_mean
+# then run to get minimum values for each metric across all solutions, then max
+# and bind the two sets of results
+metrics <- colnames(all_sols_metrics)[2:8]
+min_rows <- min_max_solutions(all_sols_metrics, metrics, summary_type = "min")
+max_rows <- min_max_solutions(all_sols_metrics, metrics, summary_type = "max")
 # Combine min and max dataframes; remove columns from either first if desired
 output_df <- bind_rows(max_rows, min_rows)
 
@@ -273,18 +278,18 @@ output_df <- bind_rows(max_rows, min_rows)
 # Identify solution to plot where we show where the solution falls compared to the rest of the values across all solutions, and the top 10%
 # This just pulls the 2 values for good_hab_kmsq, not pulling from solution later on
 
-solution_value <- all_sols_stats$total_good_hab_kmsq[all_sols_stats$solution == 25]
-variable_assessed <- all_sols_stats$total_good_hab_kmsq
-top_10_percent <- quantile(all_sols_stats$total_good_hab_kmsq, 0.9)
+solution_value <- all_sols_metrics$good_hab_mean_pct[all_sols_metrics$solution == 53] # 53 has smallest footprint
+
+top_10_percent <- quantile(all_sols_metrics$good_hab_mean_pct, 0.9)
 
 # Plot
-ggplot(all_sols_stats, aes(x = total_good_hab_kmsq)) +
-  geom_histogram(aes(fill = ..x.. > top_10_percent), color = "black", bins = 33) +
+ggplot(all_sols_metrics, aes(x = good_hab_mean_pct)) +
+  geom_histogram(aes(fill = after_stat(x) > top_10_percent), color = "black", bins = 33) +
   scale_fill_manual(values = c("gray80", "skyblue"),
                     labels = c("Solutions", "Top 10%"),
                     name = "") +
   geom_vline(xintercept = solution_value, color = "red", linetype = "dashed") +
-  labs(title = "Distribution of good_hab_kmsq",
+  labs(title = "Distribution of mean good_hab_kmsq",
        x = "good_hab_kmsq",
        y = "Count") +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -293,8 +298,8 @@ ggplot(all_sols_stats, aes(x = total_good_hab_kmsq)) +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
-vars <- colnames(all_sols_stats)[2:4] # same as metrics here
-sol_to_plot <- all_sols_stats$total_good_hab_kmsq[all_sols_stats$solution == 100]
+vars <- colnames(all_sols_metrics)[2:8] # same as metrics here
+sol_to_plot <- all_sols_metrics$good_hab_mean_pct[all_sols_metrics$solution == 100]
 
 all_long <- all_sols_stats |>
   dplyr::select(solution, dplyr::all_of(vars)) |>

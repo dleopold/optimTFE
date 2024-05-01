@@ -4,18 +4,19 @@
 \alias{solution_suit_values}
 \title{Generate suitability value summaries for a solution}
 \usage{
-solution_suit_values(solution_output, solution_number, meta_filepath)
+solution_suit_values(solution_number, solution_output, meta_filepath)
 }
 \arguments{
-\item{solution_output}{solution output object from optimTFE algorithm}
-
 \item{solution_number}{solution number for which to generate values}
+
+\item{solution_output}{solution output object from optimTFE algorithm}
 
 \item{meta_filepath}{solutions.meta file from optimTFE algorithm; saved with
 the solution output}
 }
 \value{
-Dataframe with suitability values by each input feature
+Dataframe with suitability values by each input feature including columns:
+unit_id, solution, select_order, feature suitability columns.
 }
 \description{
 Generate suitability value summaries for a solution
