@@ -1,0 +1,62 @@
+---
+title: "Interactive solution map"
+author: "Lucas Berio Fortini"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Interactive solution map}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Introduction
+This vignette will demonstrate how to create a leaflet application to display
+conservation footprints generated from the optimTFE algorithm.
+We will use the solutions output generated from the algorithm, and then additional
+spatial data of interest.
+There is an option to generate an html document for sharing the map.
+
+```{r Prep}
+knitr::opts_chunk$set(warning = FALSE)
+# Load libraries
+library(sf)
+library(dplyr)
+library(tidyverse)
+library(leaflet)
+library(leaflet.providers)
+library(htmltools)
+library(htmlwidgets)
+```
+
+## Bring in datasets
+The datasets to include in the map include the solutions output, and additional
+layers such conservation lands, maps of native or invasive habitat, etc.
+We can also include individual species in the maps if desired, as well as known
+location data, etc.
+```{r Setup with datasets, echo=FALSE}
+solution_result_file <- read.csv(file.path(dir, "output", "solutions.csv"))
+#the csv with all solution results; directory set in optimTFE.Rmd example
+
+#MAIN vars for function:
+# 
+original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg") #spatial data with PU ids and species scores
+selected_sol_index=141 #number of solution to map
+auxiliaryLayers <- list( #last optional arg is a list of auxiliary layers to add to webmap and their names
+#   
+list(name = "Native habitat", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/native_habitat_polygons.gpkg", hidden=T),
+list(name = "Conservation lands", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/reserves_reproj.shp", hidden=T)
+ )
+map_individual_spp <- list( #last optional arg is a list of species to add to webmap
+  list(species = "Sp_08",  hidden=T),
+  list(species = "Sp_12", hidden=T),
+  list(species = "Sp_29", hidden=T)
+)
+
+```
+
+

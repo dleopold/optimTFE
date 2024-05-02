@@ -1,8 +1,9 @@
 ---
-title: "optimTFE how-to"
+title: "optimTFE: create conservation footprints and generate summary data"
+author: "Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{optimTFE how-to}
+  %\VignetteIndexEntry{optimTFE: create conservation footprints and generate summary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,9 +18,9 @@ knitr::opts_chunk$set(
 ## Introduction
 
 * This vignette will show you how to bring in data for use in the optimTFE
-algorithm to generate conservation solutions. It will then provide examples of
-how to generate relevant summary statistics in order to explore solutions and 
-tradeoffs.
+algorithm to generate conservation solutions.
+It will then provide examples of how to generate relevant summary statistics in 
+order to explore solutions and tradeoffs.
 * It will also demonstrate how to generate an interactive leaflet application 
 for visually exploring solutions.
 
@@ -186,6 +187,7 @@ You will need to determine how to summarize your data, and provided below is an 
 Then functions are provided to generate visuals for tradeoff evaluations.
 
 ```{r Setup dataset and create a solution summary with selection metrics}
+# The all_sols_metrics object created is used in the optimTFE.explorer tool.
 # read in variables that are aggregated at the unit_id level; again, unit_id must
 # be the first column.
 
@@ -223,6 +225,10 @@ all_sols_metrics <- sample_sols100_metrics_df |>
     FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
     accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
   )
+# Export as .csv for creating the optimTFE.explorer tool later. This is the column
+# structure needed as input! 
+
+write.csv(all_sols_metrics, file.path(dir, "output", "sample_sols100_metrics.csv" ))
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
@@ -237,7 +243,7 @@ min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_ty
 Plot a solution and show where the solution falls compared to the rest of the values
 across all solutions, and the top 10% of all solutions.
 
-```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.show='asis'}
+```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=11, fig.height=8, fig.show='asis'}
 # 53 has smallest footprint in this round of solutions, so we will see how it does compared to other solutions for the percent of the footprint with 'good habitat'
 # We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
 
