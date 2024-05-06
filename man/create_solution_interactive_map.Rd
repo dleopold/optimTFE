@@ -23,19 +23,13 @@ create_solution_interactive_map(
 \item{auxiliaryLayers}{(Optional) List of auxiliary layers to add to the map.}
 
 \item{map_individual_spp}{(Optional) List of species to add to the map.}
+
+\item{save_HTML_loc}{(Optional) save location of html file for sharing with collaborators.}
 }
 \value{
-An interactive leaflet map.
+An interactive leaflet map with solutions from the optimTFE alogrithm.
 }
 \description{
 Generates an interactive map visualizing conservation solutions and
 additional layers specified by the user.
-}
-\examples{
-solution_result_file <- read.csv("output/solutions.csv")
-original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg")
-selected_sol_index <- 141
-# Assume auxiliaryLayers and map_individual_spp are defined as shown above
-create_solution_interactive_map(solution_result_file, original_PU_polygons, selected_sol_index,
-                                auxiliaryLayers, map_individual_spp)
 }

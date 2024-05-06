@@ -11,33 +11,11 @@
 #' @param selected_sol_index Integer, index of the solution to map.
 #' @param auxiliaryLayers (Optional) List of auxiliary layers to add to the map.
 #' @param map_individual_spp (Optional) List of species to add to the map.
+#' @param save_HTML_loc (Optional) save location of html file for sharing with collaborators.
 #'
-#' @return An interactive leaflet map.
+#' @return An interactive leaflet map with solutions from the optimTFE alogrithm.
 #' @export
 #'
-#' @examples
-#' solution_result_file <- read.csv("output/solutions.csv")
-#' original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg")
-#' selected_sol_index <- 141
-#' # Assume auxiliaryLayers and map_individual_spp are defined as shown above
-#' create_solution_interactive_map(solution_result_file, original_PU_polygons, selected_sol_index,
-#'                                 auxiliaryLayers, map_individual_spp)
-
-#MAIN vars for function:
-# solution_result_file <- read.csv("output/solutions.csv") #the csv with all solution results
-# original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg") #spatial data with PU ids and species scores
-# selected_sol_index=141 #number of solution to map
-# auxiliaryLayers <- list( #last optional arg is a list of auxiliary layers to add to webmap and their names
-#   list(name = "Fenced units", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/ung_units_reproj.shp", hidden=T),
-#   list(name = "Native habitat", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/native_habitat_polygons.gpkg", hidden=T),
-#   list(name = "Conservation lands", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/reserves_reproj.shp", hidden=T)
-# )
-# map_individual_spp <- list( #last optional arg is a list of species to add to webmap
-#   list(species = "Cyanea_duvalliorum",  hidden=T),
-#   list(species = "Bidens_campylotheca_waihoienss", hidden=T),
-#   list(species = "Phyllostegia_mannii", hidden=T)
-# )
-
 
 create_solution_interactive_map=function(solution_result_file, original_PU_polygons,
                                          selected_sol_index, auxiliaryLayers=NULL, map_individual_spp=NULL, save_HTML_loc=NULL){
@@ -47,6 +25,7 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
   sol1 <- left_join(sol1, solution_result_file, by = join_by_cols) |>
     filter(!is.na(solution))
   solution <- subset(sol1, solution==selected_sol_index) # subset specific solution
+
 
   spp_col_indices=c((which(colnames(solution) == "select_order")+1):ncol(solution)) #this assumes that species columns occur after "select_order" column
   spp_score_columns=names(solution)[spp_col_indices]
@@ -171,7 +150,7 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
   # Dynamically add auxiliary layers if any
   if (!is.null(auxiliaryLayers)) {
     for (layer in auxiliaryLayers) {
-      layerData <- st_read(layer$filename)
+      layerData <- read_sf(layer$filename)
       # Check if the layer's projection matches the desired CRS
       if (st_crs(layerData) != desiredCrs) {
         cat("projecting auxiliary data \n")
@@ -179,7 +158,7 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
         layerData <- st_transform(layerData, desiredCrs)
       }
       map <- map %>%
-        addPolygons(data = layerData, weight = 1, col="black", fillColor = "blue", fillOpacity = 0.2, group = layer$name)
+        addPolygons(data = layerData, weight = 1, col="black", fillColor = "blue", fillOpacity = 0.1, group = layer$name)
       if (!is.null(layer$hidden) && layer$hidden) {
         map <- map %>% hideGroup(layer$name)
       }
@@ -206,13 +185,5 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
   return(map)
 }
 
-# map_no_spp=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-#                                     selected_sol_index, auxiliaryLayers)
-#
-# map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-#                                              selected_sol_index, auxiliaryLayers=NULL, map_individual_spp)
-# map=create_solution_interactive_map(solution_result_file, original_PU_polygons,
-#                                     selected_sol_index, auxiliaryLayers, map_individual_spp,
-#                                     save_HTML_loc ="/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/greedyOpt_leaflet_webmap2.html")
-#
+
 

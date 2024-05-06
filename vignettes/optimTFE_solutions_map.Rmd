@@ -21,7 +21,7 @@ We will use the solutions output generated from the algorithm, and then addition
 spatial data of interest.
 There is an option to generate an html document for sharing the map.
 
-```{r Prep}
+```{r Prep, echo=FALSE, warning=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 # Load libraries
 library(sf)
@@ -34,29 +34,40 @@ library(htmlwidgets)
 ```
 
 ## Bring in datasets
-The datasets to include in the map include the solutions output, and additional
-layers such conservation lands, maps of native or invasive habitat, etc.
-We can also include individual species in the maps if desired, as well as known
-location data, etc.
+Map datasets including the solutions output, and additional auxiliary layers such
+conservation lands, maps of native or invasive habitat, etc.
+We can also include individual species in the map.
 ```{r Setup with datasets, echo=FALSE}
-solution_result_file <- read.csv(file.path(dir, "output", "solutions.csv"))
-#the csv with all solution results; directory set in optimTFE.Rmd example
 
-#MAIN vars for function:
-# 
-original_PU_polygons <- read_sf("testData/PU_data_sample.gpkg") #spatial data with PU ids and species scores
-selected_sol_index=141 #number of solution to map
-auxiliaryLayers <- list( #last optional arg is a list of auxiliary layers to add to webmap and their names
-#   
-list(name = "Native habitat", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/native_habitat_polygons.gpkg", hidden=T),
-list(name = "Conservation lands", filename = "/hdd/git_repos/GreedyOptTests/leaflet_web_map_full_page/reserves_reproj.shp", hidden=T)
- )
-map_individual_spp <- list( #last optional arg is a list of species to add to webmap
-  list(species = "Sp_08",  hidden=T),
-  list(species = "Sp_12", hidden=T),
-  list(species = "Sp_29", hidden=T)
+# project folder:
+path <- "C:/optimTFE"
+# enter the filepath to "solutions.csv" generated from the optimTFE algorithm
+solution_file <- read.csv(file.path(path, "data", "leaflet_spatial_data", "example_solution_file.csv"))
+# .csv with all solution results; directory set in optimTFE.Rmd example line 60
+
+path <- "C:/optimTFE" #project folder, or as assigned in optimTFE.Rmd
+
+PU_polygons <- read_sf(file.path(path, "data", "units_spp_suit.gpkg")) #spatial data with PU ids and species scores
+selected_sol_index=44 #number of solution to map
+
+native_cons_lands <- list(
+  list(name = "Native habitat", filename = file.path(path, "data", "leaflet_spatial_data", "native_habitat.shp"), hidden = T),
+  list(name = "Conservation lands", filename = file.path(path, "data", "leaflet_spatial_data", "reserves.shp"), hidden=T))
+map_spp <- list(
+  list(species = "sp_08", hidden=T),
+  list(species = "sp_12", hidden=T),
+  list(species = "sp_29", hidden=T)
 )
 
 ```
 
+```{r Create a conservation footprint map, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
+# Solution 53 showing conservation footprint
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index)
+
+# Solution 53 showing conservation footprint with auxiliary layers
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, map_individual_spp = map_spp,  save_HTML_loc = file.path(dir, "output", "footprint53.html"))
+
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp)
+```
 

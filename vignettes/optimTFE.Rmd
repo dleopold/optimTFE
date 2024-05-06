@@ -1,5 +1,6 @@
 ---
-title: "optimTFE: create conservation footprints and generate summary data"
+title: "optimTFE:
+Create conservation footprints and generate summary data"
 author: "Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
@@ -28,7 +29,7 @@ First, we will attach the packages needed for the example. Then we will use a
 sample dataset to generate input files needed for the optimTFE algorithm and
 subsequent output explorations.
 
-```{r setup}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
 library(ggplot2)
@@ -68,6 +69,7 @@ spp_suit_df <- spp_suit |>
 
 write.csv(spp_suit_df, file = file.path(path, "data/spp_suitability.csv"), row.names = FALSE)
 ```
+## Generate solutions
 
 We are ready to run the optimization algorithm:
 ```{r Run optimization, warning=TRUE, echo=TRUE}
@@ -96,6 +98,7 @@ selected for (1) within a given unit_id.
 ```{r view solutions}
 head(sample_sols100, 5)
 ```
+## Generate summary information
 
 The rest of vignette provides examples of exploring the solutions dataset through
 summary statistics and inclusion of associated spatial data.
@@ -105,7 +108,7 @@ If you did not save the solutions output as an object, read in now.
 The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
 
-```{r Solution summary statistics, echo=TRUE, fig.show='asis'}
+```{r Solution summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # read in solution output
 # sample_sols100 <- read.csv(file.path(dir, "output", "solutions.csv"))
 
@@ -132,7 +135,7 @@ plot_solutions_freq(PU_ct_freq)
 ```
 Now we can take a look at a map of the planning unit count frequencies across all solutions.
 
-```{r Plot frequency of planning units across all solutions, echo=TRUE, fig.show='asis'}
+```{r Plot frequency of planning units across all solutions, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 pu_ct_freq_map(solution_output = sample_sols100 , pu_spatial_data = pu_data)
 ```
 
@@ -141,7 +144,7 @@ planning unit count, and identify a solution from the sols_unit_ct object genera
 using the solutions_unit_ct function.
 Note, the solution number here will be different from ones generated in future examples.
 
-```{r Plot single solution, fig.show='asis'}
+```{r Plot single solution, fig.width=8.25, fig.height=6, fig.show='asis'}
 # Assign solution_number; optional.
 solution_number <- 44
 map_sol_44 <- single_solution_map(solution_number, sample_sols100, pu_data)
@@ -243,7 +246,7 @@ min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_ty
 Plot a solution and show where the solution falls compared to the rest of the values
 across all solutions, and the top 10% of all solutions.
 
-```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=11, fig.height=8, fig.show='asis'}
+```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # 53 has smallest footprint in this round of solutions, so we will see how it does compared to other solutions for the percent of the footprint with 'good habitat'
 # We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
 
