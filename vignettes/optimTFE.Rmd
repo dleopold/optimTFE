@@ -66,8 +66,8 @@ spp_suit_df <- spp_suit |>
   as.data.frame() |>
   dplyr::select(-geom)
 #  relocate planning unit column to be first if needed
-# add your filepath in next line
 
+# write the species suitability file as a .csv and save to your local directory
 write.csv(spp_suit_df, file = file.path(path, "data/spp_suitability.csv"), row.names = FALSE)
 ```
 ## Generate solutions
@@ -81,8 +81,8 @@ We are ready to run the optimization algorithm:
 # all input files must be .csv format; supply filepath
 sample_sols100 <- optimTFE(
                   dir = tempdir(),
-                  spp_targets_fn = system.file("targets.csv", package = "optimTFE"),
-                  spp_suit_fn = system.file("spp_suitability.csv", package = "optimTFE"),
+                  spp_targets_fn = system.file("extdata", "targets.csv", package = "optimTFE"),
+                  spp_suit_fn = system.file("extdata", "spp_suitability.csv", package = "optimTFE"),
                   rand_tolerance = 5,
                   min_spp_suit_score = 0.1,
                   n = 100,
@@ -213,7 +213,7 @@ sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
 
 # Make a new df, summarized by solution number. Get solution-level metrics:
 # example of creating summary metrics:
-all_sols_metrics <- sample_sols100_metrics_df |>
+all_sols_metrics <- sample_sols1000_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(
@@ -232,7 +232,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
 # Export as .csv for creating the optimTFE.explorer tool later. This is the column
 # structure needed as input! 
 
-write.csv(all_sols_metrics, file.path(dir, "output", "sample_sols100_metrics.csv" ))
+write.csv(all_sols_metrics, file.path(path, "sample_sols100_metrics.csv" ))
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
@@ -251,6 +251,6 @@ across all solutions, and the top 10% of all solutions.
 # 53 has smallest footprint in this round of solutions, so we will see how it does compared to other solutions for the percent of the footprint with 'good habitat'
 # We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
 
-plot_my_metric <- plot_solution_metric(53, all_sols_metrics, "good_hab_mean_pct", 0.9)
+plot_my_metric <- plot_solution_metric(2, all_sols_metrics, "good_hab_mean_pct", 0.9)
 plot_my_metric
 ```

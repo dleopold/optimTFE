@@ -25,7 +25,12 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
   sol1 <- left_join(sol1, solution_result_file, by = join_by_cols) |>
     filter(!is.na(solution))
   solution <- subset(sol1, solution==selected_sol_index) # subset specific solution
-
+  solution <- subset(sol1, solution==selected_sol_index) # subset specific solution
+  if (nrow(solution)>0){
+    #ENTIRE FUNCTION CODE
+  }else{
+    cat("Solution selected does not exist or is empty \n")
+  }
 
   spp_col_indices=c((which(colnames(solution) == "select_order")+1):ncol(solution)) #this assumes that species columns occur after "select_order" column
   spp_score_columns=names(solution)[spp_col_indices]
