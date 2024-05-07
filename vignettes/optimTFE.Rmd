@@ -4,7 +4,8 @@ Create conservation footprints and generate summary data"
 author: "Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{optimTFE: create conservation footprints and generate summary data}
+  %\VignetteIndexEntry{optimTFE:
+Create conservation footprints and generate summary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

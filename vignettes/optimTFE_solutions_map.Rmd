@@ -24,6 +24,7 @@ There is an option to generate an html document for sharing the map.
 ```{r Prep, echo=FALSE, warning=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 # Load libraries
+library(optimTFE)
 library(sf)
 library(dplyr)
 library(tidyverse)
@@ -37,15 +38,13 @@ library(htmlwidgets)
 Map datasets including the solutions output, and additional auxiliary layers such
 conservation lands, maps of native or invasive habitat, etc.
 We can also include individual species in the map.
-```{r Setup with datasets, echo=FALSE}
+```{r Setup datasets, echo=FALSE}
 
 # project folder:
 path <- "C:/optimTFE"
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
 solution_file <- read.csv(file.path(path, "data", "leaflet_spatial_data", "example_solution_file.csv"))
 # .csv with all solution results; directory set in optimTFE.Rmd example line 60
-
-path <- "C:/optimTFE" #project folder, or as assigned in optimTFE.Rmd
 
 PU_polygons <- read_sf(file.path(path, "data", "units_spp_suit.gpkg")) #spatial data with PU ids and species scores
 selected_sol_index=44 #number of solution to map
@@ -66,8 +65,8 @@ map_spp <- list(
 create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index)
 
 # Solution 53 showing conservation footprint with auxiliary layers
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, map_individual_spp = map_spp,  save_HTML_loc = file.path(dir, "output", "footprint53.html"))
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, map_individual_spp = map_spp,  save_HTML_loc = file.path(path, "footprint53.html"))
 
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp)
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path(path, "footprint53.html"))
 ```
 

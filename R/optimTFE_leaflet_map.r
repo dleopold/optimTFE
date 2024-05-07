@@ -49,7 +49,6 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
 
   #label for conservation footprint layer
   target_labels=c()
-  i=14
   for (i in c(1:dim(solution)[1])){
     tmp=as.data.frame(solution)[i,spp_cols]
     species_targets=which(tmp==1)
@@ -64,7 +63,6 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
 
   #label for all planning unit layer
   PU_ID_labels=c()
-  i=20
   for (i in c(1:dim(original_PU_polygons)[1])){
     tmp=as.data.frame(original_PU_polygons)[i,1]
     PU_top_label=paste0("PU ID: <strong>", tmp," </strong> <br/>") #<br/>
@@ -80,7 +78,14 @@ create_solution_interactive_map=function(solution_result_file, original_PU_polyg
 
   ########################################
   #color scheme for number of target species layer
-  bins <- c(1,2,3, seq(5, ceiling(max(solution$n_targets)/5)*5, 5)) #modify!
+  if (!all(is.na(solution$n_targets))) {
+    max_targets <- max(solution$n_targets, na.rm = TRUE)
+    num_bins <- ceiling(max_targets / 5)
+    bins <- seq(0, num_bins * 5, 5)
+  } else {
+    bins <- numeric(0)  # Or assign a default value if needed
+  }
+  #bins <- c(1,2,3, seq(5, ceiling(max(solution$n_targets)/5)*5, 5)) #modify!
   pal <- colorBin("YlOrRd", domain = as.data.frame(solution)$n_targets, bins = bins)
 
   #define name of default overlay groups, map CRS
