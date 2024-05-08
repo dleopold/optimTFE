@@ -195,7 +195,7 @@ Then functions are provided to generate visuals for tradeoff evaluations.
 # read in variables that are aggregated at the unit_id level; again, unit_id must
 # be the first column.
 
-PU_metrics <- read_sf("./data/PU_metrics.gpkg")
+PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"))
 # get rid of any unneccessary columns and keep track of order/naming
 
 # Merge to get all summary data and solution info, and spatial data. This could get
@@ -213,7 +213,7 @@ sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
 
 # Make a new df, summarized by solution number. Get solution-level metrics:
 # example of creating summary metrics:
-all_sols_metrics <- sample_sols1000_metrics_df |>
+all_sols_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(

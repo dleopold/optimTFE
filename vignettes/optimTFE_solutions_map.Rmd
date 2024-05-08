@@ -21,7 +21,7 @@ We will use the solutions output generated from the algorithm, and then addition
 spatial data of interest.
 There is an option to generate an html document for sharing the map.
 
-```{r Prep, echo=FALSE, warning=FALSE}
+```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 # Load libraries
 library(optimTFE)
@@ -41,11 +41,10 @@ We can also map selected units of individual species in the map using the soluti
 ```{r Setup datasets, echo=FALSE}
 
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
-solution_file <- read.csv(system.file("extdata", "example_solution_file.csv", package = "optimTFE"))
+solution_file <- read.csv(system.file("extdata", "example_solution_file.csv", package = "optimTFE"), header = T)
 # .csv with all solution results; directory set in optimTFE.Rmd example line 60
 
 PU_polygons <- read_sf(system.file("extdata", "units_spp_suit.gpkg", package = "optimTFE")) #spatial data with PU ids and species scores
-selected_sol_index=53 #number of solution to map
 
 native_cons_lands <- list(
   list(name = "Native habitat", filename = system.file("extdata", "native_habitat.shp", package = "optimTFE"), hidden = T),
@@ -59,12 +58,12 @@ map_spp <- list(
 ```
 
 ```{r Create a conservation footprint map, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# Solution 53 showing conservation footprint
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index)
+# Solution 100 showing conservation footprint; set solution number.
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=21)
 
 # Solution 53 showing conservation footprint with auxiliary layers
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, map_individual_spp = map_spp,  save_HTML_loc = file.path(path, "footprint53.html"))
+create_solution_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=21, map_individual_spp = map_spp,  save_HTML_loc = file.path("C:/optimTFE", "footprint21.html"))
 
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=selected_sol_index, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path(path, "footprint53.html"))
+create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=21, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint21.html"))
 ```
 
