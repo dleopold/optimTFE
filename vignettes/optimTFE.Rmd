@@ -68,17 +68,21 @@ spp_suit_df <- spp_suit |>
 #  relocate planning unit column to be first if needed
 
 # write the species suitability file as a .csv and save to your local directory
-write.csv(spp_suit_df, file = file.path(path, "data/spp_suitability.csv"), row.names = FALSE)
+# EXAMPLE:
+# write.csv(spp_suit_df, file = file.path(dir, "spp_suitability.csv"), row.names = FALSE)
 ```
 ## Generate solutions
 
-We are ready to run the optimization algorithm:
+We are ready to run the optimization algorithm.
+This example uses an existing species suitability file. Examine these example datasets
+to understand how to setup algorithm inputs.
+Input files must be in .csv format; supply filepaths.
 ```{r Run optimization, warning=TRUE, echo=TRUE}
 
 # simple optimization with only suitability values and targets, without
-# subregion targets. I will set the random tolerance to 5, and clip to include
+# subregion targets. Random tolerance is set to 5, and clipped to include
 # only units for a given species if the suitability value is >= 0.1.
-# all input files must be .csv format; supply filepath
+
 sample_sols100 <- optimTFE(
                   dir = tempdir(),
                   spp_targets_fn = system.file("extdata", "targets.csv", package = "optimTFE"),

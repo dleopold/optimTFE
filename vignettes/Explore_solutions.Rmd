@@ -1,0 +1,85 @@
+---
+title: "Explore_solutions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Explore_solutions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Solution explorer tool
+# Evaluate tradeoffs across solution metrics
+Here we can evaluate tradeoffs across metrics other than footprint size and frequency
+of planning unit selection across all solutions. For example, we can understand the
+amount of a solution within existing conservation lands, proportion of a solution that
+occurs within fenced areas or native habitat.
+
+There must be a file with metrics of interest associated with each planning unit
+in order to run this tool. These values can be calculated using zonal statistics or intersections.
+See the example dataset for setup: PU_metrics.gpkg
+
+## Load libraries for running the explorer tool
+
+```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
+library(optimTFE)
+library(optimTFE.explorer)
+```
+
+## Gather datasets needed.
+This includes the pu_data spatial file with the planning unit id column and the 
+solution summary metrics .csv file created from the 'all_sols_metrics' object in
+the optimTFE vignette. Below also demonstrates how to create the files.
+
+```{r Create planning unit file and solution summary metrics file}
+PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"))
+# get rid of any unneccessary columns
+# metrics were calculated already from existing auxiliary datasets
+
+# Merge to get all summary data and solution info, and spatial data. This could get
+# big,so you may want to subset based on footprint unit count, etc.
+
+# Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
+# (pu area, conservation lands, etc.)
+
+sample_sols100_metrics <- left_join(PU_metrics, sample_sols100, by = c("PU_num" = "unit_id"))
+# renaming so we can pull spatial data later if desired
+sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
+  relocate(solution, .after = PU_num) |>
+  select(-c(select_order, geom))
+# confirm no geometry or geom column
+
+# Make a new df, summarized by solution number. Get solution-level metrics:
+# example of creating summary metrics:
+all_sols_metrics <- sample_sols100_metrics_df |>
+  filter(!is.na(solution)) |> #some units do not occur in any solution
+  group_by(solution) |>
+  summarise(
+    total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
+    good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
+          = TRUE)) * 100, #mean percent of footprint with 'good' habitat
+    area_unfenced_mean_pct = (sum(not_fenced_kmsq, na.rm = TRUE) / sum(area_km2,
+          na.rm = TRUE)) * 100, #mean percent of footprint unfenced
+    area_fenced_mean_pct = (sum(fenced_kmsq, na.rm = TRUE) / sum(area_km2,
+          na.rm = TRUE)) * 100,
+    cons_lands_mean_pct = (sum(reserved_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
+          = TRUE)) * 100,
+    FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
+    accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
+  )
+# Export as .csv for creating the optimTFE.explorer tool later. This is the column
+# structure needed as input! 
+
+write.csv(all_sols_metrics, file.path(path, "sample_sols100_metrics.csv" ))
+
+```
+## Open the explorer
+
+```{r Open Explorer, warning=FALSE, message=FALSE}
+explore_solutions()
+```
