@@ -36,10 +36,9 @@ This includes the pu_data spatial file with the planning unit id column and the
 solution summary metrics .csv file created from the 'all_sols_metrics' object in
 the optimTFE vignette. Below also demonstrates how to create the files.
 
-```{r Create planning unit file and solution summary metrics file}
+```{r Create solution summary metrics dataset}
+# Metrics were calculated already from existing auxiliary datasets
 PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"))
-# get rid of any unneccessary columns
-# metrics were calculated already from existing auxiliary datasets
 
 # Merge to get all summary data and solution info, and spatial data. This could get
 # big,so you may want to subset based on footprint unit count, etc.
@@ -54,9 +53,9 @@ sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
   select(-c(select_order, geom))
 # confirm no geometry or geom column
 
+# Example of creating solution summary metric dataframe:
 # Make a new df, summarized by solution number. Get solution-level metrics:
-# example of creating summary metrics:
-all_sols_metrics <- sample_sols100_metrics_df |>
+solutions_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(
@@ -72,14 +71,38 @@ all_sols_metrics <- sample_sols100_metrics_df |>
     FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
     accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
   )
-# Export as .csv for creating the optimTFE.explorer tool later. This is the column
-# structure needed as input! 
+# This is the column structure needed as input!
 
-write.csv(all_sols_metrics, file.path(path, "sample_sols100_metrics.csv" ))
+# write.csv(solutions_metrics, file.path(path, "sample_sols100_metrics.csv" ))
 
 ```
+## Create input dataset formatted for the optimTFE explorer
+You will need two files:
+1) Solution summary metrics file created above or from the optimTFE vignette
+2) Solution output file generated from running the optimTFE algorithm.
+
+```{r Create solution summary file, warning=FALSE, echo=FALSE}
+# If solutions metrics file was already created in optimTFE vignette, read-in dataset:
+# solutions_metrics <- read.csv(file.path(dir, "dev", "sample_sols100_metrics.csv")) |> dplyr::select(-X)
+# solution output file from optimTFE algorithm
+solutions <- read.csv(file.path(dir, "dev", "example_solution_file.csv")) # replace dir with output folder if needed
+sols_for_explorer <- solutions |>
+  dplyr::summarise(
+    units = as.character(jsonlite::toJSON(unit_id)),
+    .by = "solution"
+  ) |>
+  dplyr::left_join(solution_metrics, by = "solution")
+write.csv(sols_for_explorer, "dev/summary_by_solution.csv", row.names = FALSE)
+```
+
 ## Open the explorer
+
+# It will require two input files
+1) Solution summary file: summary_by_solution.csv created in line 95 or previously
+2) Spatial data file: shapefile or geopackage with column labeled PU_num indicating planning unit IDs
 
 ```{r Open Explorer, warning=FALSE, message=FALSE}
 explore_solutions()
+
+# 
 ```
