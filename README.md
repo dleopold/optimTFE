@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-**OptimTFE** is a spatial decision-support tool designed to help conservation practitioners identify priority recovery areas for species/taxonomic groups based on known location data, habitat suitability values, and other relevant data inputs. The tool can be used for any dataset that includes habitat suitability values for each species and a target number of priority recovery areas for each.
+**OptimTFE** is a spatial decision-support tool designed to help conservation practitioners identify priority recovery areas for species/taxonomic groups based on known location data, habitat suitability values, and other relevant data inputs. The tool can be used for any dataset that includes suitability values for each species and a target number of priority recovery areas for each.
 This tool was designed for spatial visualization, but the optimization algorithm does not require spatial data.
 This tool is based on the spatial conservation prioritization tool, Marxan, and our terminology is largely adopted from it (Ball et al., 2009).
 
@@ -34,7 +34,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 ## Suggested citations
 Berio Fortini, L., Leopold, C.R., ConBio paper
 Data release
-Ball 2009 paper
+Ball, I. R., Possingham, H. P., & Watts, M. E. (2009). Marxan and relatives: Software for spatial conservation prioritization. In A. Moilanen, K. A. Wilson, & H. P. Possingham (Eds.), Spatial conservation prioritization: Quantitative methods and computational tools (pp. 185–195). Oxford University Press.
 
 ## Disclaimer
 

@@ -1,8 +1,9 @@
 ---
-title: "Explore_solutions"
+title: "Explore solutions"
+author: "Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Explore_solutions}
+  %\VignetteIndexEntry{Explore solutions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -38,7 +39,7 @@ the optimTFE vignette. Below also demonstrates how to create the files.
 
 ```{r Create solution summary metrics dataset}
 # Metrics were calculated already from existing auxiliary datasets
-PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"))
+PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optimTFE"))
 
 # Merge to get all summary data and solution info, and spatial data. This could get
 # big,so you may want to subset based on footprint unit count, etc.

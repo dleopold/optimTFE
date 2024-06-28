@@ -18,17 +18,20 @@ knitr::opts_chunk$set(
 ```
 
 ## Introduction
+####optimTFE is a spatial conservation prioritization (SCP) tool created to help conservation
+####managers identify priority recovery areas, represented by planning units (PUs),
+####for species recovery planning efforts.
 
-* This vignette will show you how to bring in data for use in the optimTFE
-algorithm to generate conservation solutions.
+This vignette will demonstrate how to bring in data for use in the optimTFE algorithm
+to generate conservation solutions.
 It will then provide examples of how to generate relevant summary statistics in 
-order to explore solutions and tradeoffs.
-* It will also demonstrate how to generate an interactive leaflet application 
-for visually exploring solutions.
+order to explore conservation footprints and tradeoffs.
+This vignette will also demonstrate how to generate an interactive leaflet application 
+for visually exploring a conservation footprint.
 
 First, we will attach the packages needed for the example. Then we will use a
 sample dataset to generate input files needed for the optimTFE algorithm and
-subsequent output explorations.
+subsequent output exploration.
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
@@ -49,42 +52,42 @@ Now we will bring in our file with species suitability values by planning unit.
 Here our example is with a spatial dataset and we need to create a .csv.
 The .csv file should include ONLY the planning unit column (first), and then
 species suitability values for each species/feature for each unit,
-e.g. sp_01, sp_01, etc. Ensure you also have a .csv with species targets, and
+e.g. sp_01, sp_01, etc. Ensure there is also a .csv with species targets, and
 other input files as desired.
 
 ```{r species suitabtility}
 knitr::opts_chunk$set(warning = TRUE, echo = TRUE)
-#  first we'll setup a filepath to reference as we save files; likely your
-# project folder:
-path <- "C:/optimTFE"
-# Here we have created tempdir() for calling output files later; likely best to keep
-# in the project folder when running analysis. This is for the tutorial example.
-dir <- gsub("\\\\", "/", tempdir())
+
+#set directory
+project_dir <- "C:/optimTFE"
 
 spp_suit <- optimTFE::units_spp_suit
 spp_suit_df <- spp_suit |>
   as.data.frame() |>
   dplyr::select(-geom)
 #  relocate planning unit column to be first if needed
-
-# write the species suitability file as a .csv and save to your local directory
+# spp_suit_df <- spp_suit_df |>
+#                 relocate("PU_num")
+# write the species suitability file as a .csv and save
 # EXAMPLE:
-# write.csv(spp_suit_df, file = file.path(dir, "spp_suitability.csv"), row.names = FALSE)
+# write.csv(spp_suit_df, file = "spp_suitability.csv", row.names = FALSE)
 ```
 ## Generate solutions
 
 We are ready to run the optimization algorithm.
 This example uses an existing species suitability file. Examine these example datasets
-to understand how to setup algorithm inputs.
-Input files must be in .csv format; supply filepaths.
+to understand how to setup algorithm inputs. These are similar to other SCP tools.
+Input files must be in .csv format. Supply filepaths.
 ```{r Run optimization, warning=TRUE, echo=TRUE}
 
 # simple optimization with only suitability values and targets, without
-# subregion targets. Random tolerance is set to 5, and clipped to include
-# only units for a given species if the suitability value is >= 0.1.
+# subregion targets.Number of iterations = 100. Random tolerance is set to 5,
+# and clipped to include # only units for a given species if the suitability
+# value is >= 0.1.
+# Note that we call the saved spp_suitability .csv created above.
 
 sample_sols100 <- optimTFE(
-                  dir = tempdir(),
+                  dir = project_dir,
                   spp_targets_fn = system.file("extdata", "targets.csv", package = "optimTFE"),
                   spp_suit_fn = system.file("extdata", "spp_suitability.csv", package = "optimTFE"),
                   rand_tolerance = 5,
@@ -107,7 +110,8 @@ head(sample_sols100, 5)
 
 The rest of vignette provides examples of exploring the solutions dataset through
 summary statistics and inclusion of associated spatial data.
-If >100,000 solutions were generated, and depending on your computer RAM, you may want to subset solutions before creating many summary statistics.
+If >100,000 solutions were generated, and depending on computer RAM, subsetting solutions
+before creating many summary statistics may reduce run time.
 
 If you did not save the solutions output as an object, read in now.
 The file location is printed in the console after running the algorithm:
@@ -115,14 +119,19 @@ The file location is printed in the console after running the algorithm:
 
 ```{r Solution summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # read in solution output
-# sample_sols100 <- read.csv(file.path(dir, "output", "solutions.csv"))
+# sample_sols100 <- read.csv(file.path("./inst", "extdata", "output", "solutions.csv"))
 
-# get planning unit count for each solution
+# create a dataframe of number of unique solutions
+unique_sols <- unique_solution_ct(sample_sols100)
+
+# get planning unit count for each solution; range prints in console
 sols_unit_ct <- solutions_unit_ct(sample_sols100)
 
 # find solutions with minimum unit counts
 min_PU_ct <- min(sols_unit_ct$PU_ct)
-print(sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ])
+# print solutions with minimum PU counts
+min_solutions <- sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ]
+cat("Solution numbers with the minimum PU_count:\n", paste(min_solutions$solution, collapse = "\n"))
 
 # bring in spatial data
 # read in spatial data with PU id's and background files
@@ -203,7 +212,7 @@ PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"
 # get rid of any unneccessary columns and keep track of order/naming
 
 # Merge to get all summary data and solution info, and spatial data. This could get
-# big,so you may want to subset based on footprint unit count, etc.
+# big,so it may be prudent to subset based on footprint unit count or other important metric.
 
 # Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
 # (area, conservation lands, etc.)
@@ -233,10 +242,9 @@ all_sols_metrics <- sample_sols100_metrics_df |>
     FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
     accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
   )
-# Export as .csv for creating the optimTFE.explorer tool later. This is the column
-# structure needed as input! 
-
-write.csv(all_sols_metrics, file.path(path, "sample_sols100_metrics.csv" ))
+# Optional: Export as .csv for running the solutions explorer tool later. This is the
+# column structure needed as input.
+write.csv(all_sols_metrics, "sample_sols100_metrics.csv")
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics

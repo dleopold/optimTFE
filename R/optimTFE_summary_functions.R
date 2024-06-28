@@ -1,8 +1,40 @@
 # solution summary functions
+
+#' Number of unique and identical solutions within the optimTFE algorithm output
+#'
+#' @param solution_output output from the optimTFE_algorithm, as an object in the
+#'  R environment
+#'
+#' @return Returns a dataframe with the count and list of solutions that are identical;
+#' also includes the PU combinations for each unique solution.
+#' @export
+#'
+
+unique_solution_ct <- function(solution_output) {
+  unique_sols <- solution_output |>
+  group_by(solution) |>
+  summarise(unit_id_combination = paste(sort(unique(unit_id)), collapse = ",")) |>
+  group_by(unit_id_combination) |>
+  summarise(
+    solutions = paste(solution, collapse = ", "),
+    count = n()
+  ) |>
+  arrange(desc(count))
+total_solutions <- sum(unique_sols$count)
+unique_sols_final <- unique_sols |>
+  mutate(proportion = count / total_solutions) |>
+  relocate(unit_id_combination, .after = last_col())
+unique_sols_final <- unique_sols_final |>
+  relocate(count, .before = solutions)
+
+# Print the result
+  return(unique_sols_final)
+}
+
 #' Planning unit count for each solution in the optimTFE algorithm output
 #'
 #' @param solution_output output from the optimTFE_algorithm, as an object in the
-#'                        R environment
+#'  R environment
 #'
 #' @return Returns a data.frame with two columns; solution (solution number) and
 #' PU_ct (number of planning units in the solution)
