@@ -2,13 +2,9 @@ Type: Package
 Package: optimTFE
 Title: Conservation recovery planning via optimization algorithm
 Version: 0.1.0
-Author: Christina R Leopold, Devin R Leopold
+Author: Christina R Leopold, Devin R Leopold, Lucas Berio Fortini
 Maintainer: Christina R Leopold <cleopold@usgs.gov>
-Description: OptimTFE is a spatial decision-support tool designed to help conservation
-practitioners identify priority recovery areas for species/taxonomic groups based on
-known location data, habitat suitability values, and other relevant data inputs.
-The tool can be used for any dataset that includes suitability values for each species
-and a target number of priority recovery areas for each.
+Description: OptimTFE is a spatial decision-support tool with additional tools for data visualization.
 License: TBD
 URL: https://github.com/crleopold/optimTFE_combo.git
 BugReports: https://github.com/crleopold/optimTFE_combo.git/issues
@@ -34,7 +30,7 @@ Imports:
     shiny (>= 1.8.0),
     shinyjs,
     shinyWidgets,
-    stringr
+    stringr,
     tidyr
 Config/testthat/edition: 3
 Encoding: UTF-8

@@ -160,8 +160,8 @@ Note, the solution number here will be different from ones generated in future e
 
 ```{r Plot single solution, fig.width=8.25, fig.height=6, fig.show='asis'}
 # Assign solution_number; optional.
-solution_number <- 44
-map_sol_44 <- single_solution_map(solution_number, sample_sols100, pu_data)
+solution_number <- 24
+map_sol_min <- single_solution_map(solution_number, sample_sols100, pu_data)
 ```
 
 Next let's generate habitat suitability values for each species within a given solution.

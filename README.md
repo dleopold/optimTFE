@@ -1,7 +1,7 @@
 ---
 title: "README"
-author: "Christina Leopold"
-date: "2024-04-18"
+author: "Christina Leopold, Devin Leopold, Lucas Berio Fortini"
+date: "2024-07-18"
 output: html_document
 ---
 
@@ -11,25 +11,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-**OptimTFE** is a spatial decision-support tool designed to help conservation practitioners identify priority recovery areas for species/taxonomic groups based on known location data, habitat suitability values, and other relevant data inputs. The tool can be used for any dataset that includes suitability values for each species and a target number of priority recovery areas for each.
-This tool was designed for spatial visualization, but the optimization algorithm does not require spatial data.
-This tool is based on the spatial conservation prioritization tool, Marxan, and our terminology is largely adopted from it (Ball et al., 2009).
+**OptimTFE** is a spatial decision-support tool designed to help conservation practitioners
+identify priority recovery areas for species/taxonomic groups based on known location data,
+habitat suitability values, and other relevant data inputs. The tool can be used for
+any dataset that includes suitability values for each species and a target number
+of priority recovery areas for each.
+This tool was designed for spatial visualization, but the optimization algorithm
+does not require spatial data.
+This tool is based on the spatial conservation prioritization tool, Marxan, and
+our terminology is largely adopted from it (Ball et al., 2009).
+This package includes two data visualization tools using RShiny to allow for visualizing tradeoffs
+across metrics when evaluating solutions generated using the optimTFE algorithm.
 
-(When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-)
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ## Suggested citations
 Berio Fortini, L., Leopold, C.R., ConBio paper
@@ -67,7 +60,11 @@ To run the application locally, users must first install Rstudio (with R version
 ## Input data required
 
 This package requires a minimum of 2 files:
-(1) .csv with Planning Units as row names and features (species, taxon group, etc.) as columns. The Planning Unit identifier must occur in the first column for all files. For each column there must be a value 0-1 indicating target suitability for each PU. NA and empty values are acceptable where a Feature does not have representation. 
+(1) .csv with Planning Units as row names and features (species, taxon group, etc.) as columns. The Planning Unit identifier must occur in the first column for all files. For each column there must be a value 0-1 indicating target suitability for each PU. These data will be used as continuous values; categorical data are not considered. NA and empty values are acceptable where a Feature does not have representation. 
 (2) .csv with Feature Targets, where each row is the Feature name matching that from previous file, and the second column with Targets.
 
 Note: The Planning Unit identifier must occur in the first column for all files. It is renamed to unit_id in the output files.
+
+## Associated spatial data
+The optimTFE_leaflet_map and optimTFE_explorer tools allow for spatial data exploration using the algorithm output and associated
+spatial data.
