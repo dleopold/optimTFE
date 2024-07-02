@@ -1,11 +1,9 @@
 ---
-title: "optimTFE:
-Create conservation footprints and generate summary data"
-author: "Christina Leopold"
+title: "optimTFE: Create conservation footprints and generate summary data"
+author: "Package authors: Devin Leopold, Christina Leopold and Lucas Berio Fortini"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{optimTFE:
-Create conservation footprints and generate summary data}
+  %\VignetteIndexEntry{optimTFE: Create conservation footprints and generate summary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,9 +16,9 @@ knitr::opts_chunk$set(
 ```
 
 ## Introduction
-####optimTFE is a spatial conservation prioritization (SCP) tool created to help conservation
-####managers identify priority recovery areas, represented by planning units (PUs),
-####for species recovery planning efforts.
+The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
+managers identify priority recovery areas, represented by planning units (PUs),
+for species recovery planning efforts.
 
 This vignette will demonstrate how to bring in data for use in the optimTFE algorithm
 to generate conservation solutions.
@@ -33,8 +31,11 @@ First, we will attach the packages needed for the example. Then we will use a
 sample dataset to generate input files needed for the optimTFE algorithm and
 subsequent output exploration.
 
-```{r setup, echo=FALSE}
-knitr::opts_chunk$set(warning = FALSE)
+```{r setup, echo=TRUE, warning = FALSE, message=FALSE}
+#set directory
+project_dir <- "C:/optimTFE_final"
+
+#Load packages
 library(dplyr)
 library(ggplot2)
 library(htmltools)
@@ -47,29 +48,27 @@ library(sf)
 library(tidyr)
 library(tidyverse)
 ```
-
+```{r hidden unlink project dir RE output folder errors, echo=FALSE}
+unlink(file.path(project_dir, "output"), recursive = TRUE)
+```
 Now we will bring in our file with species suitability values by planning unit.
 Here our example is with a spatial dataset and we need to create a .csv.
 The .csv file should include ONLY the planning unit column (first), and then
 species suitability values for each species/feature for each unit,
 e.g. sp_01, sp_01, etc. Ensure there is also a .csv with species targets, and
-other input files as desired.
+other input files as desired. View the 
+
 
 ```{r species suitabtility}
-knitr::opts_chunk$set(warning = TRUE, echo = TRUE)
-
-#set directory
-project_dir <- "C:/optimTFE"
-
 spp_suit <- optimTFE::units_spp_suit
 spp_suit_df <- spp_suit |>
   as.data.frame() |>
   dplyr::select(-geom)
-#  relocate planning unit column to be first if needed
+# View(spp_suit_df)
+# relocate planning unit column to be first,  if needed
 # spp_suit_df <- spp_suit_df |>
 #                 relocate("PU_num")
-# write the species suitability file as a .csv and save
-# EXAMPLE:
+# write the species suitability file as a .csv and save:
 # write.csv(spp_suit_df, file = "spp_suitability.csv", row.names = FALSE)
 ```
 ## Generate solutions
@@ -78,7 +77,7 @@ We are ready to run the optimization algorithm.
 This example uses an existing species suitability file. Examine these example datasets
 to understand how to setup algorithm inputs. These are similar to other SCP tools.
 Input files must be in .csv format. Supply filepaths.
-```{r Run optimization, warning=TRUE, echo=TRUE}
+```{r Run optimization, echo=TRUE, cache=F}
 
 # simple optimization with only suitability values and targets, without
 # subregion targets.Number of iterations = 100. Random tolerance is set to 5,
@@ -118,8 +117,8 @@ The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
 
 ```{r Solution summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# read in solution output
-# sample_sols100 <- read.csv(file.path("./inst", "extdata", "output", "solutions.csv"))
+# read in solution output if not already in environment
+# sample_sols100 <- read.csv(file.path("./output", "solutions.csv"))
 
 # create a dataframe of number of unique solutions
 unique_sols <- unique_solution_ct(sample_sols100)
@@ -179,7 +178,7 @@ tool later.)
  # All 0s are NAs unless you convert them.
 
 # Again I will use solution 44 as an example:
-sol44_suit_values <- solution_suit_values(44, sample_sols100, file.path(dir, "output", "solutions.meta"))
+sol44_suit_values <- solution_suit_values(44, sample_sols100, file.path("./output", "solutions.meta"))
 
 
 ```
@@ -192,7 +191,7 @@ In contrast, the previous calculation gave the suitability across all species th
 The first input comes from the output of solution_suit_values, here it is sol44. If you do not want to use that input, your input dataframe must include the unit_id column first, and remaining columns are the feature columns with 1s and 0s from the solution output file.
 
 ```{r Generate species suitability list for target units only}
-sol44_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(dir, "output", "solutions.meta"))
+sol44_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
 ```
 Now let's generate some metrics about solutions so we can compare.
 We will read-in .shp or .gpkg file with unit_id as the first column and the rest
@@ -201,18 +200,17 @@ area_km2 because units are not uniform, percent of unit within an existing conse
 reserve, percent of unit considered 'good' quality habitat, etc.
 
 You will need to determine how to summarize your data, and provided below is an example.
-Then functions are provided to generate visuals for tradeoff evaluations.
 
 ```{r Setup dataset and create a solution summary with selection metrics}
-# The all_sols_metrics object created is used in the optimTFE.explorer tool.
+# The all_sols_metrics object created will be used in the optimTFE.explorer tool.
 # read in variables that are aggregated at the unit_id level; again, unit_id must
 # be the first column.
 
-PU_metrics <- read_sf(system.file("extdata", "targets.csv", package = "optimTFE"))
+PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optimTFE"))
 # get rid of any unneccessary columns and keep track of order/naming
 
 # Merge to get all summary data and solution info, and spatial data. This could get
-# big,so it may be prudent to subset based on footprint unit count or other important metric.
+# big, so it may be prudent to subset based on footprint unit count or other important metric.
 
 # Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
 # (area, conservation lands, etc.)
@@ -244,7 +242,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
   )
 # Optional: Export as .csv for running the solutions explorer tool later. This is the
 # column structure needed as input.
-write.csv(all_sols_metrics, "sample_sols100_metrics.csv")
+write.csv(all_sols_metrics, "./output/sample_sols100_metrics.csv")
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
@@ -260,7 +258,7 @@ Plot a solution and show where the solution falls compared to the rest of the va
 across all solutions, and the top 10% of all solutions.
 
 ```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# 53 has smallest footprint in this round of solutions, so we will see how it does compared to other solutions for the percent of the footprint with 'good habitat'
+# plot a footprint to see how it compares to other solutions for the percent of the footprint with 'good habitat'
 # We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
 
 plot_my_metric <- plot_solution_metric(2, all_sols_metrics, "good_hab_mean_pct", 0.9)

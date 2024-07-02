@@ -29,7 +29,9 @@ See the example dataset for setup: PU_metrics.gpkg
 
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 library(optimTFE)
-library(optimTFE.explorer)
+library(dplyr)
+library(sf)
+library(tidyr)
 ```
 
 ## Gather datasets needed.
@@ -46,6 +48,9 @@ PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optim
 
 # Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
 # (pu area, conservation lands, etc.)
+
+# Load sample_sols100 if not already in the environment; this is in the output folder
+# created after running the optimTFE algorithm.
 
 sample_sols100_metrics <- left_join(PU_metrics, sample_sols100, by = c("PU_num" = "unit_id"))
 # renaming so we can pull spatial data later if desired
