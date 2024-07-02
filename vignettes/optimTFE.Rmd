@@ -21,11 +21,14 @@ managers identify priority recovery areas, represented by planning units (PUs),
 for species recovery planning efforts.
 
 This vignette will demonstrate how to bring in data for use in the optimTFE algorithm
-to generate conservation solutions.
+to generate conservation solutions, which we refer to as conservation footprints.
 It will then provide examples of how to generate relevant summary statistics in 
 order to explore conservation footprints and tradeoffs.
-This vignette will also demonstrate how to generate an interactive leaflet application 
-for visually exploring a conservation footprint.
+We also provide a vignette demonstrating how to visually explore metrics of interest
+across generated footprints using an interactive shiny tool.
+Another vignette demonstrates how to generate an interactive leaflet application 
+for visually exploring species-specific and PU-specific qualities of a conservation
+footprint.
 
 First, we will attach the packages needed for the example. Then we will use a
 sample dataset to generate input files needed for the optimTFE algorithm and
@@ -40,6 +43,7 @@ library(dplyr)
 library(ggplot2)
 library(htmltools)
 library(htmlwidgets)
+library(klippy)
 library(leaflet)
 library(leaflet.providers)
 library(optimTFE)
@@ -50,6 +54,9 @@ library(tidyverse)
 ```
 ```{r hidden unlink project dir RE output folder errors, echo=FALSE}
 unlink(file.path(project_dir, "output"), recursive = TRUE)
+```
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
 ```
 Now we will bring in our file with species suitability values by planning unit.
 Here our example is with a spatial dataset and we need to create a .csv.
