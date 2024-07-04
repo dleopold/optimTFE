@@ -16,7 +16,7 @@ unique_solution_ct <- function(solution_output) {
   summarise(unit_id_combination = paste(sort(unique(unit_id)), collapse = ",")) |>
   group_by(unit_id_combination) |>
   summarise(
-    solutions = paste(solution, collapse = ", "),
+    solution = paste(solution, collapse = ", "),
     count = n()
   ) |>
   arrange(desc(count))
@@ -25,7 +25,9 @@ unique_sols_final <- unique_sols |>
   mutate(proportion = count / total_solutions) |>
   relocate(unit_id_combination, .after = last_col())
 unique_sols_final <- unique_sols_final |>
-  relocate(count, .before = solutions)
+  relocate(count, .before = solution)
+unique_sols_final <- unique_sols_final |>
+  relocate(proportion, .after = count)
 
 # Print the result
   return(unique_sols_final)
@@ -44,7 +46,7 @@ solutions_unit_ct <- function(solution_output) {
   PU_ct_sols <- solution_output |>
     group_by(solution) |>
     summarise(PU_ct = n())
-  message(glue::glue("Solution units range {paste(range(PU_ct_sols$PU_ct), collapse = '-')}"))
+  message(glue::glue("Solution unit count ranges {paste(range(PU_ct_sols$PU_ct), collapse = '-')}"))
 
   PU_ct_sols |>
     filter(PU_ct == min(PU_ct_sols$PU_ct)) |>
@@ -80,8 +82,8 @@ plot_solutions_freq <- function(PU_count_freq_df){
   plot <- ggplot(PU_count_freq_df, aes(x = PU_ct, y = Frequency)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   theme(panel.background = element_blank()) +
-  labs(title = "Distribution of solution planning unit count frequencies",
-       x = "Unit count",
+  labs(title = "Planning unit counts across all solutions",
+       x = "Planning unit count",
        y = "Frequency") +
   theme(plot.title = element_text(hjust=0.5))+
   geom_text(aes(label = Frequency), vjust = -0.5, size = 3)

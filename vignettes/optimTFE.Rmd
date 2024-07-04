@@ -63,7 +63,7 @@ Here our example is with a spatial dataset and we need to create a .csv.
 The .csv file should include ONLY the planning unit column (first), and then
 species suitability values for each species/feature for each unit,
 e.g. sp_01, sp_01, etc. Ensure there is also a .csv with species targets, and
-other input files as desired. View the 
+other input files as desired.
 
 
 ```{r species suitabtility}
@@ -81,16 +81,15 @@ spp_suit_df <- spp_suit |>
 ## Generate solutions
 
 We are ready to run the optimization algorithm.
-This example uses an existing species suitability file. Examine these example datasets
+This example uses existing species suitability and target files. Examine these datasets
 to understand how to setup algorithm inputs. These are similar to other SCP tools.
-Input files must be in .csv format. Supply filepaths.
+Input files must be in .csv format. Supply filepaths in the algorithm function.
+The console will print statements or errors related to the optimization run.
 ```{r Run optimization, echo=TRUE, cache=F}
-
-# simple optimization with only suitability values and targets, without
-# subregion targets.Number of iterations = 100. Random tolerance is set to 5,
-# and clipped to include # only units for a given species if the suitability
-# value is >= 0.1.
-# Note that we call the saved spp_suitability .csv created above.
+# Simple optimization with only suitability values and targets, without
+# subregion targets. Number of iterations = 100. Random tolerance is set to 5,
+# includes only units for a given species if the suitability score value is >= 0.1.
+# Note that we call the saved spp_suitability.csv created above.
 
 sample_sols100 <- optimTFE(
                   dir = project_dir,
@@ -114,12 +113,12 @@ head(sample_sols100, 5)
 ```
 ## Generate summary information
 
-The rest of vignette provides examples of exploring the solutions dataset through
-summary statistics and inclusion of associated spatial data.
-If >100,000 solutions were generated, and depending on computer RAM, subsetting solutions
-before creating many summary statistics may reduce run time.
+The rest of vignette explores the solutions dataset through summary statistics and
+inclusion of associated spatial data.
+If >100,000 solutions were generated, and depending on computer RAM, subsetting
+solutions before creating many summary statistics may reduce run time.
 
-If you did not save the solutions output as an object, read in now.
+If you did not save the solutions output as an object, read it in now.
 The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
 
@@ -129,6 +128,7 @@ The file location is printed in the console after running the algorithm:
 
 # create a dataframe of number of unique solutions
 unique_sols <- unique_solution_ct(sample_sols100)
+head(unique_sols)
 
 # get planning unit count for each solution; range prints in console
 sols_unit_ct <- solutions_unit_ct(sample_sols100)
@@ -139,8 +139,7 @@ min_PU_ct <- min(sols_unit_ct$PU_ct)
 min_solutions <- sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ]
 cat("Solution numbers with the minimum PU_count:\n", paste(min_solutions$solution, collapse = "\n"))
 
-# bring in spatial data
-# read in spatial data with PU id's and background files
+# Bring in spatial data; here we have only PU id and remove other data
 pu_data <- optimTFE::units_spp_suit
 pu_data <- pu_data |>
   select(-c(2:37))
@@ -160,13 +159,11 @@ pu_ct_freq_map(solution_output = sample_sols100 , pu_spatial_data = pu_data)
 ```
 
 Next we may want to plot a single solution. Here we will plot one with a minimum
-planning unit count, and identify a solution from the sols_unit_ct object generated
-using the solutions_unit_ct function.
-Note, the solution number here will be different from ones generated in future examples.
+planning unit count.
 
 ```{r Plot single solution, fig.width=8.25, fig.height=6, fig.show='asis'}
-# Assign solution_number; optional.
-solution_number <- 24
+# Assign solution_number based on output from .
+solution_number <- min_solutions[[1]][1]
 map_sol_min <- single_solution_map(solution_number, sample_sols100, pu_data)
 ```
 
@@ -184,10 +181,7 @@ tool later.)
 # You must read in the solutions file as a data.frame; solution number is the solution to evaluate; meta_filepath is the filepath to the solutions.meta file.
  # All 0s are NAs unless you convert them.
 
-# Again I will use solution 44 as an example:
-sol44_suit_values <- solution_suit_values(44, sample_sols100, file.path("./output", "solutions.meta"))
-
-
+sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
 ```
 Next let's get the suitability values for features that were selected for within a given planning unit.
 For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate
@@ -198,7 +192,7 @@ In contrast, the previous calculation gave the suitability across all species th
 The first input comes from the output of solution_suit_values, here it is sol44. If you do not want to use that input, your input dataframe must include the unit_id column first, and remaining columns are the feature columns with 1s and 0s from the solution output file.
 
 ```{r Generate species suitability list for target units only}
-sol44_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
+sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
 ```
 Now let's generate some metrics about solutions so we can compare.
 We will read-in .shp or .gpkg file with unit_id as the first column and the rest
