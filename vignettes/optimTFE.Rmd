@@ -14,7 +14,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
+library(klippy)
+```
 ## Introduction
 The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
 managers identify priority recovery areas, represented by planning units (PUs),
@@ -43,7 +46,6 @@ library(dplyr)
 library(ggplot2)
 library(htmltools)
 library(htmlwidgets)
-library(klippy)
 library(leaflet)
 library(leaflet.providers)
 library(optimTFE)
@@ -54,9 +56,6 @@ library(tidyverse)
 ```
 ```{r hidden unlink project dir RE output folder errors, echo=FALSE}
 unlink(file.path(project_dir, "output"), recursive = TRUE)
-```
-```{r klippy, echo=FALSE, include=TRUE}
-klippy::klippy()
 ```
 Now we will bring in our file with species suitability values by planning unit.
 Here our example is with a spatial dataset and we need to create a .csv.
@@ -117,14 +116,13 @@ The rest of vignette explores the solutions dataset through summary statistics a
 inclusion of associated spatial data.
 If >100,000 solutions were generated, and depending on computer RAM, subsetting
 solutions before creating many summary statistics may reduce run time.
-
 If you did not save the solutions output as an object, read it in now.
 The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
 
 ```{r Solution summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # read in solution output if not already in environment
-# sample_sols100 <- read.csv(file.path("./output", "solutions.csv"))
+# sample_sols100 <- read.csv(file.path(project_dir, "output", "solutions.csv"))
 
 # create a dataframe of number of unique solutions
 unique_sols <- unique_solution_ct(sample_sols100)
@@ -181,7 +179,7 @@ tool later.)
 # You must read in the solutions file as a data.frame; solution number is the solution to evaluate; meta_filepath is the filepath to the solutions.meta file.
  # All 0s are NAs unless you convert them.
 
-sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
+sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
 Next let's get the suitability values for features that were selected for within a given planning unit.
 For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate
@@ -189,10 +187,12 @@ suitability only for the 1s.
 In contrast, the previous calculation gave the suitability across all species that had suitability values
 > 0.
 
-The first input comes from the output of solution_suit_values, here it is sol44. If you do not want to use that input, your input dataframe must include the unit_id column first, and remaining columns are the feature columns with 1s and 0s from the solution output file.
+The first input comes from the output of solution_suit_values. If you do not want
+to use that input, your input dataframe must include the unit_id column first, and
+remaining columns are the feature columns with 1s and 0s from the solution output file.
 
 ```{r Generate species suitability list for target units only}
-sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path("./output", "solutions.meta"))
+sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
 Now let's generate some metrics about solutions so we can compare.
 We will read-in .shp or .gpkg file with unit_id as the first column and the rest
@@ -202,16 +202,16 @@ reserve, percent of unit considered 'good' quality habitat, etc.
 
 You will need to determine how to summarize your data, and provided below is an example.
 
-```{r Setup dataset and create a solution summary with selection metrics}
-# The all_sols_metrics object created will be used in the optimTFE.explorer tool.
-# read in variables that are aggregated at the unit_id level; again, unit_id must
-# be the first column.
+```{r Setup associated metrics and create a solution summary}
+# The all_sols_metrics object created will be used in the optimTFE_explorer tool.
+# Read in variables that are aggregated at the unit_id level.
+# unit_id must be the first column.
 
 PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optimTFE"))
-# get rid of any unneccessary columns and keep track of order/naming
+# Get rid of any unneccessary columns and keep track of order/naming
 
-# Merge to get all summary data and solution info, and spatial data. This could get
-# big, so it may be prudent to subset based on footprint unit count or other important metric.
+# Now we will merge to get all summary data and solution info, and spatial data. This could get
+# big, so it may be prudent to subset based on footprint unit count or other important metrics.
 
 # Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
 # (area, conservation lands, etc.)
@@ -243,7 +243,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
   )
 # Optional: Export as .csv for running the solutions explorer tool later. This is the
 # column structure needed as input.
-write.csv(all_sols_metrics, "./output/sample_sols100_metrics.csv")
+write.csv(all_sols_metrics, file.path(project_dir, "output", "sample_sols100_metrics.csv"))
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
@@ -251,17 +251,17 @@ sol_metrics <- names(all_sols_metrics[2:8])
 # Then run metrics_top_solutions function to generate dateframe with min, max, or both
 # for each metric across all solutions
 max_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = max)
-min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = min)
+head(max_sol_calcs)
 
+min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = min)
 ```
 
-Plot a solution and show where the solution falls compared to the rest of the values
-across all solutions, and the top 10% of all solutions.
-
+Plot a solution and show where it falls compared to all solutions, and the top 10%
+of all solutions, for a given metric.
 ```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# plot a footprint to see how it compares to other solutions for the percent of the footprint with 'good habitat'
-# We will use the dataframe generated above with metrics for each solution (all_sols_metrics)
+# Metric we are evaluating is native habitat denoted as 'good_hab_mean_pct.'
+# We will use the dataframe generated above with metrics for each solution (all_sols_metrics).
 
-plot_my_metric <- plot_solution_metric(2, all_sols_metrics, "good_hab_mean_pct", 0.9)
+plot_my_metric <- plot_solution_metric(solution_number, all_sols_metrics, "good_hab_mean_pct", 0.9)
 plot_my_metric
 ```

@@ -93,6 +93,7 @@ mod_sidebar_server <- function(id, rv){
     # dynamic observers ----
     observers <- reactiveValues()
     observeEvent(rv$selected_stats, ignoreNULL = F, {
+
       ## Delete unused observers ----
       toRemove <- setdiff(rv$observers, rv$selected_stats)
       for(i in seq_along(toRemove)){
@@ -159,6 +160,7 @@ mod_sidebar_server <- function(id, rv){
         )
       # Update solution picker
       rv$selected_solution <- rv$ranks$solution[1]
+
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "selected_solution",

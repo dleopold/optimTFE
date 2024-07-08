@@ -8,7 +8,7 @@ app_ui <- function(request) {
   tagList(
     golem_add_external_resources(),
     bslib::page_sidebar(
-      title = "optimTFE.explorer",
+      title = "optimTFE_explorer",
       theme = bslib::bs_theme(
         version = 5,
         bootswatch = "yeti"
@@ -41,7 +41,7 @@ golem_add_external_resources <- function() {
     favicon(),
     bundle_resources(
       path = app_sys("app/www"),
-      app_title = "optimTFE.explorer"
+      app_title = "optimTFE_explorer"
     ),
     shinyjs::useShinyjs()
   )

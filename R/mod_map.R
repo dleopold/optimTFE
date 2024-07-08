@@ -69,7 +69,6 @@ mod_map_server <- function(id, rv){
           dplyr::filter(solution == .x) |>
           dplyr::pull(units) |>
           jsonlite::fromJSON()
-
         rv$spatial |>
           dplyr::filter(PU_num %in% units)
       })

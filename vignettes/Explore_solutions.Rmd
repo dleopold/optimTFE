@@ -1,40 +1,46 @@
 ---
 title: "Explore solutions"
-author: "Christina Leopold"
+author: "Devin Leopold, Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Explore solutions}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
+  #set directory
 )
 ```
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
+library(klippy)
+```
 ## Solution explorer tool
-# Evaluate tradeoffs across solution metrics
-Here we can evaluate tradeoffs across metrics other than footprint size and frequency
-of planning unit selection across all solutions. For example, we can understand the
-amount of a solution within existing conservation lands, proportion of a solution that
-occurs within fenced areas or native habitat.
+### Evaluate tradeoffs across solution metrics
+Here we can evaluate tradeoffs across metrics across all solutions. For example,
+we can understand the amount of a solution within existing conservation lands, proportion of a solution that occurs within fenced areas or native habitat, etc.
 
-There must be a file with metrics of interest associated with each planning unit
-in order to run this tool. These values can be calculated using zonal statistics or intersections.
-See the example dataset for setup: PU_metrics.gpkg
+in order to run the explorer tool there must be a file with metrics of interest
+associated with each planning unit. These values can be calculated using zonal
+statistics or intersections.
+See the example dataset for pre-processing setup: PU_metrics.gpkg
 
-## Load libraries for running the explorer tool
+## Load libraries for running the explorer tool and set project directory
 
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
-library(optimTFE)
 library(dplyr)
+library(optimTFE)
 library(sf)
 library(tidyr)
+
+project_dir <- "C:/optimTFE_final"
 ```
 
-## Gather datasets needed.
+## Gather datasets needed
 This includes the pu_data spatial file with the planning unit id column and the 
 solution summary metrics .csv file created from the 'all_sols_metrics' object in
 the optimTFE vignette. Below also demonstrates how to create the files.
@@ -46,11 +52,12 @@ PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optim
 # Merge to get all summary data and solution info, and spatial data. This could get
 # big,so you may want to subset based on footprint unit count, etc.
 
-# Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
+# Keep unit_id and solution as columns 1 and 2 followed by columns for getting summary stats 
 # (pu area, conservation lands, etc.)
 
 # Load sample_sols100 if not already in the environment; this is in the output folder
 # created after running the optimTFE algorithm.
+sample_sols100 <- read.csv(file.path(project_dir, "output", "solutions.csv"))
 
 sample_sols100_metrics <- left_join(PU_metrics, sample_sols100, by = c("PU_num" = "unit_id"))
 # renaming so we can pull spatial data later if desired
@@ -79,8 +86,7 @@ solutions_metrics <- sample_sols100_metrics_df |>
   )
 # This is the column structure needed as input!
 
-# write.csv(solutions_metrics, file.path(path, "sample_sols100_metrics.csv" ))
-
+# write.csv(solutions_metrics, file.path(project_dir, "output", "sample_sols100_metrics.csv" ))
 ```
 ## Create input dataset formatted for the optimTFE explorer
 You will need two files:
@@ -89,26 +95,37 @@ You will need two files:
 
 ```{r Create solution summary file, warning=FALSE, echo=FALSE}
 # If solutions metrics file was already created in optimTFE vignette, read-in dataset:
-# solutions_metrics <- read.csv(file.path(dir, "dev", "sample_sols100_metrics.csv")) |> dplyr::select(-X)
+# solutions_metrics <- read.csv(file.path(project_dir, "output", "sample_sols100_metrics.csv"))|> dplyr::select(-X)
 # solution output file from optimTFE algorithm
-solutions <- read.csv(file.path(dir, "dev", "example_solution_file.csv")) # replace dir with output folder if needed
-sols_for_explorer <- solutions |>
+sample_sols100 <- read.csv(file.path(project_dir, "output", "solutions.csv"))
+sols_for_explorer <- sample_sols100 |>
   dplyr::summarise(
     units = as.character(jsonlite::toJSON(unit_id)),
     .by = "solution"
-  ) |>
-  dplyr::left_join(solution_metrics, by = "solution")
-write.csv(sols_for_explorer, "dev/summary_by_solution.csv", row.names = FALSE)
+  )
+sols_for_explorer <- sols_for_explorer |>
+  dplyr::left_join(solutions_metrics, by = "solution")
+write.csv(sols_for_explorer, file.path(project_dir, "output", "summary_by_solution.csv"), row.names = FALSE)
 ```
 
 ## Open the explorer
 
-# It will require two input files
-1) Solution summary file: summary_by_solution.csv created in line 95 or previously
-2) Spatial data file: shapefile or geopackage with column labeled PU_num indicating planning unit IDs
+### It will require two input files
+1) Solution summary file: summary_by_solution.csv created in line 99
+2) Spatial data file: shapefile or geopackage ** with column labeled PU_num ** indicating
+planning unit IDs
 
-```{r Open Explorer, warning=FALSE, message=FALSE}
+The loaded page appears here.
+```{r Open Explorer, warning=FALSE, message=FALSE, eval = FALSE}
 explore_solutions()
-
-# 
 ```
+```{r webtool open, echo=F, out.width = "500px", fig.align="center"}
+knitr::include_graphics("open_webtool.PNG")
+```
+
+Next, load the two files into the tool.
+
+```{r load data files, echo=F, out.width = "500px", fig.align="center"}
+knitr::include_graphics("load_data_files.PNG")
+```
+

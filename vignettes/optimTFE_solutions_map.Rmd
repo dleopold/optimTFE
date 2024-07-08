@@ -20,7 +20,10 @@ conservation footprints generated from the optimTFE algorithm.
 We will use the solutions output generated from the algorithm, and then additional
 spatial data of interest.
 There is an option to generate an html document for sharing the map.
-
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
+library(klippy)
+```
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 # Load libraries
@@ -69,6 +72,6 @@ create_solution_interactive_map(solution_result_file = solution_file, original_P
 
 # To save a shareable .html conservation footprint, add and define 'save_HTML_loc = '
 # Example:
-# create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=21, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint21.html"))
+# create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=856, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint856.html"))
 ```
 
