@@ -265,3 +265,7 @@ of all solutions, for a given metric.
 plot_my_metric <- plot_solution_metric(solution_number, all_sols_metrics, "good_hab_mean_pct", 0.9)
 plot_my_metric
 ```
+We have more advanced tools for visually exploring solutions further:
+Explore_footprints vignette for exploring metrics across all solutions; and
+Footprint_map vignette for exploring target and landscape metrics of a single
+solution.

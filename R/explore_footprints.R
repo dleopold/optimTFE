@@ -7,7 +7,7 @@
 #' @export
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
-explore_solutions <- function(
+explore_footprints <- function(
   onStart = NULL,
   options = list(),
   enableBookmarking = NULL,

@@ -1,9 +1,9 @@
 #################################################
 ####webmap!
 #################################################
-#' Create Solution Interactive Map
+#' Create Interactive Map
 #'
-#' Generates an interactive map visualizing conservation solutions and
+#' Generates an interactive map visualizing conservation footprints and
 #' additional layers specified by the user.
 #'
 #' @param solution_result_file A .csv optimTFE output dataframe containing the solution results.
@@ -17,7 +17,7 @@
 #' @export
 #'
 
-create_solution_interactive_map=function(solution_result_file, original_PU_polygons,
+create_interactive_map=function(solution_result_file, original_PU_polygons,
                                          selected_sol_index, auxiliaryLayers=NULL, map_individual_spp=NULL, save_HTML_loc=NULL){
   solution <- subset(solution_result_file, solution==selected_sol_index) # subset specific solution
   sol1 <- original_PU_polygons %>%

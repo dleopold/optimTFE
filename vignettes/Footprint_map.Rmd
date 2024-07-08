@@ -1,9 +1,9 @@
 ---
-title: "Interactive solution map"
+title: "Interactive footprint map"
 author: "Lucas Berio Fortini"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Interactive solution map}
+  %\VignetteIndexEntry{Interactive footprint map}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -63,15 +63,15 @@ map_spp <- list(
 
 
 ```{r Create a conservation footprint map, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# Solution 100 showing conservation footprint; set solution number.
-create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=21)
+# Conservation footprint showing conservation footprint; set solution number manually.
+create_interactive_map(solution_file, PU_polygons, selected_sol_index=21)
 
 # Solution 53 showing conservation footprint with auxiliary layers
-create_solution_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=21, map_individual_spp = map_spp)
+create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=21, map_individual_spp = map_spp)
 
 
 # To save a shareable .html conservation footprint, add and define 'save_HTML_loc = '
 # Example:
-# create_solution_interactive_map(solution_file, PU_polygons, selected_sol_index=856, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint856.html"))
+# create__interactive_map(solution_file, PU_polygons, selected_sol_index=856, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint856.html"))
 ```
 
