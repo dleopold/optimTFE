@@ -32,12 +32,14 @@ See the example dataset for pre-processing setup: PU_metrics.gpkg
 ### Load libraries for running the explorer tool and set project directory
 
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
+# Set directory
+project_dir <- "C:/optimTFE_final"
+
+# Load packages
 library(dplyr)
 library(optimTFE)
 library(sf)
 library(tidyr)
-
-project_dir <- "C:/optimTFE_final"
 ```
 
 ### Gather datasets needed
