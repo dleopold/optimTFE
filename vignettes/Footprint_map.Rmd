@@ -17,11 +17,11 @@ klippy::klippy()
 library(klippy)
 ```
 ### Introduction
-This vignette will demonstrate how to create a leaflet application to display
-conservation footprints generated from the optimTFE algorithm.
+This vignette will demonstrate how to create a leaflet application to display a
+conservation footprint generated from the optimTFE algorithm.
 We will use the solutions output generated from the algorithm, and then additional
 spatial data of interest.
-There is an option to generate an html document for sharing the map.
+*Note: There is an option to generate an html document for sharing the map.
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
 # Set directory
@@ -40,11 +40,12 @@ library(htmlwidgets)
 
 #### Bring in datasets
 Datasets to create the footprint map include the solutions output, planning unit polygon data,
-and additional auxiliary layers such conservation lands, maps of native or invasive habitat, etc.
-Note: Currently this map can only accept .shp or .gpkg spatial data.
-We can also map selected units of individual species in the map using the solutions output.
+and additional spatial data such existing conservation lands, native habitat, etc.  
+All files of interest need to be added to this list.  
+**Note:** Currently this tool can only accept .shp or .gpkg spatial data.
+We can also map selected PUs of individual species in the map using the solutions output.
 Use the species names as listed in the PU_polygons file to plot correctly on the map.
-```{r Setup datasets, echo=FALSE}
+```{r Setup datasets, echo=TRUE}
 
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
 solution_file <- read.csv(file.path(project_dir, "output", "solutions.csv"))
@@ -59,19 +60,49 @@ map_spp <- list(
   list(species = "sp_12", hidden=T),
   list(species = "sp_29", hidden=T)
 )
-
 ```
 
 #### Create a conservation footprint map
-```{r Create a conservation footprint map, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
+```{r Create a conservation footprint map, warning=FALSE, message=FALSE, eval = FALSE}
 # Conservation footprint showing conservation footprint; set solution number manually.
-create_interactive_map(solution_file, PU_polygons, selected_sol_index=21)
-
-# Solution 53 showing conservation footprint with auxiliary layers
-create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=21, map_individual_spp = map_spp)
-
-
-# To save a shareable .html conservation footprint, add and define 'save_HTML_loc = '
-# Example:
-# create__interactive_map(solution_file, PU_polygons, selected_sol_index=856, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint856.html"))
+create_interactive_map(solution_file, PU_polygons, selected_sol_index=35)
 ```
+```{r basic footprint open, echo=F, out.width = "650px", fig.align="center"}
+knitr::include_graphics("leaflet_map_basic.PNG")
+```
+
+#### Create footprint map with target species PUs displayed
+It is possible to toggle on and off the PUs selected for a given set of species
+by ticking the 'map_individual_species' box in the upper right legend. 
+```{r footprint map with species list, warning=FALSE, message=FALSE, eval = FALSE}
+# Solution 35 showing conservation footprint and individual species target distributions
+create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=35, map_individual_spp = map_spp)
+```
+```{r show map of footprint with map_individual_spp, echo=F, out.width = "650px", fig.align="center"}
+knitr::include_graphics("target_species_highlight.PNG")
+```
+
+#### Create heatmap of species within each PU
+Tick the option 'Number of target species' in the upper right legend to view a heatmap
+of species within a selected footprint.
+```{r num_target_species, echo=F, out.width = "650px", fig.align="center"}
+knitr::include_graphics("num_target_species.PNG")
+```
+
+#### Create a conservation footprint map with target species and additional spatial data
+Include the 'add_auxiliary_layers' option to the create_interactive_map function
+to add context to a footprint. The image below shows a conservation footprint with 
+a map of existing native habitat.
+```{r Create footprint map with target species list and additional spatial data, warning=FALSE, message=FALSE, eval=FALSE}
+# Solution 35 showing conservation footprint, additional spatial layers for reference,
+# and individual species target distributions
+create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons,
+                       auxiliaryLayers = native_cons_lands,  selected_sol_index=35, map_individual_spp = map_spp)
+```
+```{r footprint map with native habitat map overlay, echo=F, out.width = "650px", fig.align="center"}
+knitr::include_graphics("native_habitat_footprint.PNG")
+```
+
+**To save a shareable .html conservation footprint, add and define 'save_HTML_loc = '**  
+Example:
+create__interactive_map(solution_file, PU_polygons, selected_sol_index=35, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path(project_dir, "footprint35.html"))
