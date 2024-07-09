@@ -1,6 +1,5 @@
 ---
 title: "Explore conservation footprints"
-author: "Authors: Devin Leopold, Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Explore conservation footprints}
@@ -19,19 +18,19 @@ knitr::opts_chunk$set(
 klippy::klippy()
 library(klippy)
 ```
-## Conservation footprint explorer tool
-### Evaluate tradeoffs across footprint metrics
-Here we can evaluate tradeoffs across metrics across all conservation footprints
-generated. For example, we can understand the amount of a footprint within existing
-conservation lands, proportion of a footprint that occurs within fenced areas or native
-habitat, etc.
+### Conservation footprint explorer tool: Evaluate tradeoffs across footprint metrics
+Here we can evaluate tradeoffs across all conservation footprints using metrics useful
+to conservation practitioners.  
+For example, we can understand the amount of a footprint that occurs within existing
+conservation lands, the proportion of a footprint that occurs within fenced areas
+or native habitat, etc.
 
 In order to run the explorer tool there must be a file with metrics of interest
 associated with each planning unit. These values can be calculated using zonal
-statistics or intersections.
+statistics or intersections.  
 See the example dataset for pre-processing setup: PU_metrics.gpkg
 
-## Load libraries for running the explorer tool and set project directory
+### Load libraries for running the explorer tool and set project directory
 
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 library(dplyr)
@@ -42,7 +41,7 @@ library(tidyr)
 project_dir <- "C:/optimTFE_final"
 ```
 
-## Gather datasets needed
+### Gather datasets needed
 This includes the pu_data spatial file with the planning unit id column and the 
 solution summary metrics .csv file created from the 'all_sols_metrics' object in
 the optimTFE vignette. Below also demonstrates how to create the files.
@@ -90,10 +89,10 @@ solutions_metrics <- sample_sols100_metrics_df |>
 
 # write.csv(solutions_metrics, file.path(project_dir, "output", "sample_sols100_metrics.csv" ))
 ```
-## Create input dataset formatted for the optimTFE explorer
-You will need two files:
-1) Solution summary metrics file created above or from the optimTFE vignette
-2) Solution output file generated from running the optimTFE algorithm.
+### Create input dataset formatted for the optimTFE explorer
+You will need two files:  
+1) Solution summary metrics file created above or from the optimTFE vignette  
+2) Solution output file generated from running the optimTFE algorithm
 
 ```{r Create solution summary file, warning=FALSE, echo=FALSE}
 # If solutions metrics file was already created in optimTFE vignette, read-in dataset:
@@ -110,50 +109,50 @@ sols_for_explorer <- sols_for_explorer |>
 write.csv(sols_for_explorer, file.path(project_dir, "output", "summary_by_solution.csv"), row.names = FALSE)
 ```
 
-## Open the explorer
+### Open the explorer
 
-### It will require two input files
-1) Solution summary file: summary_by_solution.csv created in line 99
-2) Spatial data file: shapefile or geopackage ** with column labeled PU_num ** indicating
+#### It will require two input files
+1\) Solution summary file: summary_by_solution.csv created in line 99  
+2\) Spatial data file: shapefile or geopackage ** with column labeled PU_num ** indicating
 planning unit IDs
 
-The loaded page appears here.
 ```{r Open Explorer, warning=FALSE, message=FALSE, eval = FALSE}
 explore_solutions()
 ```
-```{r webtool open, echo=F, out.width = "500px", fig.align="center"}
+```{r webtool open, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("open_webtool.PNG")
 ```
 
 Next, load the two files into the tool.
 
-```{r load data files, echo=F, out.width = "500px", fig.align="center"}
+```{r load data files, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("load_data_files.PNG")
 ```
 
 Now we can see the loaded metrics. Here is an example with two selected. The drop-down
 menu on the bottom left shows the top-ranked conservation footprint when we balance
-for a footprint across two metrics. 
+across two metrics.  
 The top-ranked footprint is presented in the map and the dashed red line in the graphs
-show where the selection metrics fall across all solutions.
-The bottom drop-down menu allows for selection of multiple solutions. Doing so will
-add a dashed line for each solution. PU transparency will change on the map according
-to the number of selected solutions with overlap.
+show where the selection metrics fall across all footprints.  
+The bottom drop-down menu allows for selection of multiple footprints. Doing so will
+add a dashed line for each footprint. PU transparency will change on the map according
+to the number of selected footprints with overlap.  
+
 *Note the check box beneath each metric which allows for selecting descending rank
 order.
-```{r include metrics, echo=F, out.width = "500px", fig.align="center"}
+```{r include metrics, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("metrics_descending_rank_order_option.PNG")
 ```
 
 There is a slider bar for each metric that allows users to custom-weight metrics
-and evaluate tradeoffs in footprints.
+and evaluate tradeoffs in footprints.  
 Default sets all values to 1, which evenly selects across all metrics. Reduce the
-slider value to reduce to weight.
+slider value to reduce to weight.  
 In this example there is a third metric of accessibility, and the sliders have been
 adjusted. There are also three footprints mapped, as displayed in the 'selected solutions'
 drop-down menu on the bottom left.
 
-```{r slider bars, echo=F, out.width = "500px", fig.align="center"}
+```{r slider bars, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("mult_footprints_slider_used.PNG")
 ```
 
