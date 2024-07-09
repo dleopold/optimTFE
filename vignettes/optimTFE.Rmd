@@ -1,13 +1,11 @@
 ---
 title: "optimTFE: Create conservation footprints and generate summary data"
-author: "Package authors: Devin Leopold, Christina Leopold and Lucas Berio Fortini"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{optimTFE: Create conservation footprints and generate summary data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -18,20 +16,19 @@ knitr::opts_chunk$set(
 klippy::klippy()
 library(klippy)
 ```
-## Introduction
+### Introduction
 The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
 managers identify priority recovery areas, represented by planning units (PUs),
-for species recovery planning efforts.
+for species recovery planning efforts.  
 
 This vignette will demonstrate how to bring in data for use in the optimTFE algorithm
 to generate conservation solutions, which we refer to as conservation footprints.
 It will then provide examples of how to generate relevant summary statistics in 
-order to explore conservation footprints and tradeoffs.
+order to explore conservation footprints and tradeoffs.  
 We also provide a vignette demonstrating how to visually explore metrics of interest
-across generated footprints using an interactive shiny tool.
-Another vignette demonstrates how to generate an interactive leaflet application 
-for visually exploring species-specific and PU-specific qualities of a conservation
-footprint.
+across generated footprints using an interactive shiny tool. Another vignette demonstrates
+how to generate an interactive leaflet application for visually exploring species-specific
+and PU-specific qualities of a conservation footprint.
 
 First, we will attach the packages needed for the example. Then we will use a
 sample dataset to generate input files needed for the optimTFE algorithm and
@@ -58,12 +55,11 @@ library(tidyverse)
 unlink(file.path(project_dir, "output"), recursive = TRUE)
 ```
 Now we will bring in our file with species suitability values by planning unit.
-Here our example is with a spatial dataset and we need to create a .csv.
+Here our example is with a spatial dataset and we need to create a .csv.  
 The .csv file should include ONLY the planning unit column (first), and then
 species suitability values for each species/feature for each unit,
-e.g. sp_01, sp_01, etc. Ensure there is also a .csv with species targets, and
+e.g. sp_01, sp_02, etc. Ensure there is also a .csv with species targets, and
 other input files as desired.
-
 
 ```{r species suitabtility}
 spp_suit <- optimTFE::units_spp_suit
@@ -77,19 +73,17 @@ spp_suit_df <- spp_suit |>
 # write the species suitability file as a .csv and save:
 # write.csv(spp_suit_df, file = "spp_suitability.csv", row.names = FALSE)
 ```
-## Generate solutions
-
-We are ready to run the optimization algorithm.
+#### Generate footprints
+We are ready to run the optimization algorithm.  
 This example uses existing species suitability and target files. Examine these datasets
-to understand how to setup algorithm inputs. These are similar to other SCP tools.
-Input files must be in .csv format. Supply filepaths in the algorithm function.
+to understand how to setup algorithm inputs; these are similar to other SCP tools.  
+Input files must be in .csv format. Supply filepaths in the algorithm function.  
 The console will print statements or errors related to the optimization run.
 ```{r Run optimization, echo=TRUE, cache=F}
 # Simple optimization with only suitability values and targets, without
 # subregion targets. Number of iterations = 100. Random tolerance is set to 5,
 # includes only units for a given species if the suitability score value is >= 0.1.
 # Note that we call the saved spp_suitability.csv created above.
-
 sample_sols100 <- optimTFE(
                   dir = project_dir,
                   spp_targets_fn = system.file("extdata", "targets.csv", package = "optimTFE"),
@@ -103,37 +97,37 @@ sample_sols100 <- optimTFE(
 
 ```
 
-Take a look at the solutions output. Note that the first column is named
+Take a look at the solutions.csv output. Note that the first column is named
 unit_id. The select_order column indicates the order in which a planning unit
-was selected for the solution. Species columns indicate whether a unit was
+was selected for the footprint. Species columns indicate whether a unit was
 selected for (1) within a given unit_id.
-```{r view solutions}
+```{r view footprints}
 head(sample_sols100, 5)
 ```
-## Generate summary information
+#### Generate summary information
 
-The rest of vignette explores the solutions dataset through summary statistics and
-inclusion of associated spatial data.
+The rest of the vignette explores the solutions dataset through summary statistics and
+inclusion of associated spatial data.  
 If >100,000 solutions were generated, and depending on computer RAM, subsetting
-solutions before creating many summary statistics may reduce run time.
-If you did not save the solutions output as an object, read it in now.
+before creating many summary statistics may reduce run time.  
+If you did not save the solutions output as an object, read it in now.  
 The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
 
-```{r Solution summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# read in solution output if not already in environment
+```{r Footprint summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
+# Read in solution output if not already in environment
 # sample_sols100 <- read.csv(file.path(project_dir, "output", "solutions.csv"))
 
-# create a dataframe of number of unique solutions
+# Create a dataframe of number of unique solutions
 unique_sols <- unique_solution_ct(sample_sols100)
 head(unique_sols)
 
-# get planning unit count for each solution; range prints in console
+# Get planning unit count for each solution; range prints in console
 sols_unit_ct <- solutions_unit_ct(sample_sols100)
 
-# find solutions with minimum unit counts
+# Find solutions with minimum unit counts
 min_PU_ct <- min(sols_unit_ct$PU_ct)
-# print solutions with minimum PU counts
+# Print solutions with minimum PU counts
 min_solutions <- sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ]
 cat("Solution numbers with the minimum PU_count:\n", paste(min_solutions$solution, collapse = "\n"))
 
@@ -150,38 +144,37 @@ PU_ct_freq <- all_solutions_freq(sols_unit_ct)
 plot_solutions_freq(PU_ct_freq)
 
 ```
-Now we can take a look at a map of the planning unit count frequencies across all solutions.
+Now we can take a look at a map of the planning unit count frequencies across all conservation footprints.
 
-```{r Plot frequency of planning units across all solutions, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
+```{r Plot frequency of planning units across all footprints, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 pu_ct_freq_map(solution_output = sample_sols100 , pu_spatial_data = pu_data)
 ```
 
-Next we may want to plot a single solution. Here we will plot one with a minimum
+Next we may want to plot a single footprint. Here we will plot one with a minimum
 planning unit count.
-
-```{r Plot single solution, fig.width=8.25, fig.height=6, fig.show='asis'}
+```{r Plot single footprint, fig.width=8.25, fig.height=6, fig.show='asis'}
 # Assign solution_number based on output from .
 solution_number <- min_solutions[[1]][1]
 map_sol_min <- single_solution_map(solution_number, sample_sols100, pu_data)
 ```
 
-Next let's generate habitat suitability values for each species within a given solution.
+Next let's generate habitat suitability values for each species within a given footprint.  
 Conservation practitioners may prefer a larger footprint than a minimum size if it
-yields habitat more suited to species to be recovered.
+yields habitat more suited to species to be recovered.  
 Now we can explore this tradeoff.
 We will again use the optimTFE solutions output as well as the solution number of
-interest, and the metadata filepath.
-This function calculates one solution at a time, as it could be computationally 
-consuming with >10,000 solutions. (And we create them collectively as part of another evaluation
+interest, and the metadata filepath.  
+This function calculates one footprint at a time, as it could be computationally 
+consuming with >10,000 footprints. (And we create them collectively as part of another evaluation
 tool later.)
 
-```{r Get suitability values for input features for a given solution, echo=FALSE}
+```{r Get suitability values for input features for a given footprint, echo=FALSE}
 # You must read in the solutions file as a data.frame; solution number is the solution to evaluate; meta_filepath is the filepath to the solutions.meta file.
  # All 0s are NAs unless you convert them.
 
 sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
-Next let's get the suitability values for features that were selected for within a given planning unit.
+Next let's get the suitability values for features that were selected for within a given planning unit.  
 For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate
 suitability only for the 1s. 
 In contrast, the previous calculation gave the suitability across all species that had suitability values
@@ -194,14 +187,13 @@ remaining columns are the feature columns with 1s and 0s from the solution outpu
 ```{r Generate species suitability list for target units only}
 sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
-Now let's generate some metrics about solutions so we can compare.
+Now let's generate some metrics about footprints so we can compare.
 We will read-in .shp or .gpkg file with unit_id as the first column and the rest
-have metrics of interest for selecting a solution. For example, this dataset has 
+have metrics of interest for selecting a footprint. For example, this dataset has 
 area_km2 because units are not uniform, percent of unit within an existing conservation
 reserve, percent of unit considered 'good' quality habitat, etc.
 
 You will need to determine how to summarize your data, and provided below is an example.
-
 ```{r Setup associated metrics and create a solution summary}
 # The all_sols_metrics object created will be used in the optimTFE_explorer tool.
 # Read in variables that are aggregated at the unit_id level.
@@ -210,21 +202,20 @@ You will need to determine how to summarize your data, and provided below is an 
 PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optimTFE"))
 # Get rid of any unneccessary columns and keep track of order/naming
 
-# Now we will merge to get all summary data and solution info, and spatial data. This could get
+# Now we will merge to get all summary data and solution info with spatial data. This could get
 # big, so it may be prudent to subset based on footprint unit count or other important metrics.
 
 # Keep unit_id and solution as columns 1 and 2, and columns for getting summary stats 
 # (area, conservation lands, etc.)
 
 sample_sols100_metrics <- left_join(PU_metrics, sample_sols100, by = c("PU_num" = "unit_id"))
-# renaming so we can pull spatial data later if desired
+# Renaming so we can pull spatial data later if desired
 sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
   relocate(solution, .after = PU_num) |>
   select(-c(select_order, geom))
-# confirm no geometry or geom column
+# Confirm no geometry or geom column
 
 # Make a new df, summarized by solution number. Get solution-level metrics:
-# example of creating summary metrics:
 all_sols_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
@@ -241,7 +232,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
     FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
     accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
   )
-# Optional: Export as .csv for running the solutions explorer tool later. This is the
+# Optional: Export as .csv for running the explore footprints tool later. This is the
 # column structure needed as input.
 write.csv(all_sols_metrics, file.path(project_dir, "output", "sample_sols100_metrics.csv"))
 
@@ -256,16 +247,16 @@ head(max_sol_calcs)
 min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = min)
 ```
 
-Plot a solution and show where it falls compared to all solutions, and the top 10%
-of all solutions, for a given metric.
-```{r Plot distribution of solutions across metrics compared to a single solution, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
-# Metric we are evaluating is native habitat denoted as 'good_hab_mean_pct.'
-# We will use the dataframe generated above with metrics for each solution (all_sols_metrics).
+Plot a footprint and show where it falls compared to all footprints, and the top 10%
+of all footprints, for a given metric.
+```{r Plot distribution of footprints across metrics compared to a single footprint, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
+# The metric we are evaluating is native habitat denoted as 'good_hab_mean_pct.'
+# We will use the dataframe generated above with metrics for each footprint (all_sols_metrics).
 
 plot_my_metric <- plot_solution_metric(solution_number, all_sols_metrics, "good_hab_mean_pct", 0.9)
 plot_my_metric
 ```
-We have more advanced tools for visually exploring solutions further:
-Explore_footprints vignette for exploring metrics across all solutions; and
-Footprint_map vignette for exploring target and landscape metrics of a single
-solution.
+We have more advanced tools for visually exploring footprints further:  
+1. Explore_footprints vignette for exploring metrics across all footprints; and
+2. Footprint_map vignette for exploring target and landscape metrics of a single
+footprint.

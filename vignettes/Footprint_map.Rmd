@@ -1,32 +1,33 @@
 ---
 title: "Interactive footprint map"
-author: "Lucas Berio Fortini"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Interactive footprint map}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
-## Introduction
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy()
+library(klippy)
+```
+### Introduction
 This vignette will demonstrate how to create a leaflet application to display
 conservation footprints generated from the optimTFE algorithm.
 We will use the solutions output generated from the algorithm, and then additional
 spatial data of interest.
 There is an option to generate an html document for sharing the map.
-```{r klippy, echo=FALSE, include=TRUE}
-klippy::klippy()
-library(klippy)
-```
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(warning = FALSE)
-# Load libraries
+# Set directory
+project_dir <- "C:/optimTFE_final"
+
+# Load packages
 library(optimTFE)
 library(sf)
 library(dplyr)
@@ -37,17 +38,18 @@ library(htmltools)
 library(htmlwidgets)
 ```
 
-## Bring in datasets
-Datasets to create the solution map include the solutions output,planning unit polygon data,
+#### Bring in datasets
+Datasets to create the footprint map include the solutions output, planning unit polygon data,
 and additional auxiliary layers such conservation lands, maps of native or invasive habitat, etc.
+Note: Currently this map can only accept .shp or .gpkg spatial data.
 We can also map selected units of individual species in the map using the solutions output.
+Use the species names as listed in the PU_polygons file to plot correctly on the map.
 ```{r Setup datasets, echo=FALSE}
 
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
-solution_file <- read.csv(system.file("extdata", "example_solution_file.csv", package = "optimTFE"), header = T)
-# .csv with all solution results; directory set in optimTFE.Rmd example line 60
+solution_file <- read.csv(file.path(project_dir, "output", "solutions.csv"))
 
-PU_polygons <- read_sf(system.file("extdata", "units_spp_suit.gpkg", package = "optimTFE")) #spatial data with PU ids and species scores
+PU_polygons <- optimTFE::units_spp_suit #spatial data with PU_id and species suitability values
 
 native_cons_lands <- list(
   list(name = "Native habitat", filename = system.file("extdata", "native_habitat.shp", package = "optimTFE"), hidden = T),
@@ -59,9 +61,8 @@ map_spp <- list(
 )
 
 ```
-## Create a conservation footprint map
 
-
+#### Create a conservation footprint map
 ```{r Create a conservation footprint map, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # Conservation footprint showing conservation footprint; set solution number manually.
 create_interactive_map(solution_file, PU_polygons, selected_sol_index=21)
@@ -74,4 +75,3 @@ create_interactive_map(solution_result_file = solution_file, original_PU_polygon
 # Example:
 # create__interactive_map(solution_file, PU_polygons, selected_sol_index=856, auxiliaryLayers = native_cons_lands, map_individual_spp = map_spp, save_HTML_loc = file.path("C:/optimTFE", "footprint856.html"))
 ```
-
