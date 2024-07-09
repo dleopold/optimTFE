@@ -30,15 +30,14 @@ across generated footprints using an interactive shiny tool. Another vignette de
 how to generate an interactive leaflet application for visually exploring species-specific
 and PU-specific qualities of a conservation footprint.
 
-First, we will attach the packages needed for the example. Then we will use a
-sample dataset to generate input files needed for the optimTFE algorithm and
-subsequent output exploration.
-
+First, we will set a project directory and attach the packages needed for the example.
+Then we will use a sample dataset to generate input files needed for the optimTFE
+algorithm and subsequent output exploration.
 ```{r setup, echo=TRUE, warning = FALSE, message=FALSE}
-#set directory
+# Set directory
 project_dir <- "C:/optimTFE_final"
 
-#Load packages
+# Load packages
 library(dplyr)
 library(ggplot2)
 library(htmltools)
@@ -257,6 +256,6 @@ plot_my_metric <- plot_solution_metric(solution_number, all_sols_metrics, "good_
 plot_my_metric
 ```
 We have more advanced tools for visually exploring footprints further:  
-1. Explore_footprints vignette for exploring metrics across all footprints; and
-2. Footprint_map vignette for exploring target and landscape metrics of a single
+1. **Explore_footprints** vignette for exploring metrics across all footprints; and
+2. **Footprint_map** vignette for exploring target and landscape metrics of a single
 footprint.
