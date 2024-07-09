@@ -1,6 +1,6 @@
 ---
 title: "Explore conservation footprints"
-author: "Devin Leopold, Christina Leopold"
+author: "Authors: Devin Leopold, Christina Leopold"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Explore conservation footprints}
@@ -141,9 +141,21 @@ add a dashed line for each solution. PU transparency will change on the map acco
 to the number of selected solutions with overlap.
 *Note the check box beneath each metric which allows for selecting descending rank
 order.
-```{r load data files, echo=F, out.width = "500px", fig.align="center"}
-knitr::include_graphics("load_data_files.PNG")
+```{r include metrics, echo=F, out.width = "500px", fig.align="center"}
+knitr::include_graphics("metrics_descending_rank_order_option.PNG")
 ```
 
 There is a slider bar for each metric that allows users to custom-weight metrics
-and evaluate tradeoffs in footprints. 
+and evaluate tradeoffs in footprints.
+Default sets all values to 1, which evenly selects across all metrics. Reduce the
+slider value to reduce to weight.
+In this example there is a third metric of accessibility, and the sliders have been
+adjusted. There are also three footprints mapped, as displayed in the 'selected solutions'
+drop-down menu on the bottom left.
+
+```{r slider bars, echo=F, out.width = "500px", fig.align="center"}
+knitr::include_graphics("mult_footprints_slider_used.PNG")
+```
+
+Now that numerous options have been evaluated, we can select a footprint to look
+at more closely using the footprint map vignette.
