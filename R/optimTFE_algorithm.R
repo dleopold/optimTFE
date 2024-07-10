@@ -51,6 +51,7 @@
 #'  (default = TRUE)
 #' @param output_parquet Should the solutions be written to a parquet file
 #'  (default = FALSE)
+#' @param force_overwrite overwrite existing output files (default = FALSE)
 #' @param delete_tmp_files should temporary files be deleted after processing
 #'  (default = TRUE)
 #' @param return_df return all generated solutions as a data frame (default =
@@ -88,9 +89,10 @@ optimTFE <- function(
     output_prefix = "solutions",
     output_csv = TRUE,
     output_parquet = FALSE,
+    force_overwrite = FALSE,
     delete_tmp_files = TRUE,
     return_df = FALSE) {
-  message("Begining optimTFE...")
+  message("Beginning optimTFE...")
   start_time <- Sys.time()
 
   # Determine if progress bar should be used
@@ -111,7 +113,7 @@ optimTFE <- function(
   }
   if (output_csv) {
     csv_file <- file.path(dir, "output", paste0(output_prefix, ".csv"))
-    if (file.exists(csv_file)) {
+    if (!force_overwrite && file.exists(csv_file)) {
       message(crayon::red("Output file already exists:"))
       message(crayon::white("  ", csv_file))
       message(crayon::red("Please delete existing outputs or change the solution prefix."))
@@ -121,7 +123,7 @@ optimTFE <- function(
   if (output_parquet) {
     parquet_chk <- file.path(dir, "output", output_prefix) |>
       list.files(pattern = ".parquet$")
-    if (length(parquet_chk) > 0L) {
+    if (!force_overwrite && length(parquet_chk) > 0L) {
       message(crayon::red("Output parquet file(s) already exists:"))
       message(crayon::white("  ", file.path(dir, "output", output_prefix, "part-{i}.parquet")))
       message(crayon::red("Please delete existing outputs or change the solution prefix."))
@@ -132,7 +134,7 @@ optimTFE <- function(
   # Temp files ----
   tmp_dir <- file.path(dir, "output", paste0(output_prefix, "_tmp"))
   dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
-  if (length(list.files(tmp_dir) > 0L)) {
+  if (!force_overwrite && length(list.files(tmp_dir) > 0L)) {
     message(crayon::red("Temporary file directory is not empty:"))
     message(crayon::white("  ", tmp_dir))
     return(invisible())

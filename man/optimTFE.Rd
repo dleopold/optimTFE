@@ -29,6 +29,7 @@ optimTFE(
   output_prefix = "solutions",
   output_csv = TRUE,
   output_parquet = FALSE,
+  force_overwrite = FALSE,
   delete_tmp_files = TRUE,
   return_df = FALSE
 )
@@ -105,6 +106,8 @@ but at the cost of more disk writes.
 
 \item{output_parquet}{Should the solutions be written to a parquet file
 (default = FALSE)}
+
+\item{force_overwrite}{overwrite existing output files (default = FALSE)}
 
 \item{delete_tmp_files}{should temporary files be deleted after processing
 (default = TRUE)}

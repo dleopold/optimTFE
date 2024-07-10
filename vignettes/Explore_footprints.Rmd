@@ -33,7 +33,7 @@ See the example dataset for pre-processing setup: PU_metrics.gpkg
 
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
 # Set directory
-project_dir <- "C:/optimTFE_final"
+project_dir <- "optimTFE_project"
 
 # Load packages
 library(dplyr)
