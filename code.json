@@ -1,11 +1,10 @@
 [
   {
-    "name": "REPOSITORY_NAME",
+    "name": "optimTFE",
     "organization": "U.S. Geological Survey",
-    "description": "This R package was developed to identify priority recovery sites for at-risk species while optimizing for spatial efficiency and other priorities that can be spatialized.
-The tool uses an optimization algorithm to prioritize selection of sites based on a highly customizable greedy algorithm.",
-    "version": "RELEASE_VERSION",
-    "status": "RELEASE_STATUS",
+    "description": "This repository contains source code for the optimTFE R package",
+    "version": "1.0.0",
+    "status": "Production",
 
     "permissions": {
       "usageType": "openSource",
@@ -23,15 +22,20 @@ The tool uses an optimization algorithm to prioritize selection of sites based o
     "repositoryURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME.git",
     "vcs": "git",
 
-    "laborHours": 100,
+    "laborHours": 0,
 
     "tags": [
-      "TOPIC_TAG_1",
-      "TOPIC_TAG_2"
+      "USGS",
+      "endangered species",
+      "spatial conservation prioritization",
+      "recovery planning",
+      "restoration"
     ],
 
     "languages": [
-      "R"
+      "R",
+      "Rmarkdown",
+      "HTML"
     ],
 
     "contact": {
@@ -40,7 +44,7 @@ The tool uses an optimization algorithm to prioritize selection of sites based o
     },
 
     "date": {
-      "metadataLastUpdated": "2024-0-25"
+      "metadataLastUpdated": "2024-07-10"
     }
   }
 ]
