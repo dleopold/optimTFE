@@ -16,7 +16,7 @@
       ]
     },
 
-    "homepageURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME",
+    "homepageURL": "https://code.usgs.gov/TEAM_NAME",
     "downloadURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/archive/RELEASE_VERSION/REPOSITORY_NAME-RELEASE_VERSION.zip",
     "disclaimerURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/raw/RELEASE_VERSION/DISCLAIMER.md",
     "repositoryURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME.git",
