@@ -18,17 +18,18 @@ library(klippy)
 ```
 ### Introduction
 The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
-managers identify priority recovery areas, represented by planning units (PUs),
-for species recovery planning efforts.  
+managers identify priority recovery areas, represented by planning units, for species 
+recovery planning efforts.  
 
 This vignette will demonstrate how to bring in data for use in the optimTFE algorithm
 to generate conservation solutions, which we refer to as conservation footprints.
 It will then provide examples of how to generate relevant summary statistics in 
 order to explore conservation footprints and tradeoffs.  
+
 We also provide a vignette demonstrating how to visually explore metrics of interest
 across generated footprints using an interactive shiny tool. Another vignette demonstrates
 how to generate an interactive leaflet application for visually exploring species-specific
-and PU-specific qualities of a conservation footprint.
+and planning unit specific qualities of a conservation footprint.
 
 First, we will set a project directory and attach the packages needed for the example.
 Then we will use a sample dataset to generate input files needed for the optimTFE
@@ -55,7 +56,7 @@ unlink(file.path(project_dir, "output"), recursive = TRUE)
 ```
 Now we will bring in our file with species suitability values by planning unit.
 Here our example is with a spatial dataset and we need to create a .csv.  
-The .csv file should include ONLY the planning unit column (first), and then
+The .csv file should include ONLY the planning unit (PU) column **first**, and then
 species suitability values for each species/feature for each unit,
 e.g. sp_01, sp_02, etc. Ensure there is also a .csv with species targets, and
 other input files as desired.
@@ -72,7 +73,7 @@ spp_suit_df <- spp_suit |>
 # write the species suitability file as a .csv and save:
 # write.csv(spp_suit_df, file = "spp_suitability.csv", row.names = FALSE)
 ```
-#### Generate footprints
+#### Generate conservation footprints
 We are ready to run the optimization algorithm.  
 This example uses existing species suitability and target files. Examine these datasets
 to understand how to setup algorithm inputs; these are similar to other SCP tools.  
