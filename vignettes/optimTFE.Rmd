@@ -26,8 +26,8 @@ to generate conservation solutions, which we refer to as conservation footprints
 It will then provide examples of how to generate relevant summary statistics in 
 order to explore conservation footprints and tradeoffs.  
 
-We also provide a vignette demonstrating how to visually explore metrics of interest
-across generated footprints using an interactive shiny tool. Another vignette demonstrates
+We also provide a vignette ("Explore_footprints") demonstrating how to visually explore metrics of interest
+across generated footprints using an interactive tool. Another vignette ("Footprint_map.html") demonstrates
 how to generate an interactive leaflet application for visually exploring species-specific
 and planning unit specific qualities of a conservation footprint.
 
@@ -55,10 +55,10 @@ library(tidyverse)
 unlink(file.path(project_dir, "output"), recursive = TRUE)
 ```
 Now we will bring in our file with species suitability values by planning unit.
-Here our example is with a spatial dataset and we need to create a .csv.  
+Here our example is with a spatial vector dataset and we need to create a .csv.  
 The .csv file should include ONLY the planning unit (PU) column **first**, and then
 species suitability values for each species/feature for each unit,
-e.g. sp_01, sp_02, etc. Ensure there is also a .csv with species targets, and
+e.g. sp_01, sp_02, etc. Ensure there is also a .csv with species targets (i.e., the number of desired PU targets per species), and
 other input files as desired.
 
 ```{r species suitabtility}
@@ -108,11 +108,12 @@ head(sample_sols100, 5)
 
 The rest of the vignette explores the solutions dataset through summary statistics and
 inclusion of associated spatial data.  
-If >100,000 solutions were generated, and depending on computer RAM, subsetting
-before creating many summary statistics may reduce run time.  
-If you did not save the solutions output as an object, read it in now.  
+If >100,000 solutions were generated, and depending on available computing resources, subsetting
+before creating many summary statistics will reduce run time.  
+If you saved the solutions output to disk, read it in now.   
 The file location is printed in the console after running the algorithm:
 'Saving csv output: C:\...'
+In this vignette, the optimization output was also saved as an r object above (sample_sols100).
 
 ```{r Footprint summary statistics, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # Read in solution output if not already in environment
@@ -144,7 +145,7 @@ PU_ct_freq <- all_solutions_freq(sols_unit_ct)
 plot_solutions_freq(PU_ct_freq)
 
 ```
-Now we can take a look at a map of the planning unit count frequencies across all conservation footprints.
+Now we can take a look at a map of the planning unit selection frequency across all conservation footprints.
 
 ```{r Plot frequency of planning units across all footprints, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 pu_ct_freq_map(solution_output = sample_sols100 , pu_spatial_data = pu_data)
@@ -161,7 +162,7 @@ map_sol_min <- single_solution_map(solution_number, sample_sols100, pu_data)
 Next let's generate habitat suitability values for each species within a given footprint.  
 Conservation practitioners may prefer a larger footprint than a minimum size if it
 yields habitat more suited to species to be recovered.  
-Now we can explore this tradeoff.
+With OptimTFE, we can explore such tradeoffs.
 We will again use the optimTFE solutions output as well as the solution number of
 interest, and the metadata filepath.  
 This function calculates one footprint at a time, as it could be computationally 
@@ -174,10 +175,8 @@ tool later.)
 
 sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
-Next let's get the suitability values for features that were selected for within a given planning unit.  
-For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate
-suitability only for the 1s. 
-In contrast, the previous calculation gave the suitability across all species that had suitability values
+Next, for this solution, let's get the suitability values for features that were selected per planning unit.  
+For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate suitability only for the 1s (i.e, excluding species that were present, but not selected for at each given conservation footprint planning unit). In contrast, the previous calculation gave the suitability across all species that had suitability values
 > 0.
 
 The first input comes from the output of solution_suit_values. If you do not want
