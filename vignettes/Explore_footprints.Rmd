@@ -18,11 +18,10 @@ klippy::klippy()
 library(klippy)
 ```
 ### Conservation footprint explorer tool: Evaluate tradeoffs across footprint metrics
-Here we can evaluate tradeoffs across all conservation footprints using metrics useful
-to conservation practitioners.  
+In this vignette we show how we can evaluate tradeoffs across all conservation footprints using metrics useful to conservation practitioners.  
 For example, we can understand the amount of a footprint that occurs within existing
 conservation lands, the proportion of a footprint that occurs within fenced areas
-or native habitat, etc.
+or native habitat, etc. The specific set of criteria considered in the analysis is project specific, with the examples provided representing a set of criteria identified as valuable metrics to be used in footprint selection in our particular case study.
 
 In order to run the explorer tool there must be a file with metrics of interest
 associated with each planning unit. These values can be calculated using zonal
@@ -118,7 +117,7 @@ write.csv(sols_for_explorer, file.path(project_dir, "output", "summary_by_soluti
 planning unit IDs
 
 ```{r Open Explorer, warning=FALSE, message=FALSE, eval = FALSE}
-explore_solutions()
+explore_footprints()
 ```
 ```{r webtool open, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("open_webtool.PNG")
@@ -130,17 +129,17 @@ Next, load the two files into the tool.
 knitr::include_graphics("load_data_files.PNG")
 ```
 
-Now we can see the loaded metrics. Here is an example with two selected. The drop-down
+Now we can see the loaded metrics. Here is an example with two metrics selected. The drop-down
 menu on the bottom left shows the top-ranked conservation footprint when we balance
 across two metrics.  
 The top-ranked footprint is presented in the map and the dashed red line in the graphs
-show where the selection metrics fall across all footprints.  
+show where the selection metrics fall across all generated footprints.  
 The bottom drop-down menu allows for selection of multiple footprints. Doing so will
 add a dashed line for each footprint. PU transparency will change on the map according
 to the number of selected footprints with overlap.  
 
 *Note the check box beneath each metric which allows for selecting descending rank
-order.
+order. This is an important feature as some metrics min or max values may be desired (e.g., invaded vs native habitat area per PU).
 ```{r include metrics, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("metrics_descending_rank_order_option.PNG")
 ```
@@ -148,7 +147,7 @@ knitr::include_graphics("metrics_descending_rank_order_option.PNG")
 There is a slider bar for each metric that allows users to custom-weight metrics
 and evaluate tradeoffs in footprints.  
 Default sets all values to 1, which evenly selects across all metrics. Reduce the
-slider value to reduce to weight.  
+slider value to reduce the weight of individual metrics.   
 In this example there is a third metric of accessibility, and the sliders have been
 adjusted. There are also three footprints mapped, as displayed in the 'selected solutions'
 drop-down menu on the bottom left.

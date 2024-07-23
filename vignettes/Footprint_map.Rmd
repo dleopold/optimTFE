@@ -40,9 +40,9 @@ library(htmlwidgets)
 
 #### Bring in datasets
 Datasets to create the footprint map include the solutions output, planning unit polygon data,
-and additional spatial data such existing conservation lands, native habitat, etc.  
+and relevant auxiliary spatial data such existing conservation lands, native habitat, etc.  
 All files of interest need to be added to this list.  
-**Note:** Currently this tool can only accept .shp or .gpkg spatial data.
+**Note:** Currently this tool can only accept spatial polygon vector data in .shp or .gpkg file formats.
 We can also map selected PUs of individual species in the map using the solutions output.
 Use the species names as listed in the PU_polygons file to plot correctly on the map.
 ```{r Setup datasets, echo=TRUE}
@@ -90,8 +90,8 @@ knitr::include_graphics("num_target_species.PNG")
 ```
 
 #### Create a conservation footprint map with target species and additional spatial data
-Include the 'add_auxiliary_layers' option to the create_interactive_map function
-to add context to a footprint. The image below shows a conservation footprint with 
+Use the 'add_auxiliary_layers' function argument in the create_interactive_map function
+to add context to the conservation footprint interactive maps. The image below shows a conservation footprint with 
 a map of existing native habitat.
 ```{r Create footprint map with target species list and additional spatial data, warning=FALSE, message=FALSE, eval=FALSE}
 # Solution 35 showing conservation footprint, additional spatial layers for reference,
