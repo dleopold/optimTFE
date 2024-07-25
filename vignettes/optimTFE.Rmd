@@ -13,8 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 ```{r klippy, echo=FALSE, include=TRUE}
-klippy::klippy()
+install.packages("remotes")
+remotes::install_github("rlesur/klippy")
 library(klippy)
+klippy::klippy()
 ```
 ### Introduction
 The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
