@@ -167,7 +167,7 @@ single_solution_map <- function(solution_number, solution_output, pu_data){
   sol_sp_data <-
     left_join(pu_data, sol_to_plot, by = "unit_id")
   sol_sp_data_map <- ggplot() +
-    geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.5) +
+    geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.5, fill = "royalblue") +
     theme(
       panel.background = element_rect(fill = "transparent", color = NA),
       plot.background = element_rect(fill = "transparent", color = NA)
