@@ -120,13 +120,13 @@ planning unit IDs
 explore_footprints()
 ```
 ```{r webtool open, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("open_webtool.PNG")
+knitr::include_graphics("./vignette_images/open_webtool.PNG")
 ```
 
 Next, load the two files into the tool.
 
 ```{r load data files, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("load_data_files.PNG")
+knitr::include_graphics("./vignette_images/load_data_files.PNG")
 ```
 
 Now we can see the loaded metrics. Here is an example with two metrics selected. The drop-down
@@ -141,7 +141,7 @@ to the number of selected footprints with overlap.
 *Note the check box beneath each metric which allows for selecting descending rank
 order. This is an important feature as some metrics min or max values may be desired (e.g., invaded vs native habitat area per PU).
 ```{r include metrics, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("metrics_descending_rank_order_option.PNG")
+knitr::include_graphics("./vignette_images/metrics_descending_rank_order_option.PNG")
 ```
 
 There is a slider bar for each metric that allows users to custom-weight metrics
@@ -153,7 +153,7 @@ adjusted. There are also three footprints mapped, as displayed in the 'selected 
 drop-down menu on the bottom left.
 
 ```{r slider bars, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("mult_footprints_slider_used.PNG")
+knitr::include_graphics("./vignette_images/mult_footprints_slider_used.PNG")
 ```
 
 Now that numerous options have been evaluated, we can select a footprint to look

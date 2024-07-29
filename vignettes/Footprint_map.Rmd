@@ -68,7 +68,7 @@ map_spp <- list(
 create_interactive_map(solution_file, PU_polygons, selected_sol_index=35)
 ```
 ```{r basic footprint open, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("leaflet_map_basic.PNG")
+knitr::include_graphics("./vignette_images/leaflet_map_basic.PNG")
 ```
 
 #### Create footprint map with target species PUs displayed
@@ -79,14 +79,14 @@ by ticking the 'map_individual_species' box in the upper right legend.
 create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=35, map_individual_spp = map_spp)
 ```
 ```{r show map of footprint with map_individual_spp, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("target_species_highlight.PNG")
+knitr::include_graphics("./vignette_images/target_species_highlight.PNG")
 ```
 
 #### Create heatmap of species within each PU
 Tick the option 'Number of target species' in the upper right legend to view a heatmap
 of species within a selected footprint.
 ```{r num_target_species, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("num_target_species.PNG")
+knitr::include_graphics("./vignette_images/num_target_species.PNG")
 ```
 
 #### Create a conservation footprint map with target species and additional spatial data
@@ -100,7 +100,7 @@ create_interactive_map(solution_result_file = solution_file, original_PU_polygon
                        auxiliaryLayers = native_cons_lands,  selected_sol_index=35, map_individual_spp = map_spp)
 ```
 ```{r footprint map with native habitat map overlay, echo=F, out.width = "650px", fig.align="center"}
-knitr::include_graphics("native_habitat_footprint.PNG")
+knitr::include_graphics("./vignette_images/native_habitat_footprint.PNG")
 ```
 
 **To save a shareable .html conservation footprint, add and define 'save_HTML_loc = '**  
