@@ -262,8 +262,8 @@ optimTFE <- function(
 
     if (use_subregion_targets) {
       spp_goals <- spp_goals |>
-        mutate(
-          region = case_when(
+        dplyr::mutate(
+          region = dplyr::case_when(
             unit_id %in% sub_regions$unit_id ~ sub_regions$region[which(sub_regions$unit_id==unit_id)],
             .default = region
           )
