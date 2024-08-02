@@ -40,34 +40,37 @@ get_solution <- function(
   })
 
   spp_names <- unique(goals$species)
-
   solution <- list()
 
   i <- 1
-  while (nrow(goals) > 0) {
+  while (nrow(goals) > 0 ) {
 
     # TODO add early stopping criteria (escape hatch)
+
+    # Prevent input order effects
+    goals <- goals |>
+      dplyr::slice_sample(by = species, prop = 1)
 
     # Filter based on population and occurrence data
     if(prioritize_known_pops | prioritize_known_occ){
       goals_summary <- goals |>
         group_by(species, region) |>
         summarise(
-          total = unique(total),
-          min = unique(min),
-          max = unique(max),
+          total = first(total),
+          min = first(min),
+          max = first(max),
           populations = sum(!is.na(unique(population))),
-          occurrences = sum(occurrence, na.rm = T)
-          # .by = c("species", "region")
+          occurrences = sum(occurrence, na.rm = T),
+          pop_limit = populations >= max, # limit to pops within a region if #pop >= max possible selections
+          occ_limit = !pop_limit & occurrences >= max # limit to occ within a region if not limited to pops and #occ >= max
         ) |>
         group_by(species) |>
-        mutate(
-          pop_limit = sum(populations) > max(total),
-          occ_limit = !pop_limit & sum(occurrences) > max(total)
-          # .by = "species"
+        mutate( # Check for overall pop / occ exceeding total required
+          pop_limit = pop_limit | sum(populations) > first(total),
+          occ_limit = !pop_limit & (occ_limit | sum(occurrences) > first(total))
         ) |>
         ungroup() |>
-        mutate(
+        mutate( # ensure we don't remove regions with no pops / occ if selections still needed
           pop_limit = dplyr::case_when(
             min <= populations ~ pop_limit,
             T ~ FALSE
@@ -96,11 +99,12 @@ get_solution <- function(
       arrange(
         species, desc(suitability)
       ) |>
-      dplyr::mutate(
-        consider = dplyr::row_number() <= max_candidate_pops,
-        species_units = dplyr::n(),
-        .by = "species"
-      )
+      group_by(species) |>
+      mutate(
+        consider = seq_along(unit_id) <= max_candidate_pops,
+        species_units = length(unit_id)
+      ) |>
+      ungroup()
 
     # Select Unit
     unit_summary <- goals |>
@@ -109,13 +113,13 @@ get_solution <- function(
       summarise(
         richness = length(unique(species)),
         mean_suitability = mean(suitability)
-        # .by = "unit_id"
       ) |>
       # Limit options based on richness / tolerance
       filter(
         richness > (max(richness) - rand_tolerance)
       )
     selected_unit <- sample(unit_summary$unit_id, 1, prob = unit_summary$mean_suitability)
+    selected_region <- goals$region[goals$unit_id==selected_unit][1]
 
     # Find selected species
     selected_spp <-  goals |>
@@ -145,15 +149,36 @@ get_solution <- function(
     }
 
     # Update remaining spp goals
-    goals <- goals |>
-      dplyr::mutate(
-        max = dplyr::case_when(
-          species %in% selected_spp ~ max - 1,
-          T ~ max
-        ),
-      ) |>
-      dplyr::filter(
-        unit_id != selected_unit & max > 0
+    goals <- bind_rows(
+      filter(goals, !species %in% selected_spp),
+      filter(goals, species %in% selected_spp) |>
+        tidyr::nest(data=-species) |>
+        purrr::pmap_dfr(function(species, data){
+          # Update species total remaining and local min
+          data <- data |>
+            mutate(
+              total = total - 1,
+              min = case_when(
+                region == selected_region ~ max(min - 1, 0),
+                .default = min
+              )
+            )
+          # Update regional max
+          data |>
+            group_by(region) |>
+            summarise(required = first(min)) |>
+            ungroup() |>
+            summarise(required = sum(required)) |>
+            cross_join(data) |>
+            mutate(
+              species = species,
+              max = total - required + min
+            ) |>
+            select(-required)
+        })
+    ) |>
+      filter(
+        max > 0 & unit_id != selected_unit
       )
 
     # Add selected PU to solution

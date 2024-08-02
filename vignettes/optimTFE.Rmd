@@ -167,18 +167,20 @@ Next let's generate habitat suitability values for each species within a given f
 Conservation practitioners may prefer a larger footprint than a minimum size if it
 yields habitat more suited to species to be recovered.  
 With OptimTFE, we can explore such tradeoffs.
+
 We will again use the optimTFE solutions output as well as the solution number of
 interest, and the metadata filepath.  
 This function calculates one footprint at a time, as it could be computationally 
 consuming with >10,000 footprints. (And we create them collectively as part of another evaluation tool later.)
 
 ```{r Get suitability values for input features for a given footprint, echo=TRUE}
+# Habitat suitability calculation across all features, selected for or not.
 # You must read in the solutions file as a data.frame; solution number is the solution to evaluate; meta_filepath is the filepath to the solutions.meta file.
  # All 0s are NAs unless you convert them.
 
 sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
-Next, for this solution, let's get the suitability values for features that were selected per planning unit.  
+Next, let's get the suitability values for **selected features** that were per planning unit.  
 For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate suitability only for the 1s (i.e, excluding species that were present, but not selected for at each given conservation footprint planning unit). In contrast, the previous calculation gave the suitability across all species that had suitability values
 > 0.
 
@@ -187,6 +189,7 @@ to use that input, your input dataframe must include the unit_id column first, a
 remaining columns are the feature columns with 1s and 0s from the solution output file.
 
 ```{r Generate species suitability list for target units only}
+# Calculate suitability across PUs for selected features only
 sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
 Now let's generate some metrics about footprints so we can compare.

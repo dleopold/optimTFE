@@ -261,6 +261,13 @@ optimTFE <- function(
       )
 
     if (use_subregion_targets) {
+      spp_goals <- spp_goals |>
+        mutate(
+          region = case_when(
+            unit_id %in% sub_regions$unit_id ~ sub_regions$region[which(sub_regions$unit_id==unit_id)],
+            .default = region
+          )
+        )
       spp_subregions <- targets_df |>
         dplyr::filter(species == spp) |>
         tidyr::pivot_longer(
@@ -279,10 +286,6 @@ optimTFE <- function(
           dplyr::pull(unit_id)
         spp_goals <- spp_goals |>
           dplyr::mutate(
-            region = dplyr::case_when(
-              unit_id %in% units ~ subregion,
-              .default = region
-            ),
             max = dplyr::case_when(
               !unit_id %in% units ~ max - subregion_target,
               .default = max
