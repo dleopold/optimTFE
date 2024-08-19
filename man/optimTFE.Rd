@@ -26,6 +26,7 @@ optimTFE(
   batch_size = NULL,
   max_batch_size = 1000,
   seed = NULL,
+  output_dir = file.path(dir, "output"),
   output_prefix = "solutions",
   output_csv = TRUE,
   output_parquet = FALSE,
@@ -99,7 +100,9 @@ but at the cost of more disk writes.
 
 \item{seed}{seed for reproducible output (optional)}
 
-\item{output_prefix}{prefix for output files (default = 'solutions').}
+\item{output_dir}{location to write outputs (default = `file.path(dir, 'output')`)}
+
+\item{output_prefix}{prefix for output files (default = 'solutions')}
 
 \item{output_csv}{Should the solutions be written to a single csv file
 (default = TRUE)}

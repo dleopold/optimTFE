@@ -38,7 +38,7 @@ get_solution <- function(
     })
     set_collapse(mask = "manip")
   })
-
+  goals_bup <- goals
   spp_names <- unique(goals$species)
   solution <- list()
 
@@ -60,7 +60,9 @@ get_solution <- function(
           min = first(min),
           max = first(max),
           populations = sum(!is.na(unique(population))),
-          occurrences = sum(occurrence, na.rm = T),
+          occurrences = sum(occurrence, na.rm = T)
+        ) |>
+        mutate(
           pop_limit = populations >= max, # limit to pops within a region if #pop >= max possible selections
           occ_limit = !pop_limit & occurrences >= max # limit to occ within a region if not limited to pops and #occ >= max
         ) |>

@@ -46,7 +46,8 @@
 #'  species at each round of selection (default = Inf). This will subset species
 #'  data by highest suitability score to the number of units listed.
 #' @param seed seed for reproducible output (optional)
-#' @param output_prefix prefix for output files (default = 'solutions').
+#' @param output_prefix prefix for output files (default = 'solutions')
+#' @param output_dir location to write outputs (default = `file.path(dir, 'output')`)
 #' @param output_csv Should the solutions be written to a single csv file
 #'  (default = TRUE)
 #' @param output_parquet Should the solutions be written to a parquet file
@@ -86,6 +87,7 @@ optimTFE <- function(
     max_batch_size = 1000,
     seed = NULL,
     # Output parameters
+    output_dir = file.path(dir, "output"),
     output_prefix = "solutions",
     output_csv = TRUE,
     output_parquet = FALSE,
@@ -112,7 +114,7 @@ optimTFE <- function(
     stop("output_prefix must be a non-empty string")
   }
   if (output_csv) {
-    csv_file <- file.path(dir, "output", paste0(output_prefix, ".csv"))
+    csv_file <- file.path(output_dir, paste0(output_prefix, ".csv"))
     if (!force_overwrite && file.exists(csv_file)) {
       message(crayon::red("Output file already exists:"))
       message(crayon::white("  ", csv_file))
@@ -121,18 +123,18 @@ optimTFE <- function(
     }
   }
   if (output_parquet) {
-    parquet_chk <- file.path(dir, "output", output_prefix) |>
+    parquet_chk <- file.path(output_dir, output_prefix) |>
       list.files(pattern = ".parquet$")
     if (!force_overwrite && length(parquet_chk) > 0L) {
       message(crayon::red("Output parquet file(s) already exists:"))
-      message(crayon::white("  ", file.path(dir, "output", output_prefix, "part-{i}.parquet")))
+      message(crayon::white("  ", file.path(output_dir, output_prefix, "part-{i}.parquet")))
       message(crayon::red("Please delete existing outputs or change the solution prefix."))
       return(invisible())
     }
   }
 
   # Temp files ----
-  tmp_dir <- file.path(dir, "output", paste0(output_prefix, "_tmp"))
+  tmp_dir <- file.path(output_dir, paste0(output_prefix, "_tmp"))
   dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
   if (!force_overwrite && length(list.files(tmp_dir) > 0L)) {
     message(crayon::red("Temporary file directory is not empty:"))
@@ -261,12 +263,19 @@ optimTFE <- function(
       )
 
     if (use_subregion_targets) {
+      region_key <- sub_regions$region |> setNames(sub_regions$unit_id)
       spp_goals <- spp_goals |>
-        dplyr::mutate(
-          region = dplyr::case_when(
-            unit_id %in% sub_regions$unit_id ~ sub_regions$region[which(sub_regions$unit_id==unit_id)],
-            .default = region
-          )
+        dplyr::select(-region) |>
+        dplyr::left_join(
+          dplyr::select(
+            sub_regions,
+            unit_id,
+            region
+          ),
+          by = "unit_id"
+        ) |>
+        tidyr::replace_na(
+          list(region = "default")
         )
       spp_subregions <- targets_df |>
         dplyr::filter(species == spp) |>
@@ -461,16 +470,15 @@ optimTFE <- function(
   # Save outputs ----
   data <- arrow::open_dataset(tmp_dir, format = "csv")
   if (output_csv) {
-    csv_path <- file.path(dir, "output", paste0(output_prefix, ".csv"))
     glue::glue(
-      "Saving csv output: {crayon::underline(csv_path)}"
+      "Saving csv output: {crayon::underline(csv_file)}"
     ) |>
       crayon::white() |>
       message()
-    arrow::write_csv_arrow(data, csv_path)
+    arrow::write_csv_arrow(data, csv_file)
   }
   if (output_parquet) {
-    pq_path <- file.path(dir, "output", output_prefix)
+    pq_path <- file.path(output_dir, output_prefix)
     glue::glue(
       "Saving parquet output: {crayon::underline(pq_path)}"
     ) |>
@@ -513,7 +521,7 @@ optimTFE <- function(
   ) |>
     jsonlite::toJSON(auto_unbox = TRUE) |>
     jsonlite::prettify() |>
-    write(file.path(dir, "output", paste0(output_prefix, ".meta")))
+    write(file.path(output_dir, paste0(output_prefix, ".meta")))
 
   # Delete temp files ----
   if (delete_tmp_files) {
