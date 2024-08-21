@@ -38,18 +38,16 @@ get_solution <- function(
     })
     set_collapse(mask = "manip")
   })
-  goals_bup <- goals
+  # goals_bup <- goals
+  # goals <- goals_bup
+  # set.seed(1)
+
   spp_names <- unique(goals$species)
   solution <- list()
-
   i <- 1
   while (nrow(goals) > 0 ) {
 
     # TODO add early stopping criteria (escape hatch)
-
-    # Prevent input order effects
-    goals <- goals |>
-      dplyr::slice_sample(by = species, prop = 1)
 
     # Filter based on population and occurrence data
     if(prioritize_known_pops | prioritize_known_occ){
@@ -98,6 +96,7 @@ get_solution <- function(
 
     # Apply max # candidate populations
     goals <- goals |>
+      dplyr::slice_sample(by = species, prop = 1) |> # prevent input order effects
       arrange(
         species, desc(suitability)
       ) |>
@@ -139,7 +138,7 @@ get_solution <- function(
 
     # Zero-out locations associated with additional part of delineated
     # populations if just selected.
-    if (single_pu_pop) {
+    if (prioritize_known_pops && single_pu_pop) {
       goals <- goals |>
         dplyr::anti_join(
           {
@@ -161,7 +160,7 @@ get_solution <- function(
             mutate(
               total = total - 1,
               min = case_when(
-                region == selected_region ~ max(min - 1, 0),
+                region == selected_region ~ pmax(min - 1, 0),
                 .default = min
               )
             )
