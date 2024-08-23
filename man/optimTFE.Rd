@@ -11,20 +11,19 @@ optimTFE(
   spp_suit_fn = NULL,
   sub_regions_fn = NULL,
   spp_pops_fn = NULL,
-  spp_occ_fn = NULL,
   min_spp_suit_score = 0,
-  max_candidate_pops = Inf,
+  max_candidate_units = Inf,
   rand_tolerance = 5,
   max_spp_selected = Inf,
   use_subregion_targets = !is.null(sub_regions_fn) && file.exists(sub_regions_fn),
   prioritize_known_pops = !is.null(spp_pops_fn) && file.exists(spp_pops_fn),
-  prioritize_known_occ = !is.null(spp_occ_fn) && file.exists(spp_occ_fn),
   single_pu_pop = TRUE,
   n = 100,
   cores = future::availableCores(),
   progress = TRUE,
   batch_size = NULL,
   max_batch_size = 1000,
+  min_batch_size = 10,
   seed = NULL,
   output_dir = file.path(dir, "output"),
   output_prefix = "solutions",
@@ -52,18 +51,16 @@ column and row names, respectively.}
 include 1 row for each planning unit with binary values indicating the
 sub-region membership of each planning unit.}
 
-\item{spp_pops_fn}{(optional) .csv input matrix of delineated populations. Row / column names
-must match suitability matrix}
-
-\item{spp_occ_fn}{(optional) input matrix of known occurrence locations. Row / column
-names must match suitability matrix}
+\item{spp_pops_fn}{(optional) .csv input matrix of delineated populations.
+Row / column names must match suitability matrix}
 
 \item{min_spp_suit_score}{minimum suitability score for a species to be
 considered in a location (default = 0)}
 
-\item{max_candidate_pops}{maximum number of candidate units to consider for a
-species at each round of selection (default = Inf). This will subset species
-data by highest suitability score to the number of units listed.}
+\item{max_candidate_units}{maximum number of candidate units to consider for a
+species at each round of selection (default = Inf). This will subset
+species data by highest suitability score to the number of units listed,
+but will not exclude known populations.}
 
 \item{rand_tolerance}{the range of species richness, from maximum, to
 consider for selection at each iteration(default = 5)}
@@ -78,9 +75,6 @@ if a valid sub_regions_fn is provided).}
 \item{prioritize_known_pops}{should known delineated populations be
 prioritized (default = TRUE if a valid spp_pops_fn is provided)}
 
-\item{prioritize_known_occ}{should known occurrence locations be prioritized?
-(default = TRUE if a valid spp_occ_fn is provided)}
-
 \item{single_pu_pop}{only one location (ie unit) selected per delineated
 population (only when prioritize_known_pops = TRUE)}
 
@@ -88,19 +82,23 @@ population (only when prioritize_known_pops = TRUE)}
 
 \item{cores}{number of cores to use (default = all available)}
 
-\item{batch_size}{when parallel processing is used, this parameter can be used
-to process solution in batches for improved efficiency (default = NULL). If
-not provided (NULL), batch size will be calculated automatically as
-`ceiling(n/(cores*4))`.}
+\item{progress}{show progress bar}
+
+\item{batch_size}{when parallel processing is used, this parameter can be
+used to process solution in batches for improved efficiency (default =
+NULL). If not provided (NULL), batch size will be calculated automatically
+as `ceiling(n/(cores*4))`.}
 
 \item{max_batch_size}{limit batch size for parallel processing (default =
-1000). Smaller values will allow the progress bar to update more frequently,
-but at the cost of more disk writes.
-@param progress show progress bar}
+1000). Smaller values will allow the progress bar to update more
+frequently, but at the cost of more disk writes.}
+
+\item{min_batch_size}{default = 10.}
 
 \item{seed}{seed for reproducible output (optional)}
 
-\item{output_dir}{location to write outputs (default = `file.path(dir, 'output')`)}
+\item{output_dir}{location to write outputs (default = `file.path(dir,
+'output')`)}
 
 \item{output_prefix}{prefix for output files (default = 'solutions')}
 
