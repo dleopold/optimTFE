@@ -2,7 +2,7 @@
   {
     "name": "optimTFE",
     "organization": "U.S. Geological Survey",
-    "description": "This repository contains source code for the optimTFE R package",
+    "description": "This repository contains source code for the optimTFE R package and tools for exploring optimTFE outputs",
     "version": "1.0.0",
     "status": "Production",
 
@@ -11,15 +11,15 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "CHANGE TO GITLAB ACCOUNT LICENSE.md"
+          "URL": "https://code.usgs.gov/pierc/optimTFE/-/blob/main/LICENSE.md?ref_type=headsd"
         }
       ]
     },
 
-    "homepageURL": "https://code.usgs.gov/TEAM_NAME",
-    "downloadURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/archive/RELEASE_VERSION/REPOSITORY_NAME-RELEASE_VERSION.zip",
-    "disclaimerURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME/-/raw/RELEASE_VERSION/DISCLAIMER.md",
-    "repositoryURL": "https://code.usgs.gov/TEAM_NAME/REPOSITORY_NAME.git",
+    "homepageURL": "https://code.usgs.gov/pierc/optimTFE",
+    "downloadURL": "https://code.usgs.gov/pierc/optimTFE/archive/main.zip",
+    "disclaimerURL": "https://code.usgs.gov/pierc/optimTFE/-/blob/main/DISCLAIMER.md?ref_type=heads",
+    "repositoryURL": "https://code.usgs.gov/pierc/optimTFE.git",
     "vcs": "git",
 
     "laborHours": 0,
@@ -44,7 +44,7 @@
     },
 
     "date": {
-      "metadataLastUpdated": "2024-07-10"
+      "metadataLastUpdated": "2024-08-28"
     }
   }
 ]
