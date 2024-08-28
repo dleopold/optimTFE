@@ -265,3 +265,9 @@ We have more advanced tools for visually exploring footprints further:
 1. **Explore_footprints** vignette for exploring metrics across all footprints; and
 2. **Footprint_map** vignette for exploring target and landscape metrics of a single
 footprint.
+
+****Note:
+We do not have lock-in or lock-out functions at this time. If this is desired,
+one can create another species input column in the suitability file and assign values
+to '1' or assign as an existing population, and set targets to meet the number of
+PUs assigned in the corresponding file.

@@ -5,3 +5,5 @@
 output
 dev/
 inst/doc
+/doc/
+/Meta/
