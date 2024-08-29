@@ -22,14 +22,15 @@
     "repositoryURL": "https://code.usgs.gov/pierc/optimTFE.git",
     "vcs": "git",
 
-    "laborHours": 0,
+    "laborHours": 100,
 
     "tags": [
-      "USGS",
+      "U. s. Geological Survey",
       "endangered species",
       "spatial conservation prioritization",
       "recovery planning",
-      "restoration"
+      "restoration",
+      "landscape scale planning"
     ],
 
     "languages": [

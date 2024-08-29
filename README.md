@@ -21,7 +21,6 @@ across metrics when evaluating solutions generated using the optimTFE algorithm.
 
 
 #### Suggested citations
-Berio Fortini, L., Leopold, C.R., ConBio paper
 Leopold, C.R., Berio Fortini, L., Amidon, F., Fretz, S., Jacobi, J.D., Mehrhoff, L., & Sutter, R. 2023. East Maui, Hawaiʻi optimization of climate resilient habitat for native plant species recovery, 2021: U.S. Geological Survey data release, <https://doi.org/10.5066/P9LKNAR4>.
 Ball, I. R., Possingham, H. P., & Watts, M. E. (2009). Marxan and relatives: Software for spatial conservation prioritization. In A. Moilanen, K. A. Wilson, & H. P. Possingham (Eds.), Spatial conservation prioritization: Quantitative methods and computational tools (pp. 185–195). Oxford University Press.
 
