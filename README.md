@@ -69,6 +69,6 @@ Note: The Planning Unit identifier must occur in the first column for all files.
 The optimTFE_leaflet_map and optimTFE_explorer tools allow for spatial data exploration using the algorithm output and associated spatial data. All spatial data must be in .shp or .gpkg format.
 
 #### Vignettes
-Vignettes can be viewed in the [Vignettes folder] (https://code.usgs.gov/pierc/optimTFE/-/tree/main/vignettes?ref_type=heads) and
+Vignettes can be viewed in the [Vignettes folder](https://code.usgs.gov/pierc/optimTFE/-/tree/main/vignettes?ref_type=heads) and
 provide documentation for using the optimTFE algorithm and tools for exploring optimTFE
-outputs.
+outputs. The [.html version](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads) can also be downloaded and viewed.
