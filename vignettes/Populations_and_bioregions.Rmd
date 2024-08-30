@@ -17,8 +17,7 @@ knitr::opts_chunk$set(
 ### Introduction
 This vignette will explain and demonstrate how to setup data files for using the
 populations and bioregions components of the optimTFE package.  
-If you have not first explored the optimTFE vignette, please explore it before
-using the populations or bioregions functions.
+If you have not first explored the [optimTFE vignette](https://code.usgs.gov/pierc/optimTFE/-/blob/release-candidate/doc/optimTFE.html?ref_type=heads), please explore it before using the populations or bioregions functions.
 
 #### Purpose of existing populations function
 When conservation practitioners are planning for species recovery, it often includes
