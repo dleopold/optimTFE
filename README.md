@@ -17,7 +17,8 @@ does not require spatial data.
 This tool is based on the spatial conservation prioritization tool, Marxan, and
 our terminology is largely adopted from it (Ball et al., 2009).
 This package includes two data visualization tools using RShiny to allow for visualizing tradeoffs
-across metrics when evaluating solutions generated using the optimTFE algorithm.
+across metrics when evaluating solutions generated using the optimTFE algorithm.  
+
 There are 4 vignettes for guiding use of the algorithm and associated tools. Vignettes
 knit traditionally after downloading and building the package, or viewed by downloading
 and opening the [.html versions](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads).
@@ -71,4 +72,5 @@ The optimTFE_leaflet_map and optimTFE_explorer tools allow for spatial data expl
 #### Vignettes
 Vignettes can be viewed in the [Vignettes folder](https://code.usgs.gov/pierc/optimTFE/-/tree/main/vignettes?ref_type=heads) and
 provide documentation for using the optimTFE algorithm and tools for exploring optimTFE
-outputs. The [.html version](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads) can also be downloaded and viewed.
+outputs. The [.html version](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads) 
+can also be downloaded and viewed.
