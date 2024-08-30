@@ -72,4 +72,5 @@ The optimTFE_leaflet_map and optimTFE_explorer tools allow for spatial data expl
 #### Vignettes
 Vignettes can be viewed in the [Vignettes folder](https://code.usgs.gov/pierc/optimTFE/-/tree/main/vignettes?ref_type=heads) and
 provide documentation for using the optimTFE algorithm and tools for exploring optimTFE
-outputs. The [.html version](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads) can also be downloaded and viewed.
+outputs. The [.html version](https://code.usgs.gov/pierc/optimTFE/-/tree/release-candidate/doc?ref_type=heads) 
+can also be downloaded and viewed.
