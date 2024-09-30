@@ -13,9 +13,6 @@ knitr::opts_chunk$set(
 )
 ```
 ```{r klippy, echo=FALSE, include=TRUE}
-install.packages("remotes")
-remotes::install_github("rlesur/klippy")
-library(klippy)
 klippy::klippy()
 ```
 ### Introduction
