@@ -13,8 +13,13 @@ knitr::opts_chunk$set(
 )
 ```
 ```{r klippy, echo=FALSE, include=TRUE}
-install.packages("remotes")
-remotes::install_github("rlesur/klippy")
+if (!requireNamespace("klippy", quietly = TRUE)) {
+  if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+  }
+  remotes::install_github("rlesur/klippy")
+}
+
 library(klippy)
 klippy::klippy()
 ```
@@ -225,6 +230,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(
+    units = as.character(jsonlite::toJSON(unit_id)),
     total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
     good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
           = TRUE)) * 100, #mean percent of footprint with 'good' habitat
@@ -254,7 +260,7 @@ min_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_ty
 
 Plot a footprint and show where it falls compared to all footprints, and the top 10%
 of all footprints, for a given metric.
-```{r Plot distribution of footprints across metrics compared to a single footprint, echo=FALSE, fig.width=8.25, fig.height=6, fig.show='asis'}
+```{r Plot distribution of footprints across metrics compared to a single footprint, echo=TRUE, fig.width=8.25, fig.height=6, fig.show='asis'}
 # The metric we are evaluating is native habitat denoted as 'good_hab_mean_pct.'
 # We will use the dataframe generated above with metrics for each footprint (all_sols_metrics).
 

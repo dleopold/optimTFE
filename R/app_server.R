@@ -5,6 +5,7 @@
 #' @import shiny gargoyle
 #' @noRd
 app_server <- function(input, output, session) {
+  options(shiny.maxRequestSize = 2000 * 1024^2)
 
   # Reactive values shared across modules ----
   rv <- reactiveValues(
@@ -23,3 +24,4 @@ app_server <- function(input, output, session) {
   mod_histograms_server("hist", rv)
 
 }
+
