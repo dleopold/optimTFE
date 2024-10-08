@@ -229,7 +229,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(
-    units = as.character(jsonlite::toJSON(unit_id)),
+    units = as.character(jsonlite::toJSON(PU_num)),
     total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
     good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
           = TRUE)) * 100, #mean percent of footprint with 'good' habitat
@@ -248,7 +248,7 @@ write.csv(all_sols_metrics, file.path(project_dir, "output", "sample_sols100_met
 
 # Now we will calculate solutions with minimum and maximum values across each metric
 # First, define which columns are metrics
-sol_metrics <- names(all_sols_metrics[2:8])
+sol_metrics <- names(all_sols_metrics[3:8])
 # Then run metrics_top_solutions function to generate dateframe with min, max, or both
 # for each metric across all solutions
 max_sol_calcs <- metrics_top_solutions(all_sols_metrics, sol_metrics, summary_type = max)
