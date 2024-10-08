@@ -21,7 +21,6 @@ if (!requireNamespace("klippy", quietly = TRUE)) {
 }
 
 library(klippy)
-klippy::klippy()
 ```
 ### Introduction
 The optimTFE package is a spatial conservation prioritization (SCP) tool created to help conservation
