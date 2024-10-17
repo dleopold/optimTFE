@@ -12,7 +12,7 @@ R environment}
 }
 \value{
 Returns a dataframe with the count and list of solutions that are identical;
-also includes the PU combinations for each unique solution.
+also includes the planning unit (PU) combinations for each unique solution.
 }
 \description{
 Number of unique and identical solutions within the optimTFE algorithm output

@@ -32,10 +32,12 @@ to generate conservation solutions, which we refer to as conservation footprints
 It will then provide examples of how to generate relevant summary statistics in 
 order to explore conservation footprints and tradeoffs.  
 
-We also provide a vignette ("Explore_footprints") demonstrating how to visually explore metrics of interest
-across generated footprints using an interactive tool. Another vignette ("Footprint_map.html") demonstrates
-how to generate an interactive leaflet application for visually exploring species-specific
-and planning unit specific qualities of a conservation footprint.
+We also provide a vignette demonstrating how to setup several input files ("Populations and Bioregions").
+We also have a vignette ("Explore_footprints") demonstrating how to visually explore
+metrics of interest across generated footprints using an interactive tool.  
+Another vignette ("Footprint_map.html") demonstrates how to generate an interactive
+leaflet application for visually exploring species-specific and planning unit specific
+qualities of a conservation footprint.
 
 First, we will set a project directory and attach the packages needed for the example.
 Then we will use a sample dataset to generate input files needed for the optimTFE
@@ -87,26 +89,26 @@ Input files must be in .csv format. Supply filepaths in the algorithm function.
 The console will print statements or errors related to the optimization run.
 ```{r Run optimization, echo=TRUE, cache=F}
 # Simple optimization with only suitability values and targets, without
-# subregion targets. Number of iterations = 100. Random tolerance is set to 5,
+# sub-region targets. Number of iterations = 100. Random tolerance is set to 5,
 # includes only units for a given species if the suitability score value is >= 0.1.
 # Note that we call the saved spp_suitability.csv created above.
 sample_sols100 <- optimTFE(
                   dir = project_dir,
-                  spp_targets_fn = system.file("extdata", "targets.csv", package = "optimTFE"),
-                  spp_suit_fn = system.file("extdata", "spp_suitability.csv", package = "optimTFE"),
+                  targets_file = system.file("extdata", "targets.csv", package = "optimTFE"),
+                  suitability_file = system.file("extdata", "spp_suitability.csv", package = "optimTFE"),
                   rand_tolerance = 5,
                   min_spp_suit_score = 0.1,
-                  n = 100,
+                  n = 10,
                   cores = 6,
                   output_csv = T,
                   return_df = T) # return data.frame as object, named above
 
 ```
 
-Take a look at the solutions.csv output. Note that the first column is named
-unit_id. The select_order column indicates the order in which a planning unit
+Take a look at the `solutions.csv` output. Note that the first column is named
+`unit_id`. The `select_order` column indicates the order in which a planning unit
 was selected for the footprint. Species columns indicate whether a unit was
-selected for (1) within a given unit_id.
+selected for (1) within a given `unit_id`.
 ```{r view footprints}
 head(sample_sols100, 5)
 ```
@@ -129,17 +131,17 @@ In this vignette, the optimization output was also saved as an r object above (s
 unique_sols <- unique_solution_ct(sample_sols100)
 head(unique_sols)
 
-# Get planning unit count for each solution; range prints in console
+# Get planning unit (PU) count for each solution; range prints in console
 sols_unit_ct <- solutions_unit_ct(sample_sols100)
 
-# Find solutions with minimum unit counts
+# Find solutions with minimum PU counts
 min_PU_ct <- min(sols_unit_ct$PU_ct)
 # Print solutions with minimum PU counts
 min_solutions <- sols_unit_ct[sols_unit_ct$PU_ct == min_PU_ct, ]
 cat("Solution numbers with the minimum PU_count:\n", paste(min_solutions$solution, collapse = "\n"))
 
-# Bring in spatial data; here we have only PU id and remove other data
-# Relabel the column with the unique PU identification to "PU_num"
+# Bring in spatial data; here we have only the planning unit and geom columns
+# Relabel the planning unit column to "PU_num"
 pu_data <- optimTFE::units_spp_suit
 pu_data <- pu_data |>
   #rename(PU_num = uniqueID) |> example where PU column begins as 'uniqueID
@@ -170,10 +172,10 @@ map_sol_min <- single_solution_map(solution_number, sample_sols100, pu_data)
 Next let's generate habitat suitability values for each species within a given footprint.  
 Conservation practitioners may prefer a larger footprint than a minimum size if it
 yields habitat more suited to species to be recovered.  
-With OptimTFE, we can explore such tradeoffs.
+With `optimTFE`, we can explore such tradeoffs.
 
-We will again use the optimTFE solutions output as well as the solution number of
-interest, and the metadata filepath.  
+We will again use the `optimTFE` output, `solutions.csv' as well as the solution
+number of interest, and the metadata filepath.  
 This function calculates one footprint at a time, as it could be computationally 
 consuming with >10,000 footprints. (And we create them collectively as part of another evaluation tool later.)
 
@@ -185,22 +187,22 @@ consuming with >10,000 footprints. (And we create them collectively as part of a
 sol_suit_values <- solution_suit_values(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
 Next, let's get the suitability values for **selected features** that were per planning unit.  
-For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate suitability only for the 1s (i.e, excluding species that were present, but not selected for at each given conservation footprint planning unit). In contrast, the previous calculation gave the suitability across all species that had suitability values
-> 0.
+For example, the solution output file shows 1s and 0s for each planning unit for each feature. We will calculate suitability only for the 1s (i.e, excluding species that were present, but not selected for at each given conservation footprint planning unit). In contrast, the previous calculation gave the suitability across all species that had suitability values > 0.
 
-The first input comes from the output of solution_suit_values. If you do not want
-to use that input, your input dataframe must include the unit_id column first, and
-remaining columns are the feature columns with 1s and 0s from the solution output file.
+The first input comes from the output of `solution_suit_values`. If you do not want
+to use that input, your input dataframe must include the `unit_id` column first, and
+remaining columns are the feature columns with 1s and 0s from the `solutions.csv` file.
 
 ```{r Generate species suitability list for target units only}
 # Calculate suitability across PUs for selected features only
 sol_selected_spp_suit <- selected_spp_suit(solution_number, sample_sols100, file.path(project_dir, "output", "solutions.meta"))
 ```
-Now let's generate some metrics about footprints so we can compare.
-We will read-in .shp or .gpkg file with unit_id as the first column and the rest
+Now let's generate some metrics about footprints so we can evaluate across them.
+We will read-in .shp or .gpkg file with `unit_id` as the first column and the rest
 have metrics of interest for selecting a footprint. For example, this dataset has 
-area_km2 because units are not uniform, percent of unit within an existing conservation
-reserve, percent of unit considered 'good' quality habitat, etc.
+`total_area_kmsq` because units areas are not uniform, `cons_lands_mean_pct` as the
+percent of unit within an existing conservation reserve, `good_hab_mean_pct` as
+the percent of unit considered 'good' quality habitat, etc.
 
 You will need to determine how to summarize your data, and provided below is an example.
 ```{r Setup associated metrics and create a solution summary}
@@ -229,7 +231,7 @@ all_sols_metrics <- sample_sols100_metrics_df |>
   filter(!is.na(solution)) |> #some units do not occur in any solution
   group_by(solution) |>
   summarise(
-    units = as.character(jsonlite::toJSON(PU_num)),
+    units = jsonlite::toJSON(PU_num),
     total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
     good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
           = TRUE)) * 100, #mean percent of footprint with 'good' habitat
@@ -275,4 +277,4 @@ footprint.
 We do not have lock-in or lock-out functions at this time. If this is desired,
 one can create another species input column in the suitability file and assign values
 to '1' or assign as an existing population, and set targets to meet the number of
-PUs assigned in the corresponding file.
+planning units assigned in the corresponding file.

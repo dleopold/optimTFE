@@ -144,7 +144,7 @@ pre, code {
 background-color: #f7f7f7;
 border-radius: 3px;
 color: #333;
-white-space: pre-wrap; 
+white-space: pre-wrap;
 }
 pre {
 border-radius: 3px;
@@ -212,18 +212,18 @@ text-decoration: underline; }
 a[href^="https:"] {
 text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.kw { color: #555; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #d14; }
+code > span.fl { color: #d14; }
+code > span.ch { color: #d14; }
+code > span.st { color: #d14; }
+code > span.co { color: #888888; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #900; font-weight: bold; }
+code > span.er { color: #a61717; background-color: #e3d2d2; }
 </style>
 
 
@@ -256,7 +256,7 @@ often includes planning for recovery of populations. And, often there
 are existing populations or individuals that practitioners want to
 prioritize.<br />
 The option to account for existing populations is found in the
-‘spp_pops_fn’ function. Each distinct population should be uniquely
+`populations_file` function. Each distinct population should be uniquely
 named; alphanumeric codes are accepted. Populations can span more than 1
 PU.</p>
 <p>If this function is used, the optimTFE algorithm will preferentially
@@ -279,7 +279,7 @@ species.</p>
 <p>When setting recovery goals, there are often additional constraints
 beyond the number of populations required. A recovery plan may cite a
 number populations that must span distinct ecological units, counties,
-etc. The sub_regions_fn function can be used to meet targets across
+etc. The sub_regions_file function can be used to meet targets across
 multiple regions.</p>
 <p>Although the term bioregion has an ecological context, it can be used
 to create distinct units for any purpose. Identifying bioregions is

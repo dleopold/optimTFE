@@ -30,7 +30,7 @@ consider for selection at each iteration}
 \item{single_pu_pop}{only one location (ie unit) selected per delineated
 population (only when prioritize_known_pops = TRUE)}
 
-\item{spp_suit}{matrix of suitability scores for each species in each unit (pu)}
+\item{spp_suit}{matrix of suitability scores for each species in each planning unit (PU)}
 
 \item{spp_names}{Vector of species names}
 

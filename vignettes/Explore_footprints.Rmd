@@ -18,15 +18,18 @@ klippy::klippy()
 library(klippy)
 ```
 ### Conservation footprint explorer tool: Evaluate tradeoffs across footprint metrics
-In this vignette we show how we can evaluate tradeoffs across all conservation footprints using metrics useful to conservation practitioners.  
-For example, we can understand the amount of a footprint that occurs within existing
+In this vignette we show how we can evaluate tradeoffs across all conservation footprints
+using metrics useful to conservation practitioners.  
+For example, we can understand the proportion that a footprint occurs within existing
 conservation lands, the proportion of a footprint that occurs within fenced areas
-or native habitat, etc. The specific set of criteria considered in the analysis is project specific, with the examples provided representing a set of criteria identified as valuable metrics to be used in footprint selection in our particular case study.
+or native habitat, etc. The specific set of criteria considered in the analysis is
+project specific, with the examples provided representing a set of criteria identified
+as valuable metrics to be used in footprint selection in our particular case study.
 
 In order to run the explorer tool there must be a file with metrics of interest
 associated with each planning unit. These values can be calculated using zonal
 statistics or intersections.  
-See the example dataset for pre-processing setup: PU_metrics.gpkg
+See the example dataset for pre-processing setup: `PU_metrics.gpkg`
 
 ### Load libraries for running the explorer tool and set project directory
 
@@ -42,8 +45,8 @@ library(tidyr)
 ```
 
 ### Gather datasets needed
-This includes the pu_data spatial file with the planning unit id column and the 
-solution summary metrics .csv file created from the 'all_sols_metrics' object in
+This includes the `pu_data` spatial file with the planning unit id column and the 
+solution summary metrics .csv file created from the `all_sols_metrics` object in
 the optimTFE vignette. Below also demonstrates how to create the files.
 
 ```{r Create footprint summary metrics dataset}
@@ -54,7 +57,7 @@ PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optim
 # big,so you may want to subset based on footprint unit count, etc.
 
 # Keep unit_id and solution as columns 1 and 2 followed by columns for getting summary stats 
-# (pu area, conservation lands, etc.)
+# (planning unit area, conservation lands, etc.)
 
 # Load sample_sols100 if not already in the environment; this is in the output folder
 # created after running the optimTFE algorithm.
@@ -92,7 +95,7 @@ solutions_metrics <- sample_sols100_metrics_df |>
 ### Create input dataset formatted for the optimTFE explorer
 You will need two files:  
 1) Solution summary metrics file created above or from the optimTFE vignette  
-2) Solution output file generated from running the optimTFE algorithm
+2) Solution output file, `solutions.csv' generated from running the optimTFE algorithm
 
 ```{r Create solution summary file, warning=FALSE, echo=FALSE}
 # If solutions metrics file was already created in optimTFE vignette, read-in dataset:
@@ -112,8 +115,8 @@ write.csv(sols_for_explorer, file.path(project_dir, "output", "summary_by_soluti
 ### Open the explorer
 
 #### It will require two input files
-1\) Solution summary file: summary_by_solution.csv created in line 99  
-2\) Spatial data file: shapefile or geopackage ** with column labeled PU_num ** indicating
+1\) Solution summary file: `summary_by_solution.csv` created in line 99  
+2\) Spatial data file: shapefile or geopackage ** with column labeled `PU_num` ** indicating
 planning unit IDs
 
 ```{r Open Explorer, warning=FALSE, message=FALSE, eval = FALSE}
@@ -135,11 +138,11 @@ across two metrics.
 The top-ranked footprint is presented in the map and the dashed red line in the graphs
 show where the selection metrics fall across all generated footprints.  
 The bottom drop-down menu allows for selection of multiple footprints. Doing so will
-add a dashed line for each footprint. PU transparency will change on the map according
+add a dashed line for each footprint. Planning unit transparency will change on the map according
 to the number of selected footprints with overlap.  
 
 *Note the check box beneath each metric which allows for selecting descending rank
-order. This is an important feature as some metrics min or max values may be desired (e.g., invaded vs native habitat area per PU).
+order. This is an important feature as some metrics min or max values may be desired (e.g., invaded vs native habitat area per planning unit).
 ```{r include metrics, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("./vignette_images/metrics_descending_rank_order_option.PNG")
 ```

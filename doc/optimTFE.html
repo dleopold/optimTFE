@@ -242,35 +242,35 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } 
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.at { color: #7d9029; } 
-code span.bn { color: #40a070; } 
-code span.bu { color: #008000; } 
-code span.cf { color: #007020; font-weight: bold; } 
-code span.ch { color: #4070a0; } 
-code span.cn { color: #880000; } 
-code span.co { color: #60a0b0; font-style: italic; } 
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.do { color: #ba2121; font-style: italic; } 
-code span.dt { color: #902000; } 
-code span.dv { color: #40a070; } 
-code span.er { color: #ff0000; font-weight: bold; } 
-code span.ex { } 
-code span.fl { color: #40a070; } 
-code span.fu { color: #06287e; } 
-code span.im { color: #008000; font-weight: bold; } 
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.kw { color: #007020; font-weight: bold; } 
-code span.op { color: #666666; } 
-code span.ot { color: #007020; } 
-code span.pp { color: #bc7a00; } 
-code span.sc { color: #4070a0; } 
-code span.ss { color: #bb6688; } 
-code span.st { color: #4070a0; } 
-code span.va { color: #19177c; } 
-code span.vs { color: #4070a0; } 
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.al { color: #ff0000; font-weight: bold; }
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.at { color: #7d9029; }
+code span.bn { color: #40a070; }
+code span.bu { color: #008000; }
+code span.cf { color: #007020; font-weight: bold; }
+code span.ch { color: #4070a0; }
+code span.cn { color: #880000; }
+code span.co { color: #60a0b0; font-style: italic; }
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.do { color: #ba2121; font-style: italic; }
+code span.dt { color: #902000; }
+code span.dv { color: #40a070; }
+code span.er { color: #ff0000; font-weight: bold; }
+code span.ex { }
+code span.fl { color: #40a070; }
+code span.fu { color: #06287e; }
+code span.im { color: #008000; font-weight: bold; }
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.kw { color: #007020; font-weight: bold; }
+code span.op { color: #666666; }
+code span.ot { color: #007020; }
+code span.pp { color: #bc7a00; }
+code span.sc { color: #4070a0; }
+code span.ss { color: #bb6688; }
+code span.st { color: #4070a0; }
+code span.va { color: #19177c; }
+code span.vs { color: #4070a0; }
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -404,7 +404,7 @@ pre, code {
 background-color: #f7f7f7;
 border-radius: 3px;
 color: #333;
-white-space: pre-wrap; 
+white-space: pre-wrap;
 }
 pre {
 border-radius: 3px;
@@ -472,18 +472,18 @@ text-decoration: underline; }
 a[href^="https:"] {
 text-decoration: underline; }
 
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.kw { color: #555; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #d14; }
+code > span.fl { color: #d14; }
+code > span.ch { color: #d14; }
+code > span.st { color: #d14; }
+code > span.co { color: #888888; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #900; font-weight: bold; }
+code > span.er { color: #a61717; background-color: #e3d2d2; }
 </style>
 
 
@@ -571,8 +571,8 @@ run.</p>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Note that we call the saved spp_suitability.csv created above.</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>sample_sols100 <span class="ot">&lt;-</span> <span class="fu">optimTFE</span>(</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                  <span class="at">dir =</span> project_dir,</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>                  <span class="at">spp_targets_fn =</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;targets.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;optimTFE&quot;</span>),</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>                  <span class="at">spp_suit_fn =</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;spp_suitability.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;optimTFE&quot;</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>                  <span class="at">targets_file =</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;targets.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;optimTFE&quot;</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>                  <span class="at">suitability_file =</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;spp_suitability.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;optimTFE&quot;</span>),</span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>                  <span class="at">rand_tolerance =</span> <span class="dv">5</span>,</span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>                  <span class="at">min_spp_suit_score =</span> <span class="fl">0.1</span>,</span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>                  <span class="at">n =</span> <span class="dv">100</span>,</span>

@@ -23,9 +23,9 @@ If you have not first explored the [optimTFE vignette](https://code.usgs.gov/pie
 When conservation practitioners are planning for species recovery, it often includes
 planning for recovery of populations. And, often there are existing populations
 or individuals that practitioners want to prioritize.  
-The option to account for existing populations is found in the 'spp_pops_fn'
+The option to account for existing populations is found in the `populations_file`
 function. Each distinct population should be uniquely named; alphanumeric codes
-are accepted. Populations can span more than 1 PU.
+are accepted. Populations can span more than 1 planning unit.
 
 If this function is used, the optimTFE algorithm will preferentially select existing
 populations. This function interacts with the bioregions function, explained below.
@@ -36,7 +36,7 @@ same order as listed in the species suitability input file.
 The matrix will likely be mostly 0s, with a single population or individual labeled
 uniquely from other, separate populations.
 
-A PU cannot be assigned to more than one population for a given species.
+A planning unit cannot be assigned to more than one population for a given species.
 
 ```{r populations setup, echo=F, out.width = "400px", fig.align="center"}
 knitr::include_graphics("./vignette_images/populations_data_setup.png")
@@ -46,7 +46,7 @@ knitr::include_graphics("./vignette_images/populations_data_setup.png")
 When setting recovery goals, there are often additional constraints beyond the number
 of populations required. A recovery plan may cite a number populations that must 
 span distinct ecological units, counties, etc. 
-The sub_regions_fn function can be used to meet targets across multiple regions.
+The sub_regions_file function can be used to meet targets across multiple regions.
                                                                               
 Although the term bioregion has an ecological context, it can be used to create 
 distinct units for any purpose. Identifying bioregions is optional, and if used,
@@ -55,10 +55,10 @@ The bioregion dataset must be in .csv format, with unit_id as the first column,
 and distinct unit names following in subsequent columns. This will be a matrix of
 1s and 0s; 1s indicate the bioregion, 0s indicate it is not designated to the region(s).
 
-Not all PUs must be assigned to a region, but ensure all columns for the
-given PU are 0s.  
+Not all planning units must be assigned to a region, but ensure all columns for the
+given planning units are 0s.  
 
-**NOTE:** A PU can be assigned only to a single region.
+**NOTE:** A planning unit can be assigned only to a single region.
 
 Below is an example of the bioregions format. This includes no region assignment
 for PUs 6 and 7 (unit_id in the dataset).
@@ -92,7 +92,7 @@ populations is greater than the total target.
 **Example:** There are 5 populations for sp_1: 2 in bioregion1, 2 in bioregion2,
 and one in bioregion3.  
 The total target is 4, bioregion1 has a target of 3 and bioregion3 has a target of 1.  
-The optimTFE algorithm will select a PU for both populations in bioregion1, another
-PU based on suitability values, and a PU for the population in bioregion3 to meet
-the target of 4.
+The optimTFE algorithm will select a planning unit for both populations in bioregion1, another
+PU based on suitability values, and a planning unit from the population in bioregion3
+to meet the target of 4.
 

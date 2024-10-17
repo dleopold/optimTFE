@@ -1,24 +1,39 @@
-#' optimTFE algorithm: generate a suite of conservation footprint 'solutions'
-#' based on Feature suitability values and a list of Targets for all Features.
+#' optimTFE algorithm
+#'
+#' Generate a suite of conservation footprint 'solutions' based on feature
+#' suitability values and a list of targets for all features.
+#'
+#' The function generates conservation footprints based on species/feature habitat
+#' suitability scores within planning units, and a target number of populations per
+#' species. A greedy algorithm iteratively selects planning units withthe highest number
+#' of remaining species targets until all targets are met.
+#' To mitigate known pitfalls of richness-based selection at each iteration, stochasticity
+#' is introduced where one planning unit is randomly selected from a pool of planning units
+#' within a set number of targets of the maximum for that iteration. To maximize species
+#' suitability scores in selected units the probability of selection is weighted by
+#' the mean suitability scores of remaining targets. Constraints, such as hybridization,
+#' can be introduced to specifically prohibit the algorithm from selecting the same
+#' planning unit for two taxa. This process is then repeated to generate many spatiallay
+#' efficient solutions that meet all targets for each species.
+#'
+#' @md
+#'
 #'
 #' @param dir working directory
-#' @param spp_targets_fn .csv of species targets. First 2 columns should be
+#' @param targets_file .csv of species targets. First 2 columns should be
 #'   species names and total targets populations, respectively. Additional
-#'   columns should be provided when using subregion targets. Column names must
-#'   match the sub-region names provided in the sub_regions_fn input and values
-#'   should be the minimum number of populations required in the the subregion.
-#' @param spp_suit_fn input species suitability matrix. Rows are locations and
-#'   columns are species. Must include species names and location ids in the
-#'   column and row names, respectively.
-#' @param sub_regions_fn (optional) A csv input defining sub-regions. Should
-#'   include 1 row for each planning unit with binary values indicating the
-#'   sub-region membership of each planning unit.
-#' @param use_subregion_targets should subregion targets be used (default = TRUE
-#'   if a valid sub_regions_fn is provided).
-#' @param spp_pops_fn (optional) .csv input matrix of delineated populations.
-#'   Row / column names must match suitability matrix
-#' @param prioritize_known_pops should known delineated populations be
-#'   prioritized (default = TRUE if a valid spp_pops_fn is provided)
+#'   columns must be provided when using sub-region targets. Column names must
+#'   match the sub-region names provided in the `sub_regions_file` input and
+#'   values should be the minimum number of populations required in the sub-region.
+#' @param suitability_file input species suitability matrix. The first column is
+#'   planning unit number, and following columns are species. Values indicate the
+#'   suitability scores for each species/taxa in each planning unit.
+#' @param sub_regions_file (optional) A .csv input defining sub-regions within the
+#' set of planning units. Must include 1 row for each planning unit with binary values
+#' indicating the sub-region membership of each planning unit. Sub-region column
+#' names must match those in the `targets_file`.
+#' @param populations_file (optional) A .csv input matrix of delineated
+#'   populations. Row / column names must match suitability matrix.
 #' @param single_pu_pop only one location (ie unit) selected per delineated
 #'   population (only when prioritize_known_pops = TRUE)
 #' @param rand_tolerance  the range of species richness, from maximum, to
@@ -28,8 +43,8 @@
 #'   could cause species to be unable to meet targets.
 #' @param min_spp_suit_score minimum suitability score for a species to be
 #'   considered in a location (default = 0)
-#' @param max_candidate_units maximum number of candidate units to consider for a
-#'   species at each round of selection (default = Inf). This will subset
+#' @param max_candidate_units maximum number of candidate units to consider for
+#'   a species at each round of selection (default = Inf). This will subset
 #'   species data by highest suitability score to the number of units listed,
 #'   but will not exclude known populations.
 #' @param seed seed for reproducible output (optional)
@@ -46,7 +61,7 @@
 #' @param progress show progress bar
 #' @param output_prefix prefix for output files (default = 'solutions')
 #' @param output_dir location to write outputs (default = `file.path(dir,
-#'   'output')`)
+#'   'output')`). Created for user if does not exist.
 #' @param output_csv Should the solutions be written to a single csv file
 #'   (default = TRUE)
 #' @param output_parquet Should the solutions be written to a parquet file
@@ -64,17 +79,15 @@
 optimTFE <- function(
     # Data Inputs
     dir = here::here(),
-    spp_targets_fn = NULL,
-    spp_suit_fn = NULL,
-    sub_regions_fn = NULL,
-    spp_pops_fn = NULL,
+    targets_file = NULL,
+    suitability_file = NULL,
+    sub_regions_file = NULL,
+    populations_file = NULL,
     # Config parameters
     min_spp_suit_score = 0,
     max_candidate_units = Inf,
     rand_tolerance = 5,
     max_spp_selected = Inf,
-    use_subregion_targets = !is.null(sub_regions_fn) && file.exists(sub_regions_fn),
-    prioritize_known_pops = !is.null(spp_pops_fn) && file.exists(spp_pops_fn),
     single_pu_pop = TRUE,
     # Compute parameters
     n = 100,
@@ -136,7 +149,8 @@ optimTFE <- function(
   }
 
   # Temp files ----
-  tmp_dir <- file.path(output_dir, paste0(output_prefix, "_tmp"))
+  tmp_dir <- file.path(output_dir, paste0(output_prefix, "_tmp_", as.numeric(Sys.time())))
+  # add timestamp to tmp_dir to create unique
   dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
   if (!force_overwrite && length(list.files(tmp_dir) > 0L)) {
     glue::glue(
@@ -146,13 +160,18 @@ optimTFE <- function(
       message()
     stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
   }
-
+# Alt way to remove tmp_dir files if run is interrupted. Else, tmp_dir files can
+# be appended to next run.
+  # if (force_overwrite && length(list.files(tmp_dir) > 0L)) {
+  #   unlink(list.files(tmp_dir, full.names = TRUE), force = TRUE, recursive = TRUE)
+  # }
+#
   # Read inputs ----
   ## Load species targets ----
-  if (length(spp_targets_fn) == 0L || !file.exists(spp_targets_fn)) {
-    stop(crayon::bold(crayon::red("A species targets input is required (spp_targets_fn).")))
+  if (length(targets_file) == 0L || !file.exists(targets_file)) {
+    stop(crayon::bold(crayon::red("A species targets input is required (targets_file).")))
   }
-  targets_df <- read.csv(spp_targets_fn)
+  targets_df <- read.csv(targets_file)
   colnames(targets_df)[1:2] <- c("species", "total")
   spp_names <- targets_df[, 1] |> sort()
   if (any((targets_df[, -1] %% 1) > 0L) || any(targets_df[, -1] < 0L)) {
@@ -161,10 +180,10 @@ optimTFE <- function(
   message(crayon::cyan(glue::glue("Species targets loaded: {length(spp_names)}")))
 
   ## Load Suitability matrix ----
-  if (length(spp_suit_fn) == 0L || !file.exists(spp_suit_fn)) {
-    stop(crayon::bold(crayon::red("A species suitability matrix is required (spp_suit_fn).")))
+  if (length(suitability_file) == 0L || !file.exists(suitability_file)) {
+    stop(crayon::bold(crayon::red("A species suitability matrix is required (suitability_file).")))
   }
-  spp_suit <- read.csv(spp_suit_fn)
+  spp_suit <- read.csv(suitability_file)
   colnames(spp_suit)[1] <- "unit_id"
 
   # Validate species names in suitability matrix
@@ -174,13 +193,38 @@ optimTFE <- function(
   message(crayon::cyan("Species suitability matrix loaded"))
 
   ## Load sub-region delineations ----
-  if (length(sub_regions_fn) == 1L && file.exists(sub_regions_fn)) {
-    sub_regions <- read.csv(sub_regions_fn)
+  use_subregion_targets <- FALSE
+  if (!is.null(sub_regions_file)) {
+
+    sub_regions <- tryCatch(
+      read.csv(sub_regions_file),
+      error = function(e) NULL
+    )
+
+    if(is.null(sub_regions)){
+      stop(crayon::bold(crayon::red("Cannot read from the sub_regions_file.")))
+    }
+
+    use_subregion_targets <- TRUE
     colnames(sub_regions)[1] <- "unit_id"
+
+    # Validate data
+    if(any(is.na(sub_regions)) || !all(sub_regions[,-1] %in% 0:1)){
+      stop(crayon::bold(crayon::red("Incorrect sub-region delineation format.")))
+    }
+    if(any(rowSums(sub_regions[,-1]) > 1 )){
+      stop(crayon::bold(crayon::red("Planning units must not span sub-region boundaries.")))
+    }
+    if (!all(sub_regions[, 1] %in% spp_suit[, 1])) {
+      stop(crayon::bold(crayon::red("sub_regions_file includes unit_ids not present in spp suitability matrix.")))
+    }
+    if( any(duplicated(sub_regions[, 1]))) {
+      stop(crayon::bold(crayon::red("Duplicated unit_ids detected in the sub_regions_file.")))
+    }
     if (!all.equal(sort(colnames(targets_df)[-1:-2]), sort(colnames(sub_regions)[-1]))) {
       stop(crayon::bold(crayon::red("Sub-region names do not match species targets.")))
     }
-    # TODO - need to validate binary data
+
     sub_regions <- sub_regions |>
       tidyr::pivot_longer(
         -unit_id,
@@ -205,18 +249,35 @@ optimTFE <- function(
   }
 
   ## Load known populations matrix ----
-  if (prioritize_known_pops) {
-    spp_pops <- read.csv(spp_pops_fn)
+  prioritize_known_pops <- FALSE
+  if (!is.null(populations_file)) {
+
+    spp_pops <- tryCatch(
+      read.csv(populations_file),
+      error = function(e) NULL
+    )
+
+    if(is.null(spp_pops)){
+      stop(crayon::bold(crayon::red("Cannot read from the populations_file.")))
+    }
+
+    prioritize_known_pops <- TRUE
     colnames(spp_pops)[1] <- "unit_id"
-    message(crayon::cyan("Known population matrix loaded."))
-    # validate planning units
+
+    # validate data
     if (!all(spp_pops[, 1] %in% spp_suit[, 1])) {
-      stop(crayon::bold(crayon::red("Known population matrix includes unit_ids not present in spp suitability matrix.")))
+      stop(crayon::bold(crayon::red("populations_file includes unit_ids not present in spp suitability matrix.")))
+    }
+    if( any(duplicated(spp_pops[, 1]))) {
+      stop(crayon::bold(crayon::red("Duplicated unit_ids detected in the populations_file.")))
     }
     # validate species
     if (!all(colnames(spp_pops)[-1] %in% targets_df[, 1])) {
-      stop(crayon::bold(crayon::red("Known population matrix includes unexpected species names.")))
+      stop(crayon::bold(crayon::red("populations_file includes unexpected species names.")))
     }
+
+    message(crayon::cyan("Known population matrix loaded."))
+
   }
 
   # Compile species goals ----

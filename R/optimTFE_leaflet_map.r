@@ -140,7 +140,7 @@ create_interactive_map=function(solution_result_file, original_PU_polygons,
                     textsize = "15px",
                     direction = "auto"),
                   group="Single species PU") %>%
-      #add map of met targets per PU
+      #add map of met targets per planning unit (PU)
       addPolygons(data=solution[,"n_targets"], weight = 1, col="black", fillColor = ~pal(as.data.frame(solution)$n_targets), fillOpacity = 1, group="Number of target species")
 
     #Dynamically add species layers if any specified
