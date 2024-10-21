@@ -27,7 +27,7 @@ and opening the [.html versions](https://code.usgs.gov/pierc/optimTFE/-/tree/rel
 ##### Additional description
 The function generates conservation footprints based on species/feature habitat
 suitability scores within planning units, and a target number of populations per
-species. A greedy algorithm iteratively selects planning units withthe highest number
+species. A greedy algorithm iteratively selects planning units with the highest number
 of remaining species targets until all targets are met.  
 To mitigate known pitfalls of richness-based selection at each iteration, stochasticity
 is introduced where one planning unit is randomly selected from a pool of planning units
