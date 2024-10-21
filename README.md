@@ -35,15 +35,17 @@ within a set number of targets of the maximum for that iteration. To maximize sp
 suitability scores in selected units the probability of selection is weighted by
 the mean suitability scores of remaining targets. Constraints, such as hybridization,
 can be introduced to specifically prohibit the algorithm from selecting the same
-planning unit for two taxa. This process is then repeated to generate many spatiallay
+planning unit for two taxa. This process is then repeated to generate many spatially
 efficient solutions that meet all targets for each species.
 
 #### Suggested citation
 Leopold, C. R., Leopold, D. R., Berio Fortini, L. optimTFE, U.S. Geological Survey software release, https://doi.org/10.5066/P137H9PF.
 
 #### References
-Berio Fortini, L., Leopold, C. L., Amidon, F., Leopold, D. R., Fretz, J. S., Jacobi, J. D. Mehrhoff, L., Price, J. P., Duvall, F., Keir, M., Oppenheimer, H., Weiseneberger, L., & Sutter, R. In press. Advancing Landscape-Scale Conservation Planning with a Transparent, Flexible, and Expert-Engaged Approach for At-Risk Species Recovery in an Era of Rapid Ecological Change. Conservation Biology.
-Leopold, C.R., Berio Fortini, L., Amidon, F., Fretz, S., Jacobi, J.D., Mehrhoff, L., & Sutter, R. 2023. East Maui, Hawaiʻi optimization of climate resilient habitat for native plant species recovery, 2021: U.S. Geological Survey data release, <https://doi.org/10.5066/P9LKNAR4>.
+Berio Fortini, L., Leopold, C. L., Amidon, F., Leopold, D. R., Fretz, J. S., Jacobi, J. D. Mehrhoff, L., Price, J. P., Duvall, F., Keir, M., Oppenheimer, H., Weiseneberger, L., & Sutter, R. *Accepted*. Advancing Landscape-Scale Conservation Planning with a Transparent, Flexible, and Expert-Engaged Approach for At-Risk Species Recovery in an Era of Rapid Ecological Change. Conservation Biology. 
+
+Leopold, C.R., Berio Fortini, L., Amidon, F., Fretz, S., Jacobi, J.D., Mehrhoff, L., & Sutter, R. 2023. East Maui, Hawaiʻi optimization of climate resilient habitat for native plant species recovery, 2021: U.S. Geological Survey data release, <https://doi.org/10.5066/P9LKNAR4>. 
+
 Ball, I. R., Possingham, H. P., & Watts, M. E. (2009). Marxan and relatives: Software for spatial conservation prioritization. In A. Moilanen, K. A. Wilson, & H. P. Possingham (Eds.), Spatial conservation prioritization: Quantitative methods and computational tools (pp. 185–195). Oxford University Press.
 
 #### Disclaimer
@@ -85,7 +87,7 @@ This package requires a minimum of 2 files:
 Note: The Planning Unit identifier must occur in the first column for all files. It is renamed to unit_id in the output files.
 
 #### Associated spatial data
-The optimTFE_leaflet_map and optimTFE_explorer tools allow for spatial data exploration using the algorithm output and associated spatial data. All spatial data must be in .shp or .gpkg format.
+The *Explore conservation footprints* and *Interactive footprint map* tools allow for spatial data exploration using the algorithm output and associated spatial data. All spatial data must be in .shp or .gpkg format.
 
 #### Vignettes
 Vignettes can be viewed in the [Vignettes folder](https://code.usgs.gov/pierc/optimTFE/-/tree/main/vignettes?ref_type=heads) and
