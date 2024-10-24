@@ -1,5 +1,3 @@
-# optimTFE
-
 Disclaimer
 ==========
 
@@ -11,5 +9,4 @@ Government as to the functionality of the software and related material nor
 shall the fact of release constitute any such warranty. Furthermore, the
 software is released on condition that neither the USGS nor the U.S. Government
 shall be held liable for any damages resulting from its authorized or
-unauthorized use.  
-Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
+unauthorized use.
