@@ -18,8 +18,8 @@ library(klippy)
 ```
 ### Introduction
 This vignette will demonstrate how to create a leaflet application to display a
-conservation footprint generated from the optimTFE algorithm.
-We will use the solutions output generated from the algorithm, and then additional
+conservation footprint generated from the `optimTFE` function.
+We will use the `solutions.csv` output generated from the algorithm, and then additional
 spatial data of interest.
 *Note: There is an option to generate an html document for sharing the map.
 ```{r Prep, echo=TRUE, warning=FALSE, message=FALSE}
@@ -39,12 +39,12 @@ library(htmlwidgets)
 ```
 
 #### Bring in datasets
-Datasets to create the footprint map include the solutions output, planning unit polygon data,
+Datasets to create the footprint map include the `solutions.csv` output, planning unit polygon data,
 and relevant auxiliary spatial data such existing conservation lands, native habitat, etc.  
 All files of interest need to be added to this list.  
 **Note:** Currently this tool can only accept spatial polygon vector data in .shp or .gpkg file formats.
-We can also map selected PUs of individual species in the map using the solutions output.
-Use the species names as listed in the PU_polygons file to plot correctly on the map.
+We can also map selected planning units of individual species to the map.
+Use the species names as listed in the `PU_polygons` file to plot correctly on the map.
 ```{r Setup datasets, echo=TRUE}
 
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
@@ -90,9 +90,9 @@ knitr::include_graphics("./vignette_images/num_target_species.PNG")
 ```
 
 #### Create a conservation footprint map with target species and additional spatial data
-Use the 'add_auxiliary_layers' function argument in the create_interactive_map function
-to add context to the conservation footprint interactive maps. The image below shows a conservation footprint with 
-a map of existing native habitat.
+Use the `add_auxiliary_layers` argument in the `create_interactive_map` function
+to add context to the conservation footprint interactive maps. The image below shows
+a conservation footprint with a map of existing native habitat.
 ```{r Create footprint map with target species list and additional spatial data, warning=FALSE, message=FALSE, eval=FALSE}
 # Solution 35 showing conservation footprint, additional spatial layers for reference,
 # and individual species target distributions

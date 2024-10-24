@@ -2,21 +2,18 @@
 % Please edit documentation in R/optimTFE_algorithm.R
 \name{optimTFE}
 \alias{optimTFE}
-\title{optimTFE algorithm: generate a suite of conservation footprint 'solutions'
-based on Feature suitability values and a list of Targets for all Features.}
+\title{optimTFE algorithm}
 \usage{
 optimTFE(
   dir = here::here(),
-  spp_targets_fn = NULL,
-  spp_suit_fn = NULL,
-  sub_regions_fn = NULL,
-  spp_pops_fn = NULL,
+  targets_file = NULL,
+  suitability_file = NULL,
+  sub_regions_file = NULL,
+  populations_file = NULL,
   min_spp_suit_score = 0,
   max_candidate_units = Inf,
   rand_tolerance = 5,
   max_spp_selected = Inf,
-  use_subregion_targets = !is.null(sub_regions_fn) && file.exists(sub_regions_fn),
-  prioritize_known_pops = !is.null(spp_pops_fn) && file.exists(spp_pops_fn),
   single_pu_pop = TRUE,
   n = 100,
   cores = future::availableCores(),
@@ -37,28 +34,29 @@ optimTFE(
 \arguments{
 \item{dir}{working directory}
 
-\item{spp_targets_fn}{.csv of species targets. First 2 columns should be
+\item{targets_file}{.csv of species targets. First 2 columns should be
 species names and total targets populations, respectively. Additional
-columns should be provided when using subregion targets. Column names must
-match the sub-region names provided in the sub_regions_fn input and values
-should be the minimum number of populations required in the the subregion.}
+columns must be provided when using sub-region targets. Column names must
+match the sub-region names provided in the \code{sub_regions_file} input and
+values should be the minimum number of populations required in the sub-region.}
 
-\item{spp_suit_fn}{input species suitability matrix. Rows are locations and
-columns are species. Must include species names and location ids in the
-column and row names, respectively.}
+\item{suitability_file}{input species suitability matrix. The first column is
+planning unit number, and following columns are species. Values indicate the
+suitability scores for each species/taxa in each planning unit.}
 
-\item{sub_regions_fn}{(optional) A csv input defining sub-regions. Should
-include 1 row for each planning unit with binary values indicating the
-sub-region membership of each planning unit.}
+\item{sub_regions_file}{(optional) A .csv input defining sub-regions within the
+set of planning units. Must include 1 row for each planning unit with binary values
+indicating the sub-region membership of each planning unit. Sub-region column
+names must match those in the \code{targets_file}.}
 
-\item{spp_pops_fn}{(optional) .csv input matrix of delineated populations.
-Row / column names must match suitability matrix}
+\item{populations_file}{(optional) A .csv input matrix of delineated
+populations. Row / column names must match suitability matrix.}
 
 \item{min_spp_suit_score}{minimum suitability score for a species to be
 considered in a location (default = 0)}
 
-\item{max_candidate_units}{maximum number of candidate units to consider for a
-species at each round of selection (default = Inf). This will subset
+\item{max_candidate_units}{maximum number of candidate units to consider for
+a species at each round of selection (default = Inf). This will subset
 species data by highest suitability score to the number of units listed,
 but will not exclude known populations.}
 
@@ -68,12 +66,6 @@ consider for selection at each iteration(default = 5)}
 \item{max_spp_selected}{maximum number of species to select in each location
 (default = Inf) to reduce 'species packing' within units. This parameter
 could cause species to be unable to meet targets.}
-
-\item{use_subregion_targets}{should subregion targets be used (default = TRUE
-if a valid sub_regions_fn is provided).}
-
-\item{prioritize_known_pops}{should known delineated populations be
-prioritized (default = TRUE if a valid spp_pops_fn is provided)}
 
 \item{single_pu_pop}{only one location (ie unit) selected per delineated
 population (only when prioritize_known_pops = TRUE)}
@@ -87,7 +79,7 @@ population (only when prioritize_known_pops = TRUE)}
 \item{batch_size}{when parallel processing is used, this parameter can be
 used to process solution in batches for improved efficiency (default =
 NULL). If not provided (NULL), batch size will be calculated automatically
-as `ceiling(n/(cores*4))`.}
+as \code{ceiling(n/(cores*4))}.}
 
 \item{max_batch_size}{limit batch size for parallel processing (default =
 1000). Smaller values will allow the progress bar to update more
@@ -97,8 +89,7 @@ frequently, but at the cost of more disk writes.}
 
 \item{seed}{seed for reproducible output (optional)}
 
-\item{output_dir}{location to write outputs (default = `file.path(dir,
-'output')`)}
+\item{output_dir}{location to write outputs (default = \code{file.path(dir, 'output')}). Created for user if does not exist.}
 
 \item{output_prefix}{prefix for output files (default = 'solutions')}
 
@@ -117,6 +108,20 @@ frequently, but at the cost of more disk writes.}
 FALSE)}
 }
 \description{
-optimTFE algorithm: generate a suite of conservation footprint 'solutions'
-based on Feature suitability values and a list of Targets for all Features.
+Generate a suite of conservation footprint 'solutions' based on feature
+suitability values and a list of targets for all features.
+}
+\details{
+The function generates conservation footprints based on species/feature habitat
+suitability scores within planning units, and a target number of populations per
+species. A greedy algorithm iteratively selects planning units withthe highest number
+of remaining species targets until all targets are met.
+To mitigate known pitfalls of richness-based selection at each iteration, stochasticity
+is introduced where one planning unit is randomly selected from a pool of planning units
+within a set number of targets of the maximum for that iteration. To maximize species
+suitability scores in selected units the probability of selection is weighted by
+the mean suitability scores of remaining targets. Constraints, such as hybridization,
+can be introduced to specifically prohibit the algorithm from selecting the same
+planning unit for two taxa. This process is then repeated to generate many spatiallay
+efficient solutions that meet all targets for each species.
 }

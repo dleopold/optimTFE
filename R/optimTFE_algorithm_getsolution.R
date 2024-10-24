@@ -1,7 +1,7 @@
 #' #' Find one solution based on input parameters; internal to optimTFE_algorithm.
 #' #'
 #' #' @param idx index of solution to fetch
-#' #' @param spp_suit matrix of suitability scores for each species in each unit (pu)
+#' #' @param spp_suit matrix of suitability scores for each species in each planning unit (PU)
 #' #' @param spp_names Vector of species names
 #' #' @param spp_pops matrix of known population for each species in each unit
 #' #' @param spp_goals named list of the number of occurrences to select for each
@@ -40,7 +40,6 @@
 #'   solution <- list()
 #'   i <- 1
 #'   while (nrow(goals) > 0 ) {
-#'     # TODO add early stopping criteria (escape hatch)
 #'
 #'     # Filter based on populations
 #'     if(prioritize_known_pops){

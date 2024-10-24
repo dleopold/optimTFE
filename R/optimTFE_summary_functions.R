@@ -6,7 +6,7 @@
 #'  R environment
 #'
 #' @return Returns a dataframe with the count and list of solutions that are identical;
-#' also includes the PU combinations for each unique solution.
+#' also includes the planning unit (PU) combinations for each unique solution.
 #' @export
 #'
 
@@ -71,23 +71,37 @@ all_solutions_freq <- function(pu_count_by_solution_df){
   return(PU_count_freq_df)
 }
 
-#' Plot frequency distribution of PU counts across solutions
+#' Plot frequency distribution of planning unit counts across solutions
 #'
 #' @param PU_count_freq_df
 #'
-#' @return Plot the distribution frequency of PU counts
+#' @return Plot the distribution frequency of planning unit counts
 #' @export
 #'
 plot_solutions_freq <- function(PU_count_freq_df){
-  plot <- ggplot(PU_count_freq_df, aes(x = PU_ct, y = Frequency)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  theme(panel.background = element_blank()) +
-  labs(title = "Planning unit counts across all solutions",
-       x = "Planning unit count",
-       y = "Frequency") +
-  theme(plot.title = element_text(hjust=0.5))+
-  geom_text(aes(label = Frequency), vjust = -0.5, size = 3)
-print(plot)
+  # Convert PU_ct to numeric if it's not already
+  PU_count_freq_df <- PU_count_freq_df |>
+    mutate(PU_ct = as.numeric(as.character(PU_ct)))
+
+  # added max 10 breaks on x-axis
+  x_range <- range(PU_count_freq_df$PU_ct, na.rm = TRUE)
+  x_breaks <- unique(pretty(x_range, n = 10))
+
+  plot <- ggplot(PU_count_freq_df, aes(x = factor(PU_ct), y = Frequency)) +
+    geom_bar(stat = "identity", fill = "steelblue") +
+    #    theme_minimal() +
+    theme(
+      panel.background = element_blank(),
+      plot.title = element_text(hjust = 0.5),
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    ) +
+    labs(
+      title = "Planning unit counts across all solutions",
+      x = "Planning unit count",
+      y = "Frequency"
+    ) +
+    scale_x_discrete(breaks = x_breaks, labels = as.character(x_breaks))
+  print(plot)
 }
 
 
@@ -167,9 +181,9 @@ single_solution_map <- function(solution_number, solution_output, pu_data){
   sol_sp_data <-
     left_join(pu_data, sol_to_plot, by = "unit_id")
   sol_sp_data_map <- ggplot() +
-    geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.5) +
+    geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.8) +
 
-    scale_fill_gradient(low = "royalblue", high = "royalblue", na.value = "lightgray") +
+    scale_fill_gradient(low = "royalblue", high = "royalblue", na.value = "gray93") +
     theme(
       panel.background = element_rect(fill = "transparent", color = NA),
       plot.background = element_rect(fill = "transparent", color = NA)

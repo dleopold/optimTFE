@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimTFE_summary_functions.R
 \name{plot_solutions_freq}
 \alias{plot_solutions_freq}
-\title{Plot frequency distribution of PU counts across solutions}
+\title{Plot frequency distribution of planning unit counts across solutions}
 \usage{
 plot_solutions_freq(PU_count_freq_df)
 }
@@ -10,8 +10,8 @@ plot_solutions_freq(PU_count_freq_df)
 \item{PU_count_freq_df}{}
 }
 \value{
-Plot the distribution frequency of PU counts
+Plot the distribution frequency of planning unit counts
 }
 \description{
-Plot frequency distribution of PU counts across solutions
+Plot frequency distribution of planning unit counts across solutions
 }
