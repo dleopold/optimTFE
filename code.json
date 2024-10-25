@@ -3,7 +3,7 @@
     "name": "optimTFE",
     "organization": "U.S. Geological Survey",
     "description": "This repository contains source code for the optimTFE R package and tools for exploring optimTFE outputs",
-    "version": "v1.0.0",
+    "version": "1.0.0",
     "status": "Production",
 
     "permissions": {
