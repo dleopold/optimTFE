@@ -9,7 +9,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_map_ui <- function(id){
+mod_map_ui <- function(id) {
   ns <- NS(id)
   tagList(
     bslib::card(
@@ -30,8 +30,8 @@ mod_map_ui <- function(id){
 #' map Server Functions
 #'
 #' @noRd
-mod_map_server <- function(id, rv){
-  moduleServer( id, function(input, output, session){
+mod_map_server <- function(id, rv) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # Render map ----
@@ -40,7 +40,7 @@ mod_map_server <- function(id, rv){
       shinyjs::show("map_box")
       leaflet(
         options = leafletOptions(
-          attributionControl=FALSE
+          attributionControl = FALSE
         )
       ) |>
         addPolygons(
@@ -64,7 +64,7 @@ mod_map_server <- function(id, rv){
       req(rv$selected_solution)
 
       # create new solution layer
-      solution_layer <- rv$selected_solution |> purrr::map_dfr(~{
+      solution_layer <- rv$selected_solution |> purrr::map_dfr(~ {
         units <- rv$solutions |>
           dplyr::filter(solution == .x) |>
           dplyr::pull(units) |>
@@ -82,13 +82,11 @@ mod_map_server <- function(id, rv){
           weight = 0.5,
           opacity = 0.7,
           group = "sol_layer",
-          fillOpacity = 1/length(rv$selected_solution),
+          fillOpacity = 1 / length(rv$selected_solution),
           options = pathOptions(
             pane = "solutions", clickable = FALSE
           )
         )
     })
-
-
   })
 }

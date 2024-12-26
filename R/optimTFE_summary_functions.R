@@ -12,24 +12,24 @@
 
 unique_solution_ct <- function(solution_output) {
   unique_sols <- solution_output |>
-  group_by(solution) |>
-  summarise(unit_id_combination = paste(sort(unique(unit_id)), collapse = ",")) |>
-  group_by(unit_id_combination) |>
-  summarise(
-    solution = paste(solution, collapse = ", "),
-    count = n()
-  ) |>
-  arrange(desc(count))
-total_solutions <- sum(unique_sols$count)
-unique_sols_final <- unique_sols |>
-  mutate(proportion = count / total_solutions) |>
-  relocate(unit_id_combination, .after = last_col())
-unique_sols_final <- unique_sols_final |>
-  relocate(count, .before = solution)
-unique_sols_final <- unique_sols_final |>
-  relocate(proportion, .after = count)
+    group_by(solution) |>
+    summarise(unit_id_combination = paste(sort(unique(unit_id)), collapse = ",")) |>
+    group_by(unit_id_combination) |>
+    summarise(
+      solution = paste(solution, collapse = ", "),
+      count = n()
+    ) |>
+    arrange(desc(count))
+  total_solutions <- sum(unique_sols$count)
+  unique_sols_final <- unique_sols |>
+    mutate(proportion = count / total_solutions) |>
+    relocate(unit_id_combination, .after = last_col())
+  unique_sols_final <- unique_sols_final |>
+    relocate(count, .before = solution)
+  unique_sols_final <- unique_sols_final |>
+    relocate(proportion, .after = count)
 
-# Print the result
+  # Print the result
   return(unique_sols_final)
 }
 
@@ -64,7 +64,7 @@ solutions_unit_ct <- function(solution_output) {
 #' count frequencies
 #' @export
 #'
-all_solutions_freq <- function(pu_count_by_solution_df){
+all_solutions_freq <- function(pu_count_by_solution_df) {
   PU_count_freq <- table(pu_count_by_solution_df$PU_ct) / length(pu_count_by_solution_df$PU_ct)
   PU_count_freq_df <- as.data.frame(PU_count_freq)
   names(PU_count_freq_df) <- c("PU_ct", "Frequency")
@@ -78,7 +78,7 @@ all_solutions_freq <- function(pu_count_by_solution_df){
 #' @return Plot the distribution frequency of planning unit counts
 #' @export
 #'
-plot_solutions_freq <- function(PU_count_freq_df){
+plot_solutions_freq <- function(PU_count_freq_df) {
   # Convert PU_ct to numeric if it's not already
   PU_count_freq_df <- PU_count_freq_df |>
     mutate(PU_ct = as.numeric(as.character(PU_ct)))
@@ -113,7 +113,7 @@ plot_solutions_freq <- function(PU_count_freq_df){
 #' @return Map: inclusion of planning units across a solution
 #' @export
 #'
-pu_ct_freq_map <- function(solution_output, pu_spatial_data){
+pu_ct_freq_map <- function(solution_output, pu_spatial_data) {
   all_PUs_by_solct <- solution_output |>
     filter(solution > 0) |>
     group_by(unit_id) |>
@@ -125,8 +125,10 @@ pu_ct_freq_map <- function(solution_output, pu_spatial_data){
 
   # Calculate the proportion frequency of occurrence for each unique PU_num
   PU_freq <- PU_freq %>%
-    mutate(total_solutions = n_distinct(solution_output$solution),
-           freq = count / total_solutions)
+    mutate(
+      total_solutions = n_distinct(solution_output$solution),
+      freq = count / total_solutions
+    )
   freq_map <- ggplot(data = PU_freq) +
     geom_sf(aes(fill = freq)) +
     scale_fill_gradient(low = "white", high = "steelblue", limits = c(0, 1), name = "Frequency") +
@@ -153,13 +155,15 @@ pu_ct_freq_map <- function(solution_output, pu_spatial_data){
 solution_suit_values <- function(solution_number, solution_output, meta_filepath) {
   suitability <- jsonlite::fromJSON(meta_filepath)$suitability
   sol_subset <- solution_output |>
-    filter(solution_output$solution==solution_number)
+    filter(solution_output$solution == solution_number)
   sol_subset <- sol_subset |>
     select(unit_id, solution, select_order) %>%
     left_join(., suitability, by = c("unit_id" = colnames(suitability)[1]))
-  cat("Solution", solution_number, "has a mean suitability value of",
-      mean(as.matrix(sol_subset[,4:ncol(sol_subset)]), na.rm = T),
-      "across all feature inputs.\n")
+  cat(
+    "Solution", solution_number, "has a mean suitability value of",
+    mean(as.matrix(sol_subset[, 4:ncol(sol_subset)]), na.rm = T),
+    "across all feature inputs.\n"
+  )
   return(sol_subset)
 }
 
@@ -173,16 +177,14 @@ solution_suit_values <- function(solution_number, solution_output, meta_filepath
 #' @return Map of the selected solution; a potential conservation footprint
 #' @export
 
-single_solution_map <- function(solution_number, solution_output, pu_data){
-
-  sol_to_plot <- subset(solution_output, solution==solution_number)
+single_solution_map <- function(solution_number, solution_output, pu_data) {
+  sol_to_plot <- subset(solution_output, solution == solution_number)
   pu_data <- pu_data |>
     rename(unit_id = names(pu_data)[1])
   sol_sp_data <-
     left_join(pu_data, sol_to_plot, by = "unit_id")
   sol_sp_data_map <- ggplot() +
     geom_sf(data = sol_sp_data, aes(fill = solution), alpha = 0.8) +
-
     scale_fill_gradient(low = "royalblue", high = "royalblue", na.value = "gray93") +
     theme(
       panel.background = element_rect(fill = "transparent", color = NA),
@@ -203,8 +205,8 @@ single_solution_map <- function(solution_number, solution_output, pu_data){
 #' @return Suitability value across selected features for a solution
 #' @export
 #'
-selected_spp_suit <- function(solution_number, solution_output, meta_filepath){
-  sol_subset <- subset(solution_output, solution==solution_number) |>
+selected_spp_suit <- function(solution_number, solution_output, meta_filepath) {
+  sol_subset <- subset(solution_output, solution == solution_number) |>
     select(-c(2:3))
   sol_long <- sol_subset |>
     pivot_longer(-all_of(names(sol_subset)[1]), names_to = "Species", values_to = "Suitability")
@@ -219,10 +221,10 @@ selected_spp_suit <- function(solution_number, solution_output, meta_filepath){
     pivot_longer(-all_of(names(spp_suitability)[1]), names_to = "Species", values_to = "Suitability")
 
   # make an index to match by column location, not name
-  index_solution <- c(1,2)
-  index_suitability <- c(1,2)
-  selected_suitability <- merge(sol_long, spp_suit_long, by.x = index_solution, by.y = index_suitability, all.x = TRUE)|>
-    filter(Suitability.x ==1) |>
+  index_solution <- c(1, 2)
+  index_suitability <- c(1, 2)
+  selected_suitability <- merge(sol_long, spp_suit_long, by.x = index_solution, by.y = index_suitability, all.x = TRUE) |>
+    filter(Suitability.x == 1) |>
     select(-Suitability.x)
   meansuit_sol_by_species <- selected_suitability |>
     group_by(Species) |>
@@ -245,12 +247,12 @@ selected_spp_suit <- function(solution_number, solution_output, meta_filepath){
 metrics_top_solutions <- function(data, metrics, summary_type = min) {
   # Group by solution and find extreme values for each metric
   summary_values <- data |>
-    summarise(across(all_of(metrics), ~summary_type(., na.rm=T)), .by = "solution")
+    summarise(across(all_of(metrics), ~ summary_type(., na.rm = T)), .by = "solution")
 
   which_sols <- summary_values |>
     pivot_longer(all_of(metrics)) |>
     slice(
-      which(value==summary_type(value, na.rm=T)),
+      which(value == summary_type(value, na.rm = T)),
       .by = "name"
     ) |>
     pull(solution)
@@ -272,35 +274,43 @@ metrics_top_solutions <- function(data, metrics, summary_type = min) {
 #' @return object, then call object to view ggplot
 #' @export
 #'
-plot_solution_metric <- function(solution_number, solution_metric_df, metric, quantile=NA){
-  solution_value <- solution_metric_df[[metric]][solution_metric_df$solution==solution_number]
+plot_solution_metric <- function(solution_number, solution_metric_df, metric, quantile = NA) {
+  solution_value <- solution_metric_df[[metric]][solution_metric_df$solution == solution_number]
   top_solutions <- quantile(solution_metric_df[[metric]], quantile)
   solution_metric_df$above_quantile <- solution_metric_df[[metric]] > top_solutions
   # Adjust the y axis ticks
   max_count <- ceiling(max(ggplot_build(ggplot(solution_metric_df, aes(x = .data[[metric]])) +
-                                          geom_histogram(bins = 33))$data[[1]]$count))
+    geom_histogram(bins = 33))$data[[1]]$count))
 
   # Wrap the second label text
   wrapped_label <- paste0("Top ", quantile * 100, "%\n", metric)
   # Plot
   plot <- ggplot(solution_metric_df, aes(x = .data[[metric]], fill = above_quantile)) +
     geom_histogram(color = "black", bins = 33) +
-    scale_fill_manual(values = c("gray80", "skyblue"),
-                      labels = c("Solutions", wrapped_label),
-                      name = "") +
+    scale_fill_manual(
+      values = c("gray80", "skyblue"),
+      labels = c("Solutions", wrapped_label),
+      name = ""
+    ) +
     geom_vline(xintercept = solution_value, color = "red", linetype = "dashed") +
-    labs(title = paste0("Distribution of ", metric),
-         x = metric,
-         y = "Count") +
-    scale_y_continuous(breaks = seq(0, max_count, by = 1),
-                       labels = function(x) format(x, scientific = FALSE)) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.background = element_rect(fill='transparent'),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          axis.text.y = element_text(size = 8),
-          legend.text = element_text(size = 8),
-          plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+    labs(
+      title = paste0("Distribution of ", metric),
+      x = metric,
+      y = "Count"
+    ) +
+    scale_y_continuous(
+      breaks = seq(0, max_count, by = 1),
+      labels = function(x) format(x, scientific = FALSE)
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      panel.background = element_rect(fill = "transparent"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text.y = element_text(size = 8),
+      legend.text = element_text(size = 8),
+      plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")
+    )
 
   return(plot)
 }

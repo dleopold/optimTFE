@@ -3,18 +3,19 @@
 #' Generate a suite of conservation footprint 'solutions' based on feature
 #' suitability values and a list of targets for all features.
 #'
-#' The function generates conservation footprints based on species/feature habitat
-#' suitability scores within planning units, and a target number of populations per
-#' species. A greedy algorithm iteratively selects planning units withthe highest number
-#' of remaining species targets until all targets are met.
-#' To mitigate known pitfalls of richness-based selection at each iteration, stochasticity
-#' is introduced where one planning unit is randomly selected from a pool of planning units
-#' within a set number of targets of the maximum for that iteration. To maximize species
-#' suitability scores in selected units the probability of selection is weighted by
-#' the mean suitability scores of remaining targets. Constraints, such as hybridization,
-#' can be introduced to specifically prohibit the algorithm from selecting the same
-#' planning unit for two taxa. This process is then repeated to generate many spatiallay
-#' efficient solutions that meet all targets for each species.
+#' The function generates conservation footprints based on species/feature
+#' habitat suitability scores within planning units, and a target number of
+#' populations per species. A greedy algorithm iteratively selects planning
+#' units with the highest number of remaining species targets until all targets
+#' are met. To mitigate known pitfalls of richness-based selection at each
+#' iteration, stochasticity is introduced where one planning unit is randomly
+#' selected from a pool of planning units within a set number of targets of the
+#' maximum for that iteration. To maximize species suitability scores in
+#' selected units the probability of selection is weighted by the mean
+#' suitability scores of remaining targets. Constraints, such as hybridization,
+#' can be introduced to specifically prohibit the algorithm from selecting the
+#' same planning unit for two taxa. This process is then repeated to generate
+#' many spatially efficient solutions that meet all targets for each species.
 #'
 #' @md
 #'
@@ -24,14 +25,15 @@
 #'   species names and total targets populations, respectively. Additional
 #'   columns must be provided when using sub-region targets. Column names must
 #'   match the sub-region names provided in the `sub_regions_file` input and
-#'   values should be the minimum number of populations required in the sub-region.
+#'   values should be the minimum number of populations required in the
+#'   sub-region.
 #' @param suitability_file input species suitability matrix. The first column is
-#'   planning unit number, and following columns are species. Values indicate the
-#'   suitability scores for each species/taxa in each planning unit.
-#' @param sub_regions_file (optional) A .csv input defining sub-regions within the
-#' set of planning units. Must include 1 row for each planning unit with binary values
-#' indicating the sub-region membership of each planning unit. Sub-region column
-#' names must match those in the `targets_file`.
+#'   planning unit number, and following columns are species. Values indicate
+#'   the suitability scores for each species/taxa in each planning unit.
+#' @param sub_regions_file (optional) A .csv input defining sub-regions within
+#'   the set of planning units. Must include 1 row for each planning unit with
+#'   binary values indicating the sub-region membership of each planning unit.
+#'   Sub-region column names must match those in the `targets_file`.
 #' @param populations_file (optional) A .csv input matrix of delineated
 #'   populations. Row / column names must match suitability matrix.
 #' @param single_pu_pop only one location (ie unit) selected per delineated
@@ -78,7 +80,7 @@
 #'
 optimTFE <- function(
     # Data Inputs
-    dir = here::here(),
+    dir = ".",
     targets_file = NULL,
     suitability_file = NULL,
     sub_regions_file = NULL,
@@ -91,14 +93,14 @@ optimTFE <- function(
     single_pu_pop = TRUE,
     # Compute parameters
     n = 100,
-    cores = future::availableCores(),
+    cores = NULL,
     progress = TRUE,
     batch_size = NULL,
     max_batch_size = 1000,
     min_batch_size = 10,
     seed = NULL,
     # Output parameters
-    output_dir = file.path(dir, "output"),
+    output_dir = NULL,
     output_prefix = "solutions",
     output_csv = TRUE,
     output_parquet = FALSE,
@@ -106,18 +108,21 @@ optimTFE <- function(
     delete_tmp_files = TRUE,
     return_df = FALSE) {
   message("Beginning optimTFE...")
+
   start_time <- Sys.time()
+  out_dir <- out_dir %||% file.path(dir, "output")
+  cores <- cores %||% future::availableCores()
 
   # Determine if progress bar should be used
-  if(isTRUE(progress) &&
-     interactive() &&
-     !isTRUE(getOption('knitr.in.progress')) &&
-     !isTRUE(getOption("rstudio.notebook.executing"))){
-    progressr::handlers(global=TRUE)
-  }else if(interactive() &&
-           !isTRUE(getOption('knitr.in.progress')) &&
-           !isTRUE(getOption("rstudio.notebook.executing"))){
-    progressr::handlers(global=FALSE)
+  if (isTRUE(progress) &&
+    interactive() &&
+    !isTRUE(getOption("knitr.in.progress")) &&
+    !isTRUE(getOption("rstudio.notebook.executing"))) {
+    progressr::handlers(global = TRUE)
+  } else if (interactive() &&
+    !isTRUE(getOption("knitr.in.progress")) &&
+    !isTRUE(getOption("rstudio.notebook.executing"))) {
+    progressr::handlers(global = FALSE)
   }
 
   # Output Files ----
@@ -131,7 +136,7 @@ optimTFE <- function(
         "{crayon::bold(crayon::red('Output file already exists: '))}",
         crayon::bgBlue(crayon::white(csv_file))
       ) |>
-      message()
+        message()
       stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
     }
   }
@@ -160,12 +165,7 @@ optimTFE <- function(
       message()
     stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
   }
-# Alt way to remove tmp_dir files if run is interrupted. Else, tmp_dir files can
-# be appended to next run.
-  # if (force_overwrite && length(list.files(tmp_dir) > 0L)) {
-  #   unlink(list.files(tmp_dir, full.names = TRUE), force = TRUE, recursive = TRUE)
-  # }
-#
+
   # Read inputs ----
   ## Load species targets ----
   if (length(targets_file) == 0L || !file.exists(targets_file)) {
@@ -195,13 +195,12 @@ optimTFE <- function(
   ## Load sub-region delineations ----
   use_subregion_targets <- FALSE
   if (!is.null(sub_regions_file)) {
-
     sub_regions <- tryCatch(
       read.csv(sub_regions_file),
       error = function(e) NULL
     )
 
-    if(is.null(sub_regions)){
+    if (is.null(sub_regions)) {
       stop(crayon::bold(crayon::red("Cannot read from the sub_regions_file.")))
     }
 
@@ -209,16 +208,16 @@ optimTFE <- function(
     colnames(sub_regions)[1] <- "unit_id"
 
     # Validate data
-    if(any(is.na(sub_regions)) || !all(sub_regions[,-1] %in% 0:1)){
+    if (any(is.na(sub_regions)) || !all(sub_regions[, -1] %in% 0:1)) {
       stop(crayon::bold(crayon::red("Incorrect sub-region delineation format.")))
     }
-    if(any(rowSums(sub_regions[,-1]) > 1 )){
+    if (any(rowSums(sub_regions[, -1]) > 1)) {
       stop(crayon::bold(crayon::red("Planning units must not span sub-region boundaries.")))
     }
     if (!all(sub_regions[, 1] %in% spp_suit[, 1])) {
       stop(crayon::bold(crayon::red("sub_regions_file includes unit_ids not present in spp suitability matrix.")))
     }
-    if( any(duplicated(sub_regions[, 1]))) {
+    if (any(duplicated(sub_regions[, 1]))) {
       stop(crayon::bold(crayon::red("Duplicated unit_ids detected in the sub_regions_file.")))
     }
     if (!all.equal(sort(colnames(targets_df)[-1:-2]), sort(colnames(sub_regions)[-1]))) {
@@ -241,7 +240,7 @@ optimTFE <- function(
     if (any(!subRegions_possible)) {
       message(crayon::bold(crayon::red("Sub-region targets greater that total targets for some species:")))
       targets_df$species[!subRegions_possible] |>
-        purrr::walk(~{
+        purrr::walk(~ {
           message(crayon::white(crayon::bgRed(.x)))
         })
       stop()
@@ -251,13 +250,12 @@ optimTFE <- function(
   ## Load known populations matrix ----
   prioritize_known_pops <- FALSE
   if (!is.null(populations_file)) {
-
     spp_pops <- tryCatch(
       read.csv(populations_file),
       error = function(e) NULL
     )
 
-    if(is.null(spp_pops)){
+    if (is.null(spp_pops)) {
       stop(crayon::bold(crayon::red("Cannot read from the populations_file.")))
     }
 
@@ -268,7 +266,7 @@ optimTFE <- function(
     if (!all(spp_pops[, 1] %in% spp_suit[, 1])) {
       stop(crayon::bold(crayon::red("populations_file includes unit_ids not present in spp suitability matrix.")))
     }
-    if( any(duplicated(spp_pops[, 1]))) {
+    if (any(duplicated(spp_pops[, 1]))) {
       stop(crayon::bold(crayon::red("Duplicated unit_ids detected in the populations_file.")))
     }
     # validate species
@@ -277,7 +275,6 @@ optimTFE <- function(
     }
 
     message(crayon::cyan("Known population matrix loaded."))
-
   }
 
   # Compile species goals ----
@@ -380,7 +377,7 @@ optimTFE <- function(
   }
 
   # Check that populations do not span sub-regions
-  if(prioritize_known_pops && use_subregion_targets){
+  if (prioritize_known_pops && use_subregion_targets) {
     validatation <- goals |>
       dplyr::select(species, region, population) |>
       dplyr::distinct() |>
@@ -391,9 +388,9 @@ optimTFE <- function(
         .by = c(species, population)
       ) |>
       dplyr::filter(cnt > 1)
-    if(nrow(validatation) > 0L){
+    if (nrow(validatation) > 0L) {
       message(crayon::bold(crayon::red("Known populations must not span sub-region boundaries:")))
-      purrr::pwalk(validatation, function(species, population, cnt, region){
+      purrr::pwalk(validatation, function(species, population, cnt, region) {
         message(glue::glue("{crayon::italic(species)}, population {population} found in: {region}"))
       })
       stop()
@@ -466,8 +463,8 @@ optimTFE <- function(
   # Batch
   if (is.null(batch_size)) {
     batch_size <- min(ceiling(n / cores), max_batch_size)
-    if(!is.null(min_batch_size)){
-      batch_size <- max( batch_size, min_batch_size )
+    if (!is.null(min_batch_size)) {
+      batch_size <- max(batch_size, min_batch_size)
     }
   }
   btchs <- seq_len(n) |>
@@ -476,9 +473,9 @@ optimTFE <- function(
     }()
   message(crayon::cyan(glue::glue("Generating {n} solutions in {length(btchs)} batches...")))
   # Set up future backend
-  if(parallelly::supportsMulticore()){
+  if (parallelly::supportsMulticore()) {
     future_mode <- future::multicore
-  }else{
+  } else {
     future_mode <- future::multisession
   }
   future::plan(future_mode, workers = cores)
@@ -496,14 +493,14 @@ optimTFE <- function(
       seed = ifelse(is.null(seed), TRUE, seed),
       globals = list(
         goals = goals,
-        rand_tolerance=rand_tolerance,
-        max_candidate_units=max_candidate_units,
-        max_spp_selected=max_spp_selected,
-        prioritize_known_pops=prioritize_known_pops,
-        single_pu_pop=single_pu_pop
-        )
-      ),
-    ~{
+        rand_tolerance = rand_tolerance,
+        max_candidate_units = max_candidate_units,
+        max_spp_selected = max_spp_selected,
+        prioritize_known_pops = prioritize_known_pops,
+        single_pu_pop = single_pu_pop
+      )
+    ),
+    ~ {
       # Find batch of solutions and write to tmp csv
       purrr::map_dfr(.x, ~ {
         optimTFE::get_solution(
