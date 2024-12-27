@@ -11,16 +11,6 @@ not_null <- Negate(is.null)
 
 not_na <- Negate(is.na)
 
-#' Removes the null from a vector
-#'
-#' @noRd
-#'
-#' @example
-#' drop_nulls(list(1, NULL, 2))
-drop_nulls <- function(x) {
-  x[!sapply(x, is.null)]
-}
-
 #' If x is `NULL`, return y, otherwise return x
 #'
 #' @param x,y Two elements to test, one potentially `NULL`
@@ -53,11 +43,3 @@ drop_nulls <- function(x) {
   }
 }
 
-#' Typing reactiveValues is too long
-#'
-#' @inheritParams reactiveValues
-#' @inheritParams reactiveValuesToList
-#'
-#' @noRd
-rv <- function(...) shiny::reactiveValues(...)
-rvtl <- function(...) shiny::reactiveValuesToList(...)

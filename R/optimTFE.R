@@ -18,7 +18,7 @@
 #' many spatially efficient solutions that meet all targets for each species.
 #'
 #' @param dir working directory
-#' @param targets_in Species aregets file - path to a csv file or a pre-loaded
+#' @param targets_in Species targets file - path to a csv file or a pre-loaded
 #'   data frame. First 2 columns should be species names and total targets
 #'   populations, respectively. Additional columns must be provided when using
 #'   sub-region targets. Column names must match the sub-region names provided
@@ -77,19 +77,19 @@
 #' @export
 #'
 optimTFE <- function(
-    # Data Inputs
+    # Data Inputs,
     dir = ".",
-    targets_in = optimTFE::targets_example,
-    suitability_in = optimTFE::units_spp_suit,
+    targets_in = optimTFE::example_targets,
+    suitability_in = optimTFE::example_spp_suitability,
     sub_regions_file = NULL,
     populations_file = NULL,
-    # Config parameters
+    # Config parameters,
     min_spp_suit_score = 0,
     max_candidate_units = Inf,
     rand_tolerance = 5,
     max_spp_selected = Inf,
     single_pu_pop = TRUE,
-    # Compute parameters
+    # Compute parameters,
     n = 100,
     cores = NULL,
     progress = TRUE,
@@ -97,7 +97,7 @@ optimTFE <- function(
     max_batch_size = 1000,
     min_batch_size = 10,
     seed = NULL,
-    # Output parameters
+    # Output parameters,
     output_dir = NULL,
     output_prefix = "solutions",
     output_csv = TRUE,
@@ -171,7 +171,10 @@ optimTFE <- function(
     targets <- targets_in
   }
   if(is.character(targets_in) && file.exists(targets_in)) {
-    targets <- read.csv(targets_in)
+    targets <- tryCatch(
+      read.csv(targets_in),
+      error = function(e) NULL
+    )
   }
   if (is.null(targets)) {
     stop(crayon::bold(crayon::red("A species targets input is required (targets_in).")))
@@ -189,12 +192,18 @@ optimTFE <- function(
     spp_suit <- suitability_in
   }
   if(is.character(suitability_in) && file.exists(suitability_in)) {
-    spp_suit <- read.csv(suitability_in)
-    colnames(spp_suit)[1] <- "unit_id"
+    spp_suit <- tryCatch(
+      read.csv(suitability_in),
+      error = function(e) NULL
+    )
   }
   if (is.null(spp_suit)) {
     stop(crayon::bold(crayon::red("A species suitability matrix is required (suitability_in).")))
   }
+  if(inherits(spp_suit, "sf")){
+    spp_suit <- sf::st_drop_geometry(spp_suit)
+  }
+  colnames(spp_suit)[1] <- "unit_id"
 
   # Validate species names in suitability matrix
   if (!all.equal(spp_names, sort(colnames(spp_suit)[-1]))) {
