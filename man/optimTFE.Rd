@@ -7,9 +7,9 @@
 optimTFE(
   dir = ".",
   targets_in = optimTFE::example_targets,
-  suitability_in = optimTFE::example_spp_suitability,
-  sub_regions_file = NULL,
-  populations_file = NULL,
+  suitability_in = optimTFE::example_suitability,
+  subregions_in = optimTFE::example_subregions,
+  populations_in = optimTFE::example_populations,
   min_spp_suit_score = 0,
   max_candidate_units = Inf,
   rand_tolerance = 5,
@@ -34,25 +34,31 @@ optimTFE(
 \arguments{
 \item{dir}{working directory}
 
-\item{targets_in}{Species targets file - path to a csv file or a pre-loaded
-data frame. First 2 columns should be species names and total targets
-populations, respectively. Additional columns must be provided when using
-sub-region targets. Column names must match the sub-region names provided
-in the `sub_regions_file` input and values should be the minimum number of
-populations required in the sub-region.}
+\item{targets_in}{species targets file - path to a csv/tsv file or a
+pre-loaded data frame. First 2 columns should be species names and total
+targets populations, respectively. Additional columns must be provided when
+using sub-region targets. If specifying subregion targets, column names
+must match the sub-region names provided in `subregions_in` and values
+should be the minimum number of populations required in the sub-region.}
 
-\item{suitability_in}{Species suitability matrix - path to a csv file or a
-pre-loaded data frame. The first column must be the planning unit id /
+\item{suitability_in}{species suitability matrix - path to a csv/tsv file or
+a pre-loaded data frame. The first column must be the planning unit id /
 number and following columns are species. Values indicate the suitability
 scores for each species / taxon in each planning unit.}
 
-\item{sub_regions_file}{(optional) A .csv input defining sub-regions within
-the set of planning units. Must include 1 row for each planning unit with
-binary values indicating the sub-region membership of each planning unit.
-Sub-region column names must match those in the `targets_in`.}
+\item{subregions_in}{(optional) path to a csv/tsv file or a pre-loaded data
+frame defining sub-regions within the set of planning units. Must include 1
+row for each planning unit with binary values indicating the sub-region
+membership of each planning unit. Sub-region column names must match those
+in the `targets_in`.}
 
-\item{populations_file}{(optional) A .csv input matrix of delineated
-populations. Row / column names must match suitability matrix.}
+\item{populations_in}{(optional) path to a csv/tsv file or a pre-loaded
+matrix of delineated populations. Row / column names must match the
+suitability matrix. Missing values or 0s will be interpreted as no know
+population in the planning unit and other unique values will be used to
+identify known populations such that values for a given species that are
+shared across planning units indicate a population that extends across
+multiple units.}
 
 \item{min_spp_suit_score}{minimum suitability score for a species to be
 considered in a location (default = 0)}
@@ -69,8 +75,9 @@ consider for selection at each iteration(default = 5)}
 (default = Inf) to reduce 'species packing' within units. This parameter
 could cause species to be unable to meet targets.}
 
-\item{single_pu_pop}{only one location (ie unit) selected per delineated
-population (only when prioritize_known_pops = TRUE)}
+\item{single_pu_pop}{should only one location (ie unit) be selected per
+delineated population (default=TRUE). Only applies if a know population
+file (`populations_in`) is provided.}
 
 \item{n}{number of solutions to generate}
 
