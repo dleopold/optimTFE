@@ -21,7 +21,6 @@
 get_solution <- function(
     idx,
     goals,
-    # Config parameters
     max_candidate_units,
     rand_tolerance,
     max_spp_selected,
@@ -58,8 +57,8 @@ get_solution <- function(
         fmutate(
           pop_limit = pop_limit | fsum(populations) >= ffirst(total)
         ) |>
-        # ensure we don't remove units from regions when min needed > # pops
         fungroup()
+      # ensure we don't remove units from regions when min needed > # pops
       goals_summary[, pop_limit := fcase(
         min <= populations, pop_limit,
         default = FALSE

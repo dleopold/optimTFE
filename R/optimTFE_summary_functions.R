@@ -104,7 +104,6 @@ plot_solutions_freq <- function(PU_count_freq_df) {
   print(plot)
 }
 
-
 #' Map of planning unit inclusion frequency across all solutions
 #'
 #' @param solution_output solution output object from optimTFE algorithm

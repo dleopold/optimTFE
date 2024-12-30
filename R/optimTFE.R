@@ -34,12 +34,11 @@
 #'   membership of each planning unit. Sub-region column names must match those
 #'   in the `targets_in`.
 #' @param populations_in (optional) path to a csv/tsv file or a pre-loaded
-#'   matrix of delineated populations. Row / column names must match the
-#'   suitability matrix. Missing values or 0s will be interpreted as no know
-#'   population in the planning unit and other unique values will be used to
-#'   identify known populations such that values for a given species that are
-#'   shared across planning units indicate a population that extends across
-#'   multiple units.
+#'   data frame of delineated populations. Must have columns unit_id, species,
+#'   and population. Values in the population column will be interpreted and
+#'   unique populations for each species, and values can be repeated across
+#'   species (i.e.,  population '1' for species A will not conflict with
+#'   population '1' for species B).
 #' @param single_pu_pop should only one location (ie unit) be selected per
 #'   delineated population (default=TRUE). Only applies if a know population
 #'   file (`populations_in`) is provided.
@@ -64,18 +63,14 @@
 #' @param max_batch_size limit batch size for parallel processing (default =
 #'   1000). Smaller values will allow the progress bar to update more
 #'   frequently, but at the cost of more disk writes.
-#' @param min_batch_size default = 10.
+#' @param min_batch_size default = 100.
 #' @param progress show progress bar
 #' @param output_prefix prefix for output files (default = 'solutions')
 #' @param output_dir location to write outputs (default = `file.path(dir,
 #'   'output')`). Created for user if does not exist.
 #' @param output_csv Should the solutions be written to a single csv file
 #'   (default = TRUE)
-#' @param output_parquet Should the solutions be written to a parquet file
-#'   (default = FALSE)
 #' @param force_overwrite overwrite existing output files (default = FALSE)
-#' @param delete_tmp_files should temporary files be deleted after processing
-#'   (default = TRUE)
 #' @param return_df return all generated solutions as a data frame (default =
 #'   FALSE)
 #'
@@ -88,8 +83,8 @@ optimTFE <- function(
     dir = ".",
     targets_in = optimTFE::example_targets,
     suitability_in = optimTFE::example_suitability,
-    subregions_in = optimTFE::example_subregions,
-    populations_in = optimTFE::example_populations,
+    subregions_in = NULL,
+    populations_in = NULL,
     # Config parameters,
     min_spp_suit_score = 0,
     max_candidate_units = Inf,
@@ -101,16 +96,14 @@ optimTFE <- function(
     cores = NULL,
     progress = TRUE,
     batch_size = NULL,
-    max_batch_size = 1000,
-    min_batch_size = 10,
+    max_batch_size = 250,
+    min_batch_size = 50,
     seed = NULL,
     # Output parameters,
     output_dir = NULL,
     output_prefix = "solutions",
     output_csv = TRUE,
-    output_parquet = FALSE,
     force_overwrite = FALSE,
-    delete_tmp_files = TRUE,
     return_df = FALSE) {
   message("Beginning optimTFE...")
 
@@ -134,41 +127,17 @@ optimTFE <- function(
   if (length(output_prefix) == 0L || nchar(output_prefix) == 0L) {
     stop(crayon::bold(crayon::red("output_prefix must be a non-empty string")))
   }
-  if (output_csv) {
-    csv_file <- file.path(output_dir, paste0(output_prefix, ".csv"))
-    if (!force_overwrite && file.exists(csv_file)) {
-      glue::glue(
-        "{crayon::bold(crayon::red('Output file already exists: '))}",
-        crayon::bgBlue(crayon::white(csv_file))
-      ) |>
-        message()
-      stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
+  if(dir.exists(file.path(output_dir, output_prefix))) {
+    if(!force_overwrite) {
+      stop(crayon::bold(crayon::red(glue::glue("Output with the prefix '{output_prefix}' already exists: "))) |>
+        paste0(crayon::bgBlue(crayon::white(output_dir)), crayon::bold(crayon::red(output_prefix)))
+      )
     }
-  }
-  if (output_parquet) {
-    parquet_chk <- file.path(output_dir, output_prefix) |>
-      list.files(pattern = ".parquet$")
-    if (!force_overwrite && length(parquet_chk) > 0L) {
-      glue::glue(
-        "{crayon::bold(crayon::red('Output files already exist: '))}",
-        crayon::bgBlue(crayon::white(file.path(output_dir, output_prefix, "part-{i}.parquet")))
-      ) |>
-        message()
-      stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
-    }
-  }
-
-  # Temp files ----
-  tmp_dir <- file.path(output_dir, paste0(output_prefix, "_tmp_", as.numeric(Sys.time())))
-  # add timestamp to tmp_dir to create unique
-  dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
-  if (!force_overwrite && length(list.files(tmp_dir) > 0L)) {
-    glue::glue(
-      "{crayon::bold(crayon::red('Temporary file directory is not empty: '))}",
-      crayon::bgBlue(crayon::white(tmp_dir))
-    ) |>
-      message()
-    stop(crayon::red("Delete existing outputs, change the solution prefix, or set force_overwrite = TRUE."))
+    unlink(
+      list.files(output_dir, pattern = output_prefix),
+      recursive = TRUE,
+      force = TRUE
+    )
   }
 
   # Read inputs ----
@@ -312,7 +281,7 @@ optimTFE <- function(
     ]
 
     ## Validate subregion targets ----
-    validate_goals <- goals[, .(count = .N), by = .(species,region)][
+    validate_goals <- goals[, .(count = .N), by = .(species, region)][
       data.table::melt(
         targets[, .SD, .SDcols = c("species", colnames(subregions)[-1])],
         id.vars = "species",
@@ -320,11 +289,11 @@ optimTFE <- function(
         value.name = "region_min",
         variable.factor = FALSE
       )[region_min > 0L],
-      on = .(species,region),
+      on = .(species, region),
       nomatch = NA
     ][is.na(count), count := 0][region_min > count]
     if (nrow(validate_goals) > 0) {
-      message(crayon::red("Some sub-region species goals can not be met:"))
+      message(crayon::red("Some subregion targets can not be met:"))
       for (i in seq_len(nrow(validate_goals))) {
         glue::glue(
           "{validate_goals$species[i]} - {validate_goals$region[i]}: {validate_goals$count[i]} units available, {validate_goals$region_min[i]} requested."
@@ -351,7 +320,7 @@ optimTFE <- function(
       )
     ]
 
-    message(crayon::cyan("Subregion data loaded: ", paste(unique(subregions$region), collapse = ", ")))
+    message(crayon::cyan(glue::glue("Subregion data loaded: {paste(colnames(subregions)[-1], collapse=', ')}")))
   }
 
   ## Load known populations matrix ----
@@ -371,86 +340,65 @@ optimTFE <- function(
     if (is.null(populations)) {
       stop(crayon::bold(crayon::red("Invalid input prodived for populations_in.")))
     }
-    colnames(populations)[1] <- "unit_id"
-    populations[, unit_id := as.character(unit_id)]
+    colnames(populations) <- c("unit_id", "species", "population")
+    populations[, names(populations) := lapply(.SD, as.character)]
 
     # validate data
-    if (!all(populations[['unit_id']] %in% suitability[['unit_id']])) {
+    if (!all(populations[["unit_id"]] %in% suitability[["unit_id"]])) {
       stop(crayon::bold(crayon::red("populations_file includes unit_ids not present in spp suitability matrix.")))
     }
-    if (any(duplicated(populations[['unit_id']]))) {
-      stop(crayon::bold(crayon::red("Duplicated unit_ids detected in the populations_file.")))
-    }
-    if (!all(spp_names %in% colnames(populations))) {
+    if (!all(unique(populations[["species"]]) %in% spp_names)) {
       stop(crayon::bold(crayon::red("Species names in suitability matrix do not match species targets.")))
     }
+    # validate all populations have suitability
+    validate_pops <- populations[!goals, on = .(species, unit_id)]
+    if (nrow(validate_pops) > 0) {
+      message(crayon::red("Some known populations occur in units with no suitability:"))
+      for (i in seq_len(nrow(validate_pops))) {
+        glue::glue(
+          "{validate_pops$species[i]} - population {validate_pops$population[i]}: unit {validate_pops$unit_id[i]} has no suitability."
+        ) |>
+          crayon::white() |>
+          message()
+      }
+      return(invisible())
+    }
 
-
-    foo <- goals[
-      data.table::melt(
-        populations[, c("unit_id", spp_names), with = FALSE],
-        id.vars = "unit_id",
-        variable.name = "species",
-        value.name = "population",
-        variable.factor = FALSE
-      )[,
-        population := as.character(population)
-      ],
+    # Add populations to goals
+    goals[
+      populations,
       on = .(unit_id, species),
       population := data.table::fcoalesce(i.population, population)
     ]
 
+    # Check that populations do not span sub-regions
+    if (use_subregion_targets) {
+      validate_pops <- goals[
+        !is.na(population) & !duplicated(goals, by = c("species", "region", "population")),
+        .(species, region, population)
+      ][
+        , .(count = .N),
+        by = .(species, population)
+      ][
+        count > 1
+      ]
+      if (nrow(validate_pops) > 0L) {
+        message(crayon::bold(crayon::red("Known populations must not span subregion boundaries:")))
+        for (i in seq_len(nrow(validate_pops))) {
+          glue::glue(
+            "{validate_pops$species[i]} - population {validate_pops$population[i]}: found in {paste(validate_pops$count[i])} regions."
+          ) |>
+            crayon::white() |>
+            message()
+        }
+        return(invisible())
+      }
+    }
+
+    # TODO! - if single_pu_pop=TRUE check that goals can still be met
+
     message(crayon::cyan("Known population matrix loaded."))
   }
-
-  # Add known populations to goals b----
-  if (prioritize_known_pops) {
-    spp_pops <- spp_pops |>
-      tidyr::pivot_longer(
-        -unit_id,
-        names_to = "species",
-        values_to = "population"
-      ) |>
-      dplyr::filter(
-        population > 0
-      )
-
-    goals <- goals |>
-      dplyr::full_join(
-        spp_pops,
-        by = c("unit_id", "species")
-      ) |>
-      dplyr::mutate(
-        suitability = dplyr::case_when(
-          !is.na(population) & suitability == 0 ~ max(min_spp_suit_score, 1E-5),
-          .default = suitability
-        )
-      )
-  }
-
-  # Check that populations do not span sub-regions
-  if (prioritize_known_pops && use_subregion_targets) {
-    validatation <- goals |>
-      dplyr::select(species, region, population) |>
-      dplyr::distinct() |>
-      tidyr::drop_na() |>
-      dplyr::summarise(
-        cnt = dplyr::n(),
-        region = paste(region, collapse = ", "),
-        .by = c(species, population)
-      ) |>
-      dplyr::filter(cnt > 1)
-    if (nrow(validatation) > 0L) {
-      message(crayon::bold(crayon::red("Known populations must not span sub-region boundaries:")))
-      purrr::pwalk(validatation, function(species, population, cnt, region) {
-        message(glue::glue("{crayon::italic(species)}, population {population} found in: {region}"))
-      })
-      return(invisible())
-    }
-  }
-
-
-
 
   # Generate Solutions ----
   # Batch
@@ -472,16 +420,17 @@ optimTFE <- function(
     future_mode <- future::multisession
   }
   future::plan(future_mode, workers = cores)
-  p <- progressor(along = btchs) # Init progress bar
-
-  tmp_files <- file.path(
-    tmp_dir,
-    paste0(uuid::UUIDgenerate(n = length(btchs)), ".csv")
+  # p <- progressor(along = btchs) # Init progress bar
+  p <- progressor(n)
+  dir.create(solutions_dir <- file.path(output_dir, output_prefix), showWarnings = FALSE, recursive = TRUE)
+  fns <- file.path(
+    solutions_dir,
+    paste0(uuid::UUIDgenerate(n = length(btchs)), ".parquet")
   )
 
   furrr::future_walk2(
     btchs,
-    tmp_files,
+    fns,
     .options = furrr::furrr_options(
       seed = ifelse(is.null(seed), TRUE, seed),
       globals = list(
@@ -490,15 +439,17 @@ optimTFE <- function(
         max_candidate_units = max_candidate_units,
         max_spp_selected = max_spp_selected,
         prioritize_known_pops = prioritize_known_pops,
-        single_pu_pop = single_pu_pop
+        single_pu_pop = single_pu_pop,
+        compression = ifelse(arrow::codec_is_available('snappy'), 'snappy', 'uncompressed')
       )
     ),
     ~ {
       # Find batch of solutions and write to tmp csv
       purrr::map_dfr(.x, ~ {
+        p()
         optimTFE::get_solution(
           idx = .x,
-          goals = data.table::as.data.table(goals),
+          goals = goals,
           rand_tolerance = rand_tolerance,
           max_candidate_units = max_candidate_units,
           max_spp_selected = max_spp_selected,
@@ -506,30 +457,21 @@ optimTFE <- function(
           single_pu_pop = single_pu_pop
         )
       }) |>
-        readr::write_csv(.y, num_threads = 1, progress = FALSE)
-      p() # update progress bar
+        arrow::write_parquet(.y, compression = compression)
+      # p() # update progress bar
       return()
     }
   )
 
   # Save outputs ----
-  data <- arrow::open_dataset(tmp_dir, format = "csv")
+  data <- arrow::open_dataset(solutions_dir, format = "parquet")
   if (output_csv) {
     glue::glue(
       "{crayon::cyan('Saving csv output: ')}",
       "{crayon::bgBlue(crayon::white(csv_file))}"
     ) |>
       message()
-    arrow::write_csv_arrow(data, csv_file)
-  }
-  if (output_parquet) {
-    pq_path <- file.path(output_dir, output_prefix)
-    glue::glue(
-      "{crayon::cyan('Saving parquet output: ')}",
-      "{crayon::bgBlue(crayon::white(pq_path))}"
-    ) |>
-      message()
-    arrow::write_parquet(data, pq_path)
+    arrow::write_csv_arrow(data, file.path(output_dir, paste0(output_prefix, ".csv")))
   }
   if (return_df) {
     message(crayon::cyan("Preparing results as tibble"))
@@ -538,16 +480,10 @@ optimTFE <- function(
 
   # Write metadata ----
   elapsed_time <- Sys.time() - start_time
-  meta <- list(
+  list(
     time_elapsed = glue::glue(
       "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
     ),
-    targets = seq_len(nrow(targets)) |>
-      setNames(targets$species) |>
-      purrr::imap(~ {
-        targets <- targets[.x, -1] |> as.list()
-        targets[targets > 0]
-      }),
     rand_tolerance = rand_tolerance,
     max_candidate_units = max_candidate_units,
     max_spp_selected = max_spp_selected,
@@ -557,21 +493,24 @@ optimTFE <- function(
     batch_size = batch_size,
     cores = cores,
     seed = seed,
-    suitability = spp_suit |>
+    targets = seq_len(nrow(targets)) |>
+      setNames(targets$species) |>
+      purrr::imap(~ {
+        targets <- targets[.x, -1] |> as.list()
+        targets[targets > 0]
+      }),
+    suitability = suitability |>
       purrr::pmap(function(...) {
         suits <- list(...)
         suits[suits != 0]
-      })
+      }),
+    popultaions = populations,
+    subregions = subregions
   ) |>
+    purrr::compact()
     jsonlite::toJSON(auto_unbox = TRUE) |>
     jsonlite::prettify() |>
     write(file.path(output_dir, paste0(output_prefix, ".meta")))
-
-  # Delete temp files ----
-  if (delete_tmp_files) {
-    message(crayon::cyan("Cleaning up temp files"))
-    unlink(tmp_dir, force = TRUE, recursive = TRUE)
-  }
 
   # Report Time ----
   glue::glue(
