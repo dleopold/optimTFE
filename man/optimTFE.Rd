@@ -8,8 +8,8 @@ optimTFE(
   dir = ".",
   targets_in = optimTFE::example_targets,
   suitability_in = optimTFE::example_suitability,
-  subregions_in = optimTFE::example_subregions,
-  populations_in = optimTFE::example_populations,
+  subregions_in = NULL,
+  populations_in = NULL,
   min_spp_suit_score = 0,
   max_candidate_units = Inf,
   rand_tolerance = 5,
@@ -19,15 +19,13 @@ optimTFE(
   cores = NULL,
   progress = TRUE,
   batch_size = NULL,
-  max_batch_size = 1000,
-  min_batch_size = 10,
+  max_batch_size = 250,
+  min_batch_size = 50,
   seed = NULL,
   output_dir = NULL,
   output_prefix = "solutions",
   output_csv = TRUE,
-  output_parquet = FALSE,
   force_overwrite = FALSE,
-  delete_tmp_files = TRUE,
   return_df = FALSE
 )
 }
@@ -53,12 +51,11 @@ membership of each planning unit. Sub-region column names must match those
 in the `targets_in`.}
 
 \item{populations_in}{(optional) path to a csv/tsv file or a pre-loaded
-matrix of delineated populations. Row / column names must match the
-suitability matrix. Missing values or 0s will be interpreted as no know
-population in the planning unit and other unique values will be used to
-identify known populations such that values for a given species that are
-shared across planning units indicate a population that extends across
-multiple units.}
+data frame of delineated populations. Must have columns unit_id, species,
+and population. Values in the population column will be interpreted and
+unique populations for each species, and values can be repeated across
+species (i.e.,  population '1' for species A will not conflict with
+population '1' for species B).}
 
 \item{min_spp_suit_score}{minimum suitability score for a species to be
 considered in a location (default = 0)}
@@ -94,7 +91,7 @@ as `ceiling(n/(cores*4))`.}
 1000). Smaller values will allow the progress bar to update more
 frequently, but at the cost of more disk writes.}
 
-\item{min_batch_size}{default = 10.}
+\item{min_batch_size}{default = 100.}
 
 \item{seed}{seed for reproducible output (optional)}
 
@@ -106,13 +103,7 @@ frequently, but at the cost of more disk writes.}
 \item{output_csv}{Should the solutions be written to a single csv file
 (default = TRUE)}
 
-\item{output_parquet}{Should the solutions be written to a parquet file
-(default = FALSE)}
-
 \item{force_overwrite}{overwrite existing output files (default = FALSE)}
-
-\item{delete_tmp_files}{should temporary files be deleted after processing
-(default = TRUE)}
 
 \item{return_df}{return all generated solutions as a data frame (default =
 FALSE)}

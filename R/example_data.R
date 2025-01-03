@@ -8,9 +8,18 @@
 #' \describe{
 #'   \item{PU_num}{Planning unit/unit_id number}
 #'   \item{sp_01 - sp_36}{Habitat suitability value for each species (0-1)}
+#'   \item{area_km2}
+#'   \item{good_hab_kmsq}
+#'   \item{not_good_hab_kmsq}
+#'   \item{max_slope}
+#'   \item{fenced_kmsq}
+#'   \item{not_fenced_kmsq}
+#'   \item{reserved_kmsq}
+#'   \item{max_FB_richness}
+#'   \item{max_accessibility}
 #'   \item{geom}{geometry }
 #' }
-"example_suitability"
+"example_data"
 
 #' Example Targets Data
 #'
