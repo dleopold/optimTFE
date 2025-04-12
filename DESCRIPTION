@@ -8,7 +8,7 @@ Description: OptimTFE is a spatial decision-support tool with additional tools f
 License: TBD
 URL: https://github.com/crleopold/optimTFE_combo.git
 BugReports: https://github.com/crleopold/optimTFE_combo.git/issues
-Imports: 
+Imports:
     arrow,
     bslib,
     config (>= 0.3.1),
@@ -32,14 +32,15 @@ Imports:
     shinyjs,
     shinyWidgets,
     stringr,
-    tidyr
+    tidyr,
+    uuid
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-Suggests: 
+Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Depends: 
+Depends:
     R (>= 3.5)
 LazyData: true

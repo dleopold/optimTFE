@@ -81,12 +81,12 @@
 optimTFE <- function(
     # Data Inputs,
     dir = ".",
-    targets_in = optimTFE::example_targets,
-    suitability_in = optimTFE::example_suitability,
+    targets_in = "dev/targets2.csv",
+    suitability_in = "dev/suitability2.csv",
     subregions_in = NULL,
-    populations_in = NULL,
+    populations_in = "dev/populations2.csv",
     # Config parameters,
-    min_spp_suit_score = 0,
+    min_spp_suit_score = 0.25,
     max_candidate_units = Inf,
     rand_tolerance = 5,
     max_spp_selected = Inf,
@@ -127,11 +127,10 @@ optimTFE <- function(
   if (length(output_prefix) == 0L || nchar(output_prefix) == 0L) {
     stop(crayon::bold(crayon::red("output_prefix must be a non-empty string")))
   }
-  if(dir.exists(file.path(output_dir, output_prefix))) {
-    if(!force_overwrite) {
+  if (dir.exists(file.path(output_dir, output_prefix))) {
+    if (!force_overwrite) {
       stop(crayon::bold(crayon::red(glue::glue("Output with the prefix '{output_prefix}' already exists: "))) |>
-        paste0(crayon::bgBlue(crayon::white(output_dir)), crayon::bold(crayon::red(output_prefix)))
-      )
+        paste0(crayon::bgBlue(crayon::white(output_dir)), crayon::bold(crayon::red(output_prefix))))
     }
     unlink(
       list.files(output_dir, pattern = output_prefix),
@@ -217,9 +216,9 @@ optimTFE <- function(
   ][total > count]
   if (nrow(validate_goals) > 0L) {
     message(crayon::red("Some overall species goals can not be met:"))
-    for (i in seq_len(nrow(impossible_goals))) {
+    for (i in seq_len(nrow(validate_goals))) {
       glue::glue(
-        "{impossible_goals$species[i]}: {impossible_goals$available_units[i]} units available, {impossible_goals$total[i]} required."
+        "{validate_goals$species[i]}: {validate_goals$count[i]} units available, {validate_goals$total[i]} required."
       ) |>
         crayon::white() |>
         message()
@@ -229,9 +228,9 @@ optimTFE <- function(
 
   # Subregions ----
   use_subregion_targets <- FALSE
+  subregions <- NULL
   if (!is.null(subregions_in)) {
     use_subregion_targets <- TRUE
-    subregions <- NULL
     if (is.data.frame(subregions_in)) {
       subregions <- data.table::as.data.table(subregions_in)
     }
@@ -325,9 +324,9 @@ optimTFE <- function(
 
   ## Load known populations matrix ----
   prioritize_known_pops <- FALSE
+  populations <- NULL
   if (!is.null(populations_in)) {
     prioritize_known_pops <- TRUE
-    populations <- NULL
     if (is.data.frame(populations_in)) {
       populations <- data.table::as.data.table(populations_in)
     }
@@ -419,9 +418,9 @@ optimTFE <- function(
   } else {
     future_mode <- future::multisession
   }
-  future::plan(future_mode, workers = cores)
-  # p <- progressor(along = btchs) # Init progress bar
-  p <- progressor(n)
+  future::plan(future_mode, workers = min(cores, length(btchs)))
+  p <- progressor(along = btchs) # Init progress bar
+  # p <- progressor(n)
   dir.create(solutions_dir <- file.path(output_dir, output_prefix), showWarnings = FALSE, recursive = TRUE)
   fns <- file.path(
     solutions_dir,
@@ -439,14 +438,13 @@ optimTFE <- function(
         max_candidate_units = max_candidate_units,
         max_spp_selected = max_spp_selected,
         prioritize_known_pops = prioritize_known_pops,
-        single_pu_pop = single_pu_pop,
-        compression = ifelse(arrow::codec_is_available('snappy'), 'snappy', 'uncompressed')
+        single_pu_pop = single_pu_pop
       )
     ),
     ~ {
       # Find batch of solutions and write to tmp csv
       purrr::map_dfr(.x, ~ {
-        p()
+        # p()
         optimTFE::get_solution(
           idx = .x,
           goals = goals,
@@ -457,8 +455,8 @@ optimTFE <- function(
           single_pu_pop = single_pu_pop
         )
       }) |>
-        arrow::write_parquet(.y, compression = compression)
-      # p() # update progress bar
+        arrow::write_parquet(.y, compression = ifelse(arrow::codec_is_available("snappy"), "snappy", "uncompressed"))
+      p() # update progress bar
       return()
     }
   )
@@ -466,12 +464,14 @@ optimTFE <- function(
   # Save outputs ----
   data <- arrow::open_dataset(solutions_dir, format = "parquet")
   if (output_csv) {
+    csv_file <- file.path(output_dir, paste0(output_prefix, ".csv"))
     glue::glue(
       "{crayon::cyan('Saving csv output: ')}",
       "{crayon::bgBlue(crayon::white(csv_file))}"
     ) |>
       message()
-    arrow::write_csv_arrow(data, file.path(output_dir, paste0(output_prefix, ".csv")))
+    arrow::write_csv_arrow(data, csv_file
+)
   }
   if (return_df) {
     message(crayon::cyan("Preparing results as tibble"))
@@ -507,7 +507,7 @@ optimTFE <- function(
     popultaions = populations,
     subregions = subregions
   ) |>
-    purrr::compact()
+    purrr::compact() |>
     jsonlite::toJSON(auto_unbox = TRUE) |>
     jsonlite::prettify() |>
     write(file.path(output_dir, paste0(output_prefix, ".meta")))

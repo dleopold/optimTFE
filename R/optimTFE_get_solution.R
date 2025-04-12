@@ -106,7 +106,7 @@ get_solution <- function(
     selected_region <- unit_summary$region[sel]
 
     # Find selected species
-    if (max_spp_selected > Inf) {
+    if (max_spp_selected < Inf) {
       selected_spp <- goals |>
         fsubset(unit_id == selected_unit & consider == TRUE)
       setorder(selected_spp, -suitability)
