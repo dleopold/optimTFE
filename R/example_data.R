@@ -1,61 +1,54 @@
+#' Example Spatial Data
+#'
+#' A hexagonal grid of planning units.
+#'
+#' @format A spatial data frame with 795 rows:
+#' \describe{
+#'   \item{unit_id}{Planning unit name / identifier}
+#'   \item{geometry}{hexagonal grid}
+#' }
+"example_spatial"
+
 #' Example Species Suitability Data
 #'
-#' A spatial data frame containing the species habitat suitability values by
-#' each planning unit. This data set is used for creating an input for the
-#' optimTFE algorithm and spatially referencing output solutions.
+#' A matrix of habitat suitability values for 30 species.
 #'
-#' @format A data frame with 693 rows and 38 variables:
-#' \describe{
-#'   \item{PU_num}{Planning unit/unit_id number}
-#'   \item{sp_01 - sp_36}{Habitat suitability value for each species (0-1)}
-#'   \item{area_km2}
-#'   \item{good_hab_kmsq}
-#'   \item{not_good_hab_kmsq}
-#'   \item{max_slope}
-#'   \item{fenced_kmsq}
-#'   \item{not_fenced_kmsq}
-#'   \item{reserved_kmsq}
-#'   \item{max_FB_richness}
-#'   \item{max_accessibility}
-#'   \item{geom}{geometry }
-#' }
-"example_data"
+#' @format numeric matrix with 796 rows (units) and 30 columns (species)
+"example_suitability"
 
 #' Example Targets Data
 #'
-#' An example targets data frame, specifying the conservation targets for 36
-#' species. The data frame also include subregion targets for 2 Bioregions,
-#' `region1` and `region2`.
+#' An example targets matrix, specifying 10 total conservation targets for each of 30
+#' species (rows). The matrix include subregion targets for 2 Bioregions,
+#' `left` and `right`.
 #'
-#' @format A data frame with 36 rows and 4 variables:
+#' @format A matrix with 30 rows and 3 columns:
 #' \describe{
-#'   \item{species}{Species name / identifier}
 #'   \item{total}{the total target value for the species}
-#'   \item{region1}{species target value for region1}
-#'   \item{region2}{species target value for region2}
+#'   \item{left}{species target value for the left region}
+#'   \item{right}{species target value for the right region}
 #' }
 "example_targets"
 
 #' Example Subregions input
 #'
-#' An example subregions data frame, specifying which of the example planning
-#' units comprise `region1` and `region2`.
+#' An example subregions matrix, specifying which of the example planning
+#' units comprise the `left` and `right` regions.
 #'
-#' @format A data frame with 693 rows and 3 variables:
-#' \describe{
-#'   \item{unit_id}{Planning unit name / identifier}
-#'   \item{region1}{0/1 indicating if the planning unit is in region1}
-#'   \item{region2}{0/1 indicating if the planning unit is in region2}
-#' }
 "example_subregions"
 
 #' Example Known population input
 #'
-#' An example know population data frame, specifying the known population
+#' An example know population matrix, with 795 rows (units) and 30 columns (species).
+#' Unique values in each species column indicates a known population, which some
+#' popultaions spanning more that one unit.
 #'
-#' @format A data frame with 693 rows and 3 variables:
-#' \describe{
-#'   \item{unit_id}{Planning unit name / identifier}
-#'   \item{sp_01 - sp_36}{Habitat suitability value for each species (0-1)}
-#' }
+#' @format A matrix with 795 rows and 30 columns
 "example_populations"
+
+#' Example Species incompatibility input
+#'
+#' A n x n binary matrix indicating which species pairs are compatable (0) or incompatibile (1).
+#'
+#' @format A matrix with 30 rows and 30 columns
+"example_incompatibility"

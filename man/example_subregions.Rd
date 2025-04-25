@@ -5,18 +5,13 @@
 \alias{example_subregions}
 \title{Example Subregions input}
 \format{
-A data frame with 693 rows and 3 variables:
-\describe{
-  \item{unit_id}{Planning unit name / identifier}
-  \item{region1}{0/1 indicating if the planning unit is in region1}
-  \item{region2}{0/1 indicating if the planning unit is in region2}
-}
+An object of class \code{matrix} (inherits from \code{array}) with 795 rows and 2 columns.
 }
 \usage{
 example_subregions
 }
 \description{
-An example subregions data frame, specifying which of the example planning
-units comprise `region1` and `region2`.
+An example subregions matrix, specifying which of the example planning
+units comprise the `left` and `right` regions.
 }
 \keyword{datasets}

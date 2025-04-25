@@ -5,16 +5,14 @@
 \alias{example_populations}
 \title{Example Known population input}
 \format{
-A data frame with 693 rows and 3 variables:
-\describe{
-  \item{unit_id}{Planning unit name / identifier}
-  \item{sp_01 - sp_36}{Habitat suitability value for each species (0-1)}
-}
+A matrix with 795 rows and 30 columns
 }
 \usage{
 example_populations
 }
 \description{
-An example know population data frame, specifying the known population
+An example know population matrix, with 795 rows (units) and 30 columns (species).
+Unique values in each species column indicates a known population, which some
+popultaions spanning more that one unit.
 }
 \keyword{datasets}

@@ -5,20 +5,19 @@
 \alias{example_targets}
 \title{Example Targets Data}
 \format{
-A data frame with 36 rows and 4 variables:
+A matrix with 30 rows and 3 columns:
 \describe{
-  \item{species}{Species name / identifier}
   \item{total}{the total target value for the species}
-  \item{region1}{species target value for region1}
-  \item{region2}{species target value for region2}
+  \item{left}{species target value for the left region}
+  \item{right}{species target value for the right region}
 }
 }
 \usage{
 example_targets
 }
 \description{
-An example targets data frame, specifying the conservation targets for 36
-species. The data frame also include subregion targets for 2 Bioregions,
-`region1` and `region2`.
+An example targets matrix, specifying 10 total conservation targets for each of 30
+species (rows). The matrix include subregion targets for 2 Bioregions,
+`left` and `right`.
 }
 \keyword{datasets}

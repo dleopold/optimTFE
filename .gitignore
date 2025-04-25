@@ -12,3 +12,4 @@ inst/doc
 *.tar.gz
 src/rust/target/
 src/rust/Cargo.lock
+CLAUDE.md

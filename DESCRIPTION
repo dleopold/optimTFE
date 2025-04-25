@@ -8,6 +8,7 @@ Description: OptimTFE is a spatial decision-support tool with additional tools f
 License: TBD
 URL: https://github.com/crleopold/optimTFE_combo.git
 BugReports: https://github.com/crleopold/optimTFE_combo.git/issues
+SystemRequirements: GNU make
 Imports:
     arrow,
     bslib,
@@ -26,6 +27,8 @@ Imports:
     leaflet,
     progressr,
     purrr,
+    Rcpp,
+    RcppParallel,
     rlang,
     sf,
     shiny (>= 1.8.0),
@@ -34,6 +37,9 @@ Imports:
     stringr,
     tidyr,
     uuid
+LinkingTo:
+    Rcpp,
+    RcppParallel
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
