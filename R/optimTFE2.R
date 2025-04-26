@@ -140,15 +140,14 @@ optimTFE <- function(
 
   # Read inputs ----
   ## Load species targets ----
-  if (is.data.frame(targets)) {
-    targets <- as.matrix(targets)
-  }
   if (is.character(targets) && file.exists(targets)) {
     targets <- tryCatch(
-      read.csv(targets, row.names = 1) |>
-        as.matrix(),
+      read.csv(targets, row.names = 1),
       error = function(e) NULL
     )
+  }
+  if (is.data.frame(targets)) {
+    targets <- as.matrix(targets)
   }
   if (!is.matrix(targets)) {
     stop(crayon::bold(crayon::red(
@@ -172,6 +171,9 @@ optimTFE <- function(
       "Subregion targets can not be greater than total targets."
     )))
   }
+
+  targets <- targets |>
+    apply(1:2, as.integer)
 
   n_spp <- nrow(targets)
   spp_names <- rownames(targets)
@@ -216,13 +218,13 @@ optimTFE <- function(
   # Subregions ----
   if (!is.null(subregions)) {
     if (is.character(subregions) && file.exists(subregions)) {
-      subregions <- tryCatch(
+      regions <- tryCatch(
         read.csv(subregions, row.names = 1),
         error = function(e) NULL
       )
     }
     if (is.data.frame(subregions)) {
-      subregions <- as.matrix(subregions)
+      regions <- as.matrix(subregions)
     }
     if (!is.matrix(subregions)) {
       stop(crayon::bold(crayon::red(
@@ -250,78 +252,85 @@ optimTFE <- function(
       )))
     }
 
+    regions <- subregions |>
+      apply(1:2, as.integer)
+
     # Add missing units
-    unspecified_units <- setdiff(unit_ids, rownames(subregions))
+    unspecified_units <- setdiff(unit_ids, rownames(regions))
     if (length(unspecified_units) > 0) {
-      subregions <- rbind(
-        subregions,
-        matrix(0, nrow = length(unspecified_units), ncol = ncol(subregions)),
-        dimnames = list(unspecified_units, region_idss)
+      regions <- rbind(
+        regions,
+        matrix(
+          as.integer(0),
+          nrow = length(unspecified_units),
+          ncol = ncol(regions)
+        ),
+        dimnames = list(unspecified_units, colnames(regions))
       )
     }
 
-    subregions <- subregions[unit_ids, , drop = FALSE]
-    n_regions <- ncol(subregions)
-    region_ids <- colnames(subregions)
+    regions <- regions[unit_ids, , drop = FALSE]
+    n_regions <- ncol(regions)
+    region_ids <- colnames(regions)
 
     message(crayon::cyan(glue::glue(
       "Subregion data loaded: {n_regions} subregions"
     )))
 
     # Add default region if needed (some input units not allocated to any subregion)
-    if (any(rowSums(subregions) == 0)) {
-      if ('default' %in% region_ids) {
-        stop(crayon::bold(crayon::red(
-          "Subregions input includes a 'default' region, but some unit_ids are missing."
-        )))
+    if (any(rowSums(regions) == 0)) {
+      if (!'default' %in% region_ids) {
+        regions <- cbind(
+          regions,
+          default = rep(0, n_units)
+        )
+        n_regions <- n_regions + 1
+        region_ids <- c(region_ids, "default")
       }
-      subregions <- cbind(
-        subregions,
-        default = rep(0, n_units)
-      )
-      n_regions <- n_regions + 1
-      region_ids <- c(region_ids, "default")
-      subregions[rowSums(subregions) == 0, 'default'] <- 1
+      regions[rowSums(regions) == 0, 'default'] <- 1
     }
-
   } else {
     # If no subregions are provided, assume all units are in one region
     region_ids <- "default"
-    subregions <- matrix(
-      1,
+    regions <- matrix(
+      as.integer(1),
       nrow = n_units,
       ncol = 1,
-      dimnames = list(unit_ids, region_ids)
+      dimnames = list(unit_ids, "default")
     )
   }
 
   # Map units to regions
-  unit_regions <- apply(subregions, 1, \(x) which(x == 1))
+  unit_regions <- apply(regions, 1, \(x) which(x == 1))
 
   # Build regional targets (minimums)
-  targets_min <- matrix(
+  regional_min <- matrix(
     as.integer(0),
     nrow = n_spp,
     ncol = n_regions,
     dimnames = list(spp_names, region_ids)
   )
-  for (i in seq_len(n_regions)) {
-    if (region_ids[i] != "default") {
-      targets_min[, i] <- as.integer(targets[, region_ids[i]])
+  for (region in regions) {
+    if (region %in% colnames(targets)) {
+      regional_min[, region] <- as.integer(targets[, region])
     }
   }
 
   # Find max possible unit selections for each region
-  targets_max <- targets_min
+  regional_max <- regional_min
   for (i in seq_len(n_spp)) {
     for (j in seq_len(n_regions)) {
-      targets_max[i, j] <- spp_targets[i] - sum(targets_min[i, -j])
+      regional_max[i, j] <- spp_targets[i] - sum(regional_min[i, -j])
     }
   }
 
   ## Load known populations matrix ----
   if (!is.null(populations)) {
-    if (is.character(populations) && file.exists(populations)) {
+    if (
+      length(populations) == 1L &&
+        is.character(populations) &&
+        file.exists(populations)
+    ) {
       populations <- tryCatch(
         read.csv(populations),
         error = function(e) NULL
@@ -375,52 +384,72 @@ optimTFE <- function(
   # Set populations with 0 suitability to min suitability for species
   for (i in seq_along(spp_names)) {
     unsuitable_pops <- which(!is.na(populations[, i]) & suitability[, i] == 0)
-    if(length(unsuitable_pops) > 0) {
-      suitability[unsuitable_pops, i] <- min(suitability[suitability[, i] > 0, i])
+    if (length(unsuitable_pops) > 0) {
+      message(crayon::red(glue::glue(
+        "{length(unsuitable_pops)} population in area with 0 suitability detected for {spp_names[i]} - setting to minimum observed suitability."
+      )))
+      suitability[unsuitable_pops, i] <- min(suitability[
+        suitability[, i] > 0,
+        i
+      ])
     }
   }
 
   # Regional population counts
-  available_populations <- matrix(
+  regional_pops <- matrix(
     as.integer(0),
     nrow = n_spp,
-    ncol = n_regions
+    ncol = n_regions,
+    dimnames = list(spp_names, region_ids)
   )
-
-  for (i in seq_along(spp_names)) {
-    for (j in seq_along(region_ids)) {
-      regional_pops[i, j] <- length(unique(population_mx[unit_regions == j, i]))
+  for (sp in spp_names) {
+    for (region in region_ids) {
+      region_idx <- unit_regions == which(region_ids == region)
+      regional_pops[sp, region] <- populations[region_idx, sp] |>
+        unique() |>
+        na.omit() |>
+        length()
       # Zero out suitability if population count is greater than or equal to minimum regional target
-      if (regional_pops[i, j] >= targets_min[i, j]) {
-        suitability[unit_regions == j & is.na(populations[, i]), i] <- 0
+      if (regional_pops[sp, region] >= regional_min[sp, region]) {
+        suitability[region_idx & is.na(populations[, sp]), sp] <- 0
       }
     }
   }
 
   # Apply minimum species suitability score
-  suitability[suitability < min_spp_suit_score & !is.na(populations)] <- 0
+  suitability_filtered <- suitability
+  suitability_filtered[
+    suitability < min_spp_suit_score & !is.na(populations)
+  ] <- 0
 
   # Validate all targets can be met
   impossible_targets <- NULL
-  for (i in seq_along(spp_names)) {
+  for (sp in spp_names) {
     # Check global target
-    unit_count <- sum(suitability_mx[, i] > 0)
+    unit_count <- sum(suitability[, sp] > 0)
     if (single_pu_pop) {
-      pops <- population_mx[, i]
-      unit_count <- unit_count - sum(duplicated(pops[pops != 0]))
+      pops <- populations[, sp] |> na.omit()
+      unit_count <- unit_count - (length(pops) - length(unique(pops)))
     }
-    # Check regional targets
-    for (j in seq_along(region_ids)) {
-      unit_count <- sum(suitability_mx[unit_regions == j, i] > 0)
-      # If single_pu_pop is TRUE, remove duplicate population counts
-      if (single_pu_pop) {
-        pops <- population_mx[unit_regions == j, i]
-        unit_count <- unit_count - sum(duplicated(pops[pops != 0]))
-      }
-      if (unit_count < regional_min[i, j]) {
+      if (unit_count < spp_targets[sp]) {
         impossible_targets <- c(
           impossible_targets,
-          paste(spp_names[i], region_ids[j], sep = "-")
+          paste(sp, region, sep = "-")
+        )
+      }
+    # Check regional targets
+    for (region in region_ids) {
+      region_idx <- unit_regions == which(region_ids == region)
+      unit_count <- sum(suitability[region_idx, sp] > 0)
+      # If single_pu_pop is TRUE, remove duplicate population counts
+      if (single_pu_pop) {
+        pops <- populations[, sp] |> na.omit()
+        unit_count <- unit_count - (length(pops) - length(unique(pops)))
+      }
+      if (unit_count < regional_min[sp, region]) {
+        impossible_targets <- c(
+          impossible_targets,
+          paste(sp, region, sep = "-")
         )
       }
     }
@@ -550,403 +579,4 @@ optimTFE <- function(
     workers = 8,
     folder = normalizePath("output")
   )
-
-  # Initialize overall goals ----
-  goals <- data.table::melt(
-    suitability,
-    id.vars = "unit_id",
-    variable.name = "species",
-    value.name = "suitability"
-  )[
-    targets[, .(
-      species = species,
-      total = total,
-      region = "default",
-      population = NA_character_,
-      max = total,
-      min = 0L,
-      consider = TRUE
-    )],
-    on = "species"
-  ][
-    suitability > 0 & suitability >= min_spp_suit_score
-  ]
-
-  ## Validate that overall goals can be met ----
-  validate_goals <- goals[, .(count = .N), by = species][
-    targets[, .(species, total)],
-    on = "species"
-  ][total > count]
-  if (nrow(validate_goals) > 0L) {
-    message(crayon::red("Some overall species goals can not be met:"))
-    for (i in seq_len(nrow(validate_goals))) {
-      glue::glue(
-        "{validate_goals$species[i]}: {validate_goals$count[i]} units available, {validate_goals$total[i]} required."
-      ) |>
-        crayon::white() |>
-        message()
-    }
-    return(invisible())
-  }
-
-  # Subregions ----
-  use_subregion_targets <- FALSE
-  subregions <- NULL
-  if (!is.null(subregions_in)) {
-    use_subregion_targets <- TRUE
-    if (is.data.frame(subregions_in)) {
-      subregions <- data.table::as.data.table(subregions_in)
-    }
-    if (is.character(subregions_in) && file.exists(subregions_in)) {
-      subregions <- tryCatch(
-        data.table::fread(subregions_in),
-        error = function(e) NULL
-      )
-    }
-    if (is.null(subregions)) {
-      stop(crayon::bold(crayon::red(
-        "Invalid input prodived for subregions_in."
-      )))
-    }
-    colnames(subregions)[1] <- "unit_id"
-    subregions[, unit_id := as.character(unit_id)]
-
-    ## Validate data ----
-    if (
-      any(is.na(subregions)) ||
-        !all(subregions[,
-          lapply(.SD, function(col) all(col %in% 0:1)),
-          .SDcols = setdiff(names(subregions), "unit_id")
-        ])
-    ) {
-      stop(crayon::bold(crayon::red("Incorrect subregion delineation format.")))
-    }
-    if (
-      ncol(subregions) > 2 &&
-        any(subregions[,
-          rowSums(.SD) > 1,
-          .SDcols = setdiff(names(subregions), "unit_id")
-        ])
-    ) {
-      stop(crayon::bold(crayon::red(
-        "Planning units must not span subregion boundaries."
-      )))
-    }
-    if (!all(subregions[["unit_id"]] %in% suitability[["unit_id"]])) {
-      stop(crayon::bold(crayon::red(
-        "subregions include unit_ids not present in the suitability matrix."
-      )))
-    }
-    if (any(duplicated(subregions[["unit_id"]]))) {
-      stop(crayon::bold(crayon::red(
-        "Duplicated unit_ids detected in the subregions."
-      )))
-    }
-    if (
-      !all.equal(sort(colnames(targets)[-1:-2]), sort(colnames(subregions)[-1]))
-    ) {
-      stop(crayon::bold(crayon::red(
-        "Subregion names do not match species targets."
-      )))
-    }
-    if (
-      nrow(targets[,
-        .(check = rowSums(.SD), total = total),
-        .SDcols = colnames(subregions)[-1]
-      ][check > total]) >
-        0L
-    ) {
-      stop(crayon::bold(crayon::red(
-        "Some subregion targets greater than total target."
-      )))
-    }
-
-    ## Add subregions to goals ----
-    goals[
-      data.table::melt(
-        subregions,
-        id.vars = "unit_id",
-        variable.name = "region",
-        value.name = "included",
-        variable.factor = FALSE
-      )[included == 1L][, .SD, .SDcols = !"included"],
-      on = "unit_id",
-      region := data.table::fcoalesce(i.region, region)
-    ]
-
-    ## Validate subregion targets ----
-    validate_goals <- goals[, .(count = .N), by = .(species, region)][
-      data.table::melt(
-        targets[, .SD, .SDcols = c("species", colnames(subregions)[-1])],
-        id.vars = "species",
-        variable.name = "region",
-        value.name = "region_min",
-        variable.factor = FALSE
-      )[region_min > 0L],
-      on = .(species, region),
-      nomatch = NA
-    ][is.na(count), count := 0][region_min > count]
-    if (nrow(validate_goals) > 0) {
-      message(crayon::red("Some subregion targets can not be met:"))
-      for (i in seq_len(nrow(validate_goals))) {
-        glue::glue(
-          "{validate_goals$species[i]} - {validate_goals$region[i]}: {validate_goals$count[i]} units available, {validate_goals$region_min[i]} requested."
-        ) |>
-          crayon::white() |>
-          message()
-      }
-      return(invisible())
-    }
-
-    ## Update subregion goals ----
-    goals[
-      data.table::melt(
-        targets,
-        id.vars = c("species", "total"),
-        variable.name = "region",
-        value.name = "min",
-        variable.factor = FALSE
-      )[, max := total - (sum(min) - min), by = species][, total := NULL],
-      on = c("species", "region"),
-      `:=`(
-        min = data.table::fcoalesce(i.min, min),
-        max = data.table::fcoalesce(i.max, total)
-      )
-    ]
-
-    message(crayon::cyan(glue::glue(
-      "Subregion data loaded: {paste(colnames(subregions)[-1], collapse=', ')}"
-    )))
-  }
-
-  ## Load known populations matrix ----
-  prioritize_known_pops <- FALSE
-  populations <- NULL
-  if (!is.null(populations_in)) {
-    prioritize_known_pops <- TRUE
-    if (is.data.frame(populations_in)) {
-      populations <- data.table::as.data.table(populations_in)
-    }
-    if (is.character(populations_in) && file.exists(populations_in)) {
-      populations <- tryCatch(
-        data.table::fread(populations_in),
-        error = function(e) NULL
-      )
-    }
-    if (is.null(populations)) {
-      stop(crayon::bold(crayon::red(
-        "Invalid input prodived for populations_in."
-      )))
-    }
-    colnames(populations) <- c("unit_id", "species", "population")
-    populations[, names(populations) := lapply(.SD, as.character)]
-
-    # validate data
-    if (!all(populations[["unit_id"]] %in% suitability[["unit_id"]])) {
-      stop(crayon::bold(crayon::red(
-        "populations_file includes unit_ids not present in spp suitability matrix."
-      )))
-    }
-    if (!all(unique(populations[["species"]]) %in% spp_names)) {
-      stop(crayon::bold(crayon::red(
-        "Species names in suitability matrix do not match species targets."
-      )))
-    }
-    # validate all populations have suitability
-    validate_pops <- populations[!goals, on = .(species, unit_id)]
-    if (nrow(validate_pops) > 0) {
-      message(crayon::red(
-        "Some known populations occur in units with no suitability:"
-      ))
-      for (i in seq_len(nrow(validate_pops))) {
-        glue::glue(
-          "{validate_pops$species[i]} - population {validate_pops$population[i]}: unit {validate_pops$unit_id[i]} has no suitability."
-        ) |>
-          crayon::white() |>
-          message()
-      }
-      return(invisible())
-    }
-
-    # Add populations to goals
-    goals[
-      populations,
-      on = .(unit_id, species),
-      population := data.table::fcoalesce(i.population, population)
-    ]
-
-    # Check that populations do not span sub-regions
-    if (use_subregion_targets) {
-      validate_pops <- goals[
-        !is.na(population) &
-          !duplicated(goals, by = c("species", "region", "population")),
-        .(species, region, population)
-      ][,
-        .(count = .N),
-        by = .(species, population)
-      ][
-        count > 1
-      ]
-      if (nrow(validate_pops) > 0L) {
-        message(crayon::bold(crayon::red(
-          "Known populations must not span subregion boundaries:"
-        )))
-        for (i in seq_len(nrow(validate_pops))) {
-          glue::glue(
-            "{validate_pops$species[i]} - population {validate_pops$population[i]}: found in {paste(validate_pops$count[i])} regions."
-          ) |>
-            crayon::white() |>
-            message()
-        }
-        return(invisible())
-      }
-    }
-
-    # TODO! - if single_pu_pop=TRUE check that goals can still be met
-
-    message(crayon::cyan("Known population matrix loaded."))
-  }
-
-  # Generate Solutions ----
-  # Batch
-  if (is.null(batch_size)) {
-    batch_size <- min(ceiling(n / cores), max_batch_size)
-    if (!is.null(min_batch_size)) {
-      batch_size <- max(batch_size, min_batch_size)
-    }
-  }
-  btchs <- seq_len(n) |>
-    {
-      \(x) split(x, ceiling(x / batch_size))
-    }()
-  message(crayon::cyan(glue::glue(
-    "Generating {n} solutions in {length(btchs)} batches..."
-  )))
-  # Set up future backend
-  if (parallelly::supportsMulticore()) {
-    future_mode <- future::multicore
-  } else {
-    future_mode <- future::multisession
-  }
-  future::plan(future_mode, workers = min(cores, length(btchs)))
-  p <- progressor(along = btchs) # Init progress bar
-  # p <- progressor(n)
-  dir.create(
-    solutions_dir <- file.path(output_dir, output_prefix),
-    showWarnings = FALSE,
-    recursive = TRUE
-  )
-  fns <- file.path(
-    solutions_dir,
-    paste0(uuid::UUIDgenerate(n = length(btchs)), ".parquet")
-  )
-
-  furrr::future_walk2(
-    btchs,
-    fns,
-    .options = furrr::furrr_options(
-      seed = ifelse(is.null(seed), TRUE, seed),
-      globals = list(
-        goals = goals,
-        rand_tolerance = rand_tolerance,
-        max_candidate_units = max_candidate_units,
-        max_spp_selected = max_spp_selected,
-        prioritize_known_pops = prioritize_known_pops,
-        single_pu_pop = single_pu_pop
-      )
-    ),
-    ~ {
-      # Find batch of solutions and write to tmp csv
-      purrr::map_dfr(
-        .x,
-        ~ {
-          # p()
-          optimTFE::get_solution(
-            idx = .x,
-            goals = goals,
-            rand_tolerance = rand_tolerance,
-            max_candidate_units = max_candidate_units,
-            max_spp_selected = max_spp_selected,
-            prioritize_known_pops = prioritize_known_pops,
-            single_pu_pop = single_pu_pop
-          )
-        }
-      ) |>
-        arrow::write_parquet(
-          .y,
-          compression = ifelse(
-            arrow::codec_is_available("snappy"),
-            "snappy",
-            "uncompressed"
-          )
-        )
-      p() # update progress bar
-      return()
-    }
-  )
-
-  # Save outputs ----
-  data <- arrow::open_dataset(solutions_dir, format = "parquet")
-  if (output_csv) {
-    csv_file <- file.path(output_dir, paste0(output_prefix, ".csv"))
-    glue::glue(
-      "{crayon::cyan('Saving csv output: ')}",
-      "{crayon::bgBlue(crayon::white(csv_file))}"
-    ) |>
-      message()
-    arrow::write_csv_arrow(data, csv_file)
-  }
-  if (return_df) {
-    message(crayon::cyan("Preparing results as tibble"))
-    out <- dplyr::as_tibble(data)
-  }
-
-  # Write metadata ----
-  elapsed_time <- Sys.time() - start_time
-  list(
-    time_elapsed = glue::glue(
-      "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
-    ),
-    rand_tolerance = rand_tolerance,
-    max_candidate_units = max_candidate_units,
-    max_spp_selected = max_spp_selected,
-    prioritize_known_pops = prioritize_known_pops,
-    single_pu_pop = single_pu_pop,
-    min_spp_suit_score = min_spp_suit_score,
-    batch_size = batch_size,
-    cores = cores,
-    seed = seed,
-    targets = seq_len(nrow(targets)) |>
-      setNames(targets$species) |>
-      purrr::imap(
-        ~ {
-          targets <- targets[.x, -1] |> as.list()
-          targets[targets > 0]
-        }
-      ),
-    suitability = suitability |>
-      purrr::pmap(function(...) {
-        suits <- list(...)
-        suits[suits != 0]
-      }),
-    popultaions = populations,
-    subregions = subregions
-  ) |>
-    purrr::compact() |>
-    jsonlite::toJSON(auto_unbox = TRUE) |>
-    jsonlite::prettify() |>
-    write(file.path(output_dir, paste0(output_prefix, ".meta")))
-
-  # Report Time ----
-  glue::glue(
-    "Time elapsed: {round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
-  ) |>
-    message()
-
-  # Return results as data frame if requested
-  if (return_df) {
-    return(out)
-  }
-
-  return(invisible())
 }
