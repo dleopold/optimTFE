@@ -11,15 +11,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // select_unit
-IntegerVector select_unit(NumericMatrix suitability_mx, IntegerVector targets, int rand_tolerance);
-RcppExport SEXP _optimTFE_select_unit(SEXP suitability_mxSEXP, SEXP targetsSEXP, SEXP rand_toleranceSEXP) {
+IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance);
+RcppExport SEXP _optimTFE_select_unit(SEXP suitabilitySEXP, SEXP rand_toleranceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type suitability_mx(suitability_mxSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type targets(targetsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type suitability(suitabilitySEXP);
     Rcpp::traits::input_parameter< int >::type rand_tolerance(rand_toleranceSEXP);
-    rcpp_result_gen = Rcpp::wrap(select_unit(suitability_mx, targets, rand_tolerance));
+    rcpp_result_gen = Rcpp::wrap(select_unit(suitability, rand_tolerance));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -46,7 +45,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_optimTFE_select_unit", (DL_FUNC) &_optimTFE_select_unit, 3},
+    {"_optimTFE_select_unit", (DL_FUNC) &_optimTFE_select_unit, 2},
     {"_optimTFE_solution_gen", (DL_FUNC) &_optimTFE_solution_gen, 11},
     {NULL, NULL, 0}
 };

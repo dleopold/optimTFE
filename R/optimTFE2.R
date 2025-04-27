@@ -78,7 +78,7 @@
 #'
 #' @export
 #'
-optimTFE <- function(
+optimTFE2 <- function(
   # Data Inputs
   targets = optimTFE::example_targets,
   suitability = optimTFE::example_suitability,
@@ -104,6 +104,8 @@ optimTFE <- function(
   force_overwrite = FALSE,
   return_df = FALSE
 ) {
+  list2env(as.list(environment()), envir = .GlobalEnv)
+  return()
   message("Beginning optimTFE...")
 
   start_time <- Sys.time()
@@ -210,6 +212,8 @@ optimTFE <- function(
   suitability <- suitability[, spp_names, drop = FALSE]
   n_units <- nrow(suitability)
   unit_ids <- rownames(suitability)
+  # Local copy for modifications
+  suitability_l <- suitability
 
   message(crayon::cyan(glue::glue(
     "Species suitability matrix loaded: {nrow(suitability)} planning units"
@@ -318,9 +322,9 @@ optimTFE <- function(
 
   # Find max possible unit selections for each region
   regional_max <- regional_min
-  for (i in seq_len(n_spp)) {
-    for (j in seq_len(n_regions)) {
-      regional_max[i, j] <- spp_targets[i] - sum(regional_min[i, -j])
+  for (sp in spp_names) {
+    for (region in region_ids) {
+      regional_max[sp, region] <- spp_targets[sp] - sum(regional_min[sp, setdiff(region_ids, region)])
     }
   }
 
@@ -382,15 +386,15 @@ optimTFE <- function(
   }
 
   # Set populations with 0 suitability to min suitability for species
-  for (i in seq_along(spp_names)) {
-    unsuitable_pops <- which(!is.na(populations[, i]) & suitability[, i] == 0)
+  for (sp in spp_names) {
+    unsuitable_pops <- which(!is.na(populations[, sp]) & suitability_l[, sp] == 0)
     if (length(unsuitable_pops) > 0) {
       message(crayon::red(glue::glue(
         "{length(unsuitable_pops)} population in area with 0 suitability detected for {spp_names[i]} - setting to minimum observed suitability."
       )))
-      suitability[unsuitable_pops, i] <- min(suitability[
-        suitability[, i] > 0,
-        i
+      suitability_l[unsuitable_pops, sp] <- min(suitability_l[
+        suitability_l[, sp] > 0,
+        sp
       ])
     }
   }
@@ -410,23 +414,20 @@ optimTFE <- function(
         na.omit() |>
         length()
       # Zero out suitability if population count is greater than or equal to minimum regional target
-      if (regional_pops[sp, region] >= regional_min[sp, region]) {
-        suitability[region_idx & is.na(populations[, sp]), sp] <- 0
+      if (regional_pops[sp, region] > 0 && regional_pops[sp, region] >= regional_min[sp, region]) {
+        suitability_l[region_idx & is.na(populations[, sp]), sp] <- 0
       }
     }
   }
 
   # Apply minimum species suitability score
-  suitability_filtered <- suitability
-  suitability_filtered[
-    suitability < min_spp_suit_score & !is.na(populations)
-  ] <- 0
+  suitability_l[suitability_l < min_spp_suit_score & is.na(populations)] <- 0
 
   # Validate all targets can be met
   impossible_targets <- NULL
   for (sp in spp_names) {
     # Check global target
-    unit_count <- sum(suitability[, sp] > 0)
+    unit_count <- sum(suitability_l[, sp] > 0)
     if (single_pu_pop) {
       pops <- populations[, sp] |> na.omit()
       unit_count <- unit_count - (length(pops) - length(unique(pops)))
@@ -440,7 +441,7 @@ optimTFE <- function(
     # Check regional targets
     for (region in region_ids) {
       region_idx <- unit_regions == which(region_ids == region)
-      unit_count <- sum(suitability[region_idx, sp] > 0)
+      unit_count <- sum(suitability_l[region_idx, sp] > 0)
       # If single_pu_pop is TRUE, remove duplicate population counts
       if (single_pu_pop) {
         pops <- populations[, sp] |> na.omit()

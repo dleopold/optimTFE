@@ -5,8 +5,7 @@
 using namespace Rcpp;
 
 // Declaration for select_unit function.
-IntegerVector select_unit(NumericMatrix suitability_mx,
-                          IntegerVector total_targets,
+IntegerVector select_unit(NumericMatrix suitability,
                           int rand_tolerance);
 
 // Declaration for solution_gen function.

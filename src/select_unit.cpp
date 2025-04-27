@@ -6,9 +6,9 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-IntegerVector select_unit(NumericMatrix suitability_mx, IntegerVector targets, int rand_tolerance) {
-  int nUnits = suitability_mx.nrow();
-  int nSpp = suitability_mx.ncol();
+IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
+  int nUnits = suitability.nrow();
+  int nSpp = suitability.ncol();
 
   // Vectors for counting non-zero elements and summing non-zero values in each row.
   std::vector<int> nonzero_counts(nUnits, 0);
@@ -17,7 +17,7 @@ IntegerVector select_unit(NumericMatrix suitability_mx, IntegerVector targets, i
   // Loop over each row to compute non-zero count and sum.
   for (int i = 0; i < nUnits; i++) {
     for (int j = 0; j < nSpp; j++) {
-      double val = suitability_mx(i, j);
+      double val = suitability(i, j);
       if (val != 0.0) {
         nonzero_counts[i] += 1;
         sums[i] += val;
@@ -50,6 +50,7 @@ IntegerVector select_unit(NumericMatrix suitability_mx, IntegerVector targets, i
   int nCandidates = candidate_indices.size();
   if (nCandidates == 0)
     stop("No candidate rows found.");
+    // TODO! decide if we want to stop here or not
 
   // Compute the total weight from all candidate rows.
   double total_weight = 0.0;
@@ -77,14 +78,14 @@ IntegerVector select_unit(NumericMatrix suitability_mx, IntegerVector targets, i
   // Identifiy selected spp
   std::vector<int> selected_spp(nSpp, 0);
   for (int j = 0; j < nSpp; j++) {
-    if (suitability_mx(selected_candidate, j) > 0.0) {
+    if (suitability(selected_candidate, j) > 0.0) {
       selected_spp[j] = 1;
     } else {
       selected_spp[j] = 0;
     }
   }
 
-  // Construct Output
+  // Construct Output (index of selected unit + binary spp vector)
   IntegerVector output(nSpp + 1);
   output[0] = selected_candidate + 1; // convert to 1-indexed
   for (int j = 1; j <= nSpp; j++) {

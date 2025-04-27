@@ -117,8 +117,9 @@ for (j in seq_len(n_species)) {
   }
 
   # select populations
-  pop_opts <- which(suitability_mx[, j] > 0.5)
-  pop_cnt <- min(ceiling(length(pop_opts) / 2), sample(0:10, 1))
+  if(runif(1) < 0.2) next
+  pop_opts <- which(suitability_mx[, j] > 0.2)
+  pop_cnt <- min(ceiling(length(pop_opts) / 2), sample(0:20, 1))
   pops <- sample(pop_opts, pop_cnt, replace = FALSE)
   pop_idx <- 1
   for(pop in pops){

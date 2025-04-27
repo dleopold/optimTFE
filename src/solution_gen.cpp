@@ -39,7 +39,7 @@ IntegerMatrix solution_gen(
   int selected_region = 0;
   while (current_total > 0) {
 
-    IntegerVector selection = select_unit(suitability_l, targets_l, rand_tolerance);
+    IntegerVector selection = select_unit(suitability_l, rand_tolerance);
     selected_region = regions[selection[0]];
 
     // Set the selected candidate row in suitability_mx to all zeros.
