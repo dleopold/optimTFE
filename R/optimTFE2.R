@@ -382,12 +382,34 @@ optimTFE2 <- function(
         }
       }
     }
+
+    # Convert populations to integer mx and key
+    populations_l <- matrix(
+      as.integer(0),
+      nrow = n_units,
+      ncol = n_spp,
+      dimnames = list(unit_ids, spp_names)
+    )
+    population_names <- list()
+    pop_idx <- 1
+    for (sp in spp_names) {
+      for(unit in unit_ids){
+        if(is.na(populations[unit, sp])) next
+        pop <- paste(sp, populations[unit, sp], sep="-")
+        if(pop %in% names(population_names)) {
+          populations_l[unit, sp] <- as.integer(population_names[[pop]])
+          next
+        }
+        population_names[[pop]] <- populations_l[unit, sp] <- as.integer(pop_idx)
+        pop_idx <- pop_idx + 1
+      }
+    }
     message(crayon::cyan("Known population matrix loaded."))
   }
 
   if(is.null(populations)){
     populations <- matrix(
-      as.character(NA),
+      as.integer(0),
       nrow = n_units,
       ncol = n_spp,
       dimnames = list(unit_ids, spp_names)
@@ -527,7 +549,7 @@ optimTFE2 <- function(
     unit_counts = unit_counts,
     regional_min = regional_min,
     regional_max = regional_max,
-    populations = populations,
+    populations = populations_l,
     population_counts = population_counts,
     single_pu_pop = single_pu_pop,
     rand_tolerance = rand_tolerance,

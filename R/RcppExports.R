@@ -5,7 +5,7 @@ select_unit <- function(suitability, rand_tolerance) {
     .Call(`_optimTFE_select_unit`, suitability, rand_tolerance)
 }
 
-solution_gen <- function(suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, solution_id = 1L) {
-    .Call(`_optimTFE_solution_gen`, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, solution_id)
+solution_gen <- function(suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, incompat = matrix(0, 0), single_pu_pop = TRUE, rand_tolerance = 10L, max_spp_selected = -1L, solution_id = 1L) {
+    .Call(`_optimTFE_solution_gen`, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, incompat, single_pu_pop, rand_tolerance, max_spp_selected, solution_id)
 }
 

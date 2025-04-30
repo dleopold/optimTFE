@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include "solution_gen.h"
+#include <algorithm>
 #include <random>
 using namespace Rcpp;
 
@@ -11,11 +12,12 @@ IntegerMatrix solution_gen(
                             IntegerMatrix unit_counts,
                             IntegerMatrix regional_min,
                             IntegerMatrix regional_max,
-                            CharacterMatrix populations,
+                            IntegerMatrix populations,
                             IntegerMatrix population_counts,
-                            bool single_pu_pop,
-                            int rand_tolerance,
-                            int max_spp_selected,
+                            IntegerMatrix incompat = IntegerMatrix(0, 0),
+                            bool single_pu_pop = true,
+                            int rand_tolerance = 10,
+                            int max_spp_selected = -1,
                             int solution_id = 1) {
 
   int nUnits = suitability.nrow();
@@ -63,10 +65,14 @@ IntegerMatrix solution_gen(
     }
   }
 
+  // Consider spp incompatabilities
+  bool check_compat = incompat.nrow() == nSpp;
+
   // Container to accumulate the outputs from each iteration.
   std::vector< IntegerVector > results;
 
   // Select units until all targets are met.
+  int passing_solution = 1;
   while (current_total > 0) {
 
     IntegerVector selection = select_unit(suitability_l, rand_tolerance);
@@ -84,31 +90,82 @@ IntegerMatrix solution_gen(
     for (int j = 0; j < nSpp; j++) {
         if (selection[j+1] > 0) {
             n_spp_selected += 1;
-            if (regional_min_l(j, selected_region) >= unit_counts_l(j, selected_region)) {
+            // Always keep species when # remaining targets equals the # remaining units
+            if(spp_targets_l[j] == spp_units[j]) {
                 required_spp[j] = 1;
                 n_required += 1;
+                continue;
             }
-            if(spp_targets_l[j] >= spp_units[j]) {
+            // Always keep species when # remaining regional targets equals the # remaining units
+            if (regional_min_l(j, selected_region) == unit_counts_l(j, selected_region)) {
                 required_spp[j] = 1;
                 n_required += 1;
+                continue;
             }
-            if(populations(selection[0], j) != NA_STRING) {
+            // Always keep known population
+            if(populations(selection[0], j) > 0) {
                 required_spp[j] = 1;
                 n_required += 1;
+                continue;
             }
         }
     }
 
-    // TODO filter incomatabilities
+    // Filter incomatabilities
+    if(check_compat){
+
+        // randomize spp order
+        std::vector<int> indices(nSpp);
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), gen);
+
+        for (int j = 0; j < nSpp; j++) {
+            int a = indices[j];
+            if (selection[a+1] == 0) continue;
+            for(int i = 0; i < nSpp; i++) {
+                int b = indices[i];
+                if (selection[b+1] == 0 || a == b) continue;
+                if (incompat(a, b) == 1) {
+                    bool a_req = required_spp[a] == 1;
+                    bool b_req = required_spp[b] == 1;
+                    if (a_req && b_req) {
+                        passing_solution = 0;
+                        continue;
+                    }
+                    if( !a_req && !b_req ) {
+                        std::uniform_real_distribution<double> dist(0.0, selection[a+1] + selection[b+1]);
+                        double r = dist(gen);
+                        a_req = r < selection[a+1];
+                        b_req = !a_req;
+                    }
+                    if( a_req ) {
+                        selection[b+1] = 0;
+                        unit_counts_l(b, selected_region) -= 1;
+                        spp_units[b] -= 1;
+                        continue;
+                    }
+                    if( b_req ) {
+                        selection[a+1] = 0;
+                        unit_counts_l(a, selected_region) -= 1;
+                        spp_units[a] -= 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 
     // Limit by max spp selected
     if (max_spp_selected > 0 && n_spp_selected > max_spp_selected) {
 
         // easy out if number of required spp is >= max_spp_selected
+        if(n_required > max_spp_selected){
+            passing_solution = 0;
+        }
         if (n_required >= max_spp_selected) {
-
           for (int j = 0; j < nSpp; j++) {
-            if ( selection[j+1] > 0 && required_spp[j] == 0) {
+            if (selection[j+1] > 0 && required_spp[j] == 0) {
               selection[j+1] = 0;
               unit_counts_l(j, selected_region) -= 1;
               spp_units[j] -= 1;
@@ -220,7 +277,7 @@ IntegerMatrix solution_gen(
         }
 
         // Handle known populations;
-        if (populations(selection[0], j) != NA_STRING) {
+        if (populations(selection[0], j) > 0) {
             population_counts_l(j, selected_region) -= 1;
             spp_populations[j] -= 1;
             // Handle population spanning multiple units if single_pu_pop = TRUE
@@ -248,14 +305,12 @@ IntegerMatrix solution_gen(
                 if(population_counts_l(j, r) == unit_counts_l(j, r)) continue;
                 if(population_counts_l(j, r) >= regional_min_l(j, r)){
                     unit_counts_l(j, r) = population_counts_l(j, r);
-                    int pop_track = 0;
                     for(int i = 0; i < nUnits; i++){
                         if(unit_regions[i] - 1 != r) continue;
                         if(suitability_l(i, j) == 0.0) continue;
-                        if(CharacterVector::is_na(populations(i, j))){
+                        if(populations(i, j) == 0){
                             spp_units[j] -= 1;
                             suitability_l(i, j) = 0.0;
-                            pop_track += 1;
                         }
                     }
                 }
@@ -269,7 +324,7 @@ IntegerMatrix solution_gen(
                 for(int i = 0; i < nUnits; i++){
                     if(unit_regions[i] - 1 != r) continue;
                     if(suitability_l(i, j) == 0.0) continue;
-                    if(CharacterVector::is_na(populations(i, j))){
+                    if(populations(i, j) == 0){
                         spp_units[j] -= 1;
                         suitability_l(i, j) = 0.0;
                     }
@@ -287,15 +342,16 @@ IntegerMatrix solution_gen(
   // Construct final output matrix with one row per solution
   // First 3 columns are, solution_id, selection order, unit_index
   int n = results.size();
-  IntegerMatrix finalMat(n, nSpp + 3);
+  IntegerMatrix finalMat(n, nSpp + 4);
 
   for (int i = 0; i < n; i++) {
-    finalMat(i, 0) = solution_id;
-    finalMat(i, 1) = i;
-    finalMat(i, 2) = results[i][0] + 1; // convert unit index to 1-base for R
+    finalMat(i, 0) = solution_id;         // solution id
+    finalMat(i, 1) = i;                   // selection order
+    finalMat(i, 2) = results[i][0] + 1;   // planning unit index (base-1)
+    finalMat(i, 3) = passing_solution;    // does solution met requirements?
     for (int j = 0; j < nSpp; j++) {
       if(results[i][j+1] == 0) continue;
-      finalMat(i, j+3) = 1;
+      finalMat(i, j+4) = 1;
     }
   }
 
