@@ -23,30 +23,31 @@ BEGIN_RCPP
 END_RCPP
 }
 // solution_gen
-IntegerMatrix solution_gen(NumericMatrix suitability, IntegerVector targets, IntegerVector regions, IntegerMatrix regional_min, IntegerMatrix regional_max, IntegerMatrix populations, IntegerMatrix population_counts, bool single_pu_pop, int rand_tolerance, int max_spp_selected, int solution_id);
-RcppExport SEXP _optimTFE_solution_gen(SEXP suitabilitySEXP, SEXP targetsSEXP, SEXP regionsSEXP, SEXP regional_minSEXP, SEXP regional_maxSEXP, SEXP populationsSEXP, SEXP population_countsSEXP, SEXP single_pu_popSEXP, SEXP rand_toleranceSEXP, SEXP max_spp_selectedSEXP, SEXP solution_idSEXP) {
+IntegerMatrix solution_gen(NumericMatrix suitability, IntegerVector spp_targets, IntegerVector unit_regions, IntegerMatrix unit_counts, IntegerMatrix regional_min, IntegerMatrix regional_max, CharacterMatrix populations, IntegerMatrix population_counts, bool single_pu_pop, int rand_tolerance, int max_spp_selected, int solution_id);
+RcppExport SEXP _optimTFE_solution_gen(SEXP suitabilitySEXP, SEXP spp_targetsSEXP, SEXP unit_regionsSEXP, SEXP unit_countsSEXP, SEXP regional_minSEXP, SEXP regional_maxSEXP, SEXP populationsSEXP, SEXP population_countsSEXP, SEXP single_pu_popSEXP, SEXP rand_toleranceSEXP, SEXP max_spp_selectedSEXP, SEXP solution_idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type suitability(suitabilitySEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type targets(targetsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type regions(regionsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type spp_targets(spp_targetsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type unit_regions(unit_regionsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type unit_counts(unit_countsSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type regional_min(regional_minSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type regional_max(regional_maxSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix >::type populations(populationsSEXP);
+    Rcpp::traits::input_parameter< CharacterMatrix >::type populations(populationsSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type population_counts(population_countsSEXP);
     Rcpp::traits::input_parameter< bool >::type single_pu_pop(single_pu_popSEXP);
     Rcpp::traits::input_parameter< int >::type rand_tolerance(rand_toleranceSEXP);
     Rcpp::traits::input_parameter< int >::type max_spp_selected(max_spp_selectedSEXP);
     Rcpp::traits::input_parameter< int >::type solution_id(solution_idSEXP);
-    rcpp_result_gen = Rcpp::wrap(solution_gen(suitability, targets, regions, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, solution_id));
+    rcpp_result_gen = Rcpp::wrap(solution_gen(suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, solution_id));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_optimTFE_select_unit", (DL_FUNC) &_optimTFE_select_unit, 2},
-    {"_optimTFE_solution_gen", (DL_FUNC) &_optimTFE_solution_gen, 11},
+    {"_optimTFE_solution_gen", (DL_FUNC) &_optimTFE_solution_gen, 12},
     {NULL, NULL, 0}
 };
 

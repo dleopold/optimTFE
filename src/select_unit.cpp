@@ -48,9 +48,12 @@ IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
 
   // Ensure that there is at least one candidate row.
   int nCandidates = candidate_indices.size();
-  if (nCandidates == 0)
-    stop("No candidate rows found.");
+  if (nCandidates == 0) {
+    // stop("No candidate rows found.");
     // TODO! decide if we want to stop here or not
+    Rprintf("STOPPING EARLY\n");
+    return IntegerVector::create();
+  }
 
   // Compute the total weight from all candidate rows.
   double total_weight = 0.0;
@@ -87,7 +90,7 @@ IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
 
   // Construct Output (index of selected unit + binary spp vector)
   IntegerVector output(nSpp + 1);
-  output[0] = selected_candidate + 1; // convert to 1-indexed
+  output[0] = selected_candidate; // + 1; // convert to 1-indexed
   for (int j = 1; j <= nSpp; j++) {
     output[j] = selected_spp[j-1];
   }

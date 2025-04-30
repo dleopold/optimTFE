@@ -104,13 +104,13 @@ optimTFE2 <- function(
   force_overwrite = FALSE,
   return_df = FALSE
 ) {
-  list2env(as.list(environment()), envir = .GlobalEnv)
-  return()
-  message("Beginning optimTFE...")
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+  # message("Beginning optimTFE...")
 
-  start_time <- Sys.time()
-  output_dir <- output_dir %||% file.path(".", "output")
-  cores <- cores %||% future::availableCores()
+  # start_time <- Sys.time()
+  # output_dir <- output_dir %||% file.path(".", "output")
+  # cores <- cores %||% future::availableCores()
 
   # Determine if progress bar should be used
   # if (isTRUE(progress) &&
@@ -314,9 +314,9 @@ optimTFE2 <- function(
     ncol = n_regions,
     dimnames = list(spp_names, region_ids)
   )
-  for (region in regions) {
+  for (region in region_ids) {
     if (region %in% colnames(targets)) {
-      regional_min[, region] <- as.integer(targets[, region])
+      regional_min[, region] <- targets[, region]
     }
   }
 
@@ -324,7 +324,8 @@ optimTFE2 <- function(
   regional_max <- regional_min
   for (sp in spp_names) {
     for (region in region_ids) {
-      regional_max[sp, region] <- spp_targets[sp] - sum(regional_min[sp, setdiff(region_ids, region)])
+      regional_max[sp, region] <- spp_targets[sp] -
+        sum(regional_min[sp, setdiff(region_ids, region)])
     }
   }
 
@@ -381,13 +382,23 @@ optimTFE2 <- function(
         }
       }
     }
-
     message(crayon::cyan("Known population matrix loaded."))
+  }
+
+  if(is.null(populations)){
+    populations <- matrix(
+      as.character(NA),
+      nrow = n_units,
+      ncol = n_spp,
+      dimnames = list(unit_ids, spp_names)
+    )
   }
 
   # Set populations with 0 suitability to min suitability for species
   for (sp in spp_names) {
-    unsuitable_pops <- which(!is.na(populations[, sp]) & suitability_l[, sp] == 0)
+    unsuitable_pops <- which(
+      !is.na(populations[, sp]) & suitability_l[, sp] == 0
+    )
     if (length(unsuitable_pops) > 0) {
       message(crayon::red(glue::glue(
         "{length(unsuitable_pops)} population in area with 0 suitability detected for {spp_names[i]} - setting to minimum observed suitability."
@@ -399,8 +410,17 @@ optimTFE2 <- function(
     }
   }
 
+  # Avoid checking for populations spanning multiple regions if non exist
+  if (single_pu_pop) {
+    single_pu_pop <- any(apply(
+      populations,
+      2,
+      \(x) any(duplicated(na.omit(x)))
+    ))
+  }
+
   # Regional population counts
-  regional_pops <- matrix(
+  population_counts <- matrix(
     as.integer(0),
     nrow = n_spp,
     ncol = n_regions,
@@ -409,12 +429,31 @@ optimTFE2 <- function(
   for (sp in spp_names) {
     for (region in region_ids) {
       region_idx <- unit_regions == which(region_ids == region)
-      regional_pops[sp, region] <- populations[region_idx, sp] |>
-        unique() |>
-        na.omit() |>
-        length()
-      # Zero out suitability if population count is greater than or equal to minimum regional target
-      if (regional_pops[sp, region] > 0 && regional_pops[sp, region] >= regional_min[sp, region]) {
+      if (single_pu_pop) {
+        # Dont double count populations that span units
+        population_counts[sp, region] <- populations[region_idx, sp] |>
+          unique() |>
+          na.omit() |>
+          length()
+      } else {
+        # Count all population units independently
+        population_counts[sp, region] <- populations[region_idx, sp] |>
+          na.omit() |>
+          length()
+      }
+      # Zero out suitability for non-population units if overall population count is
+      # greater than or equal to the total species target and the regional population
+      # count is greater than or equal to min regional target
+      if (
+        sum(population_counts[sp, ]) >= spp_targets[sp] &&
+          population_counts[sp, region] >= regional_min[sp, region]
+      ) {
+        suitability_l[region_idx & is.na(populations[, sp]), sp] <- 0
+      }
+      if (
+        population_counts[sp, region] > 0 &&
+          population_counts[sp, region] >= regional_max[sp, region]
+      ) {
         suitability_l[region_idx & is.na(populations[, sp]), sp] <- 0
       }
     }
@@ -423,31 +462,44 @@ optimTFE2 <- function(
   # Apply minimum species suitability score
   suitability_l[suitability_l < min_spp_suit_score & is.na(populations)] <- 0
 
+  # Count available units
+  unit_counts <- matrix(
+    as.integer(0),
+    nrow = n_spp,
+    ncol = n_regions,
+    dimnames = list(spp_names, region_ids)
+  )
+  for (sp in spp_names) {
+    for (region in region_ids) {
+      region_idx <- unit_regions == which(region_ids == region)
+      unit_counts[sp, region] <- sum(suitability_l[region_idx, sp] > 0)
+      if (single_pu_pop) {
+        duplicates <- populations[region_idx, sp] |>
+          na.omit() |>
+          duplicated() |>
+          sum()
+        unit_counts[sp, region] <- unit_counts[sp, region] - duplicates
+      }
+      if (regional_max[sp, region] > unit_counts[sp, region]) {
+        regional_max[sp, region] <- unit_counts[sp, region]
+      }
+    }
+  }
+
   # Validate all targets can be met
   impossible_targets <- NULL
   for (sp in spp_names) {
     # Check global target
-    unit_count <- sum(suitability_l[, sp] > 0)
-    if (single_pu_pop) {
-      pops <- populations[, sp] |> na.omit()
-      unit_count <- unit_count - (length(pops) - length(unique(pops)))
+    if (sum(unit_counts[sp, ]) < spp_targets[sp]) {
+      impossible_targets <- c(
+        impossible_targets,
+        paste(sp, "global", sep = "-")
+      )
+      next
     }
-      if (unit_count < spp_targets[sp]) {
-        impossible_targets <- c(
-          impossible_targets,
-          paste(sp, region, sep = "-")
-        )
-      }
     # Check regional targets
     for (region in region_ids) {
-      region_idx <- unit_regions == which(region_ids == region)
-      unit_count <- sum(suitability_l[region_idx, sp] > 0)
-      # If single_pu_pop is TRUE, remove duplicate population counts
-      if (single_pu_pop) {
-        pops <- populations[, sp] |> na.omit()
-        unit_count <- unit_count - (length(pops) - length(unique(pops)))
-      }
-      if (unit_count < regional_min[sp, region]) {
+      if (unit_counts[sp, region] < regional_min[sp, region]) {
         impossible_targets <- c(
           impossible_targets,
           paste(sp, region, sep = "-")
@@ -455,6 +507,35 @@ optimTFE2 <- function(
       }
     }
   }
+
+  if (length(impossible_targets) > 0) {
+    stop(crayon::bold(crayon::red(
+      "Not enough units to meet all targets: ",
+      paste(impossible_targets, collapse = ", ")
+    )))
+  }
+
+  list2env(as.list(environment()), envir = .GlobalEnv)
+  return()
+
+
+
+  sol <- solution_gen(
+    suitability = suitability_l,
+    spp_targets = spp_targets,
+    unit_regions = unit_regions,
+    unit_counts = unit_counts,
+    regional_min = regional_min,
+    regional_max = regional_max,
+    populations = populations,
+    population_counts = population_counts,
+    single_pu_pop = single_pu_pop,
+    rand_tolerance = rand_tolerance,
+    max_spp_selected = 5,
+    solution_id = 1
+  )
+  spp_names[colSums(sol[, -1:-3]) < 10]
+  rowSums(sol[, -1:-3])
 
   n <- 100000
   workers <- 12
