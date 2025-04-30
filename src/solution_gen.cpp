@@ -85,10 +85,13 @@ IntegerMatrix solution_gen(
     // along with the species that must be included for meeting targets (ie, can not
     // be excluded by max_spp_selected, or incompatibilities)
     IntegerVector required_spp(nSpp, 0);
+    std::vector<int> spp_selected;
+    spp_selected.reserve(nSpp);
     int n_spp_selected = 0;
     int n_required = 0;
     for (int j = 0; j < nSpp; j++) {
         if (selection[j+1] > 0) {
+            spp_selected.push_back(j);
             n_spp_selected += 1;
             // Always keep species when # remaining targets equals the # remaining units
             if(spp_targets_l[j] == spp_units[j]) {
@@ -110,48 +113,52 @@ IntegerMatrix solution_gen(
             }
         }
     }
+    std::shuffle(spp_selected.begin(), spp_selected.end(), gen);
 
     // Filter incomatabilities
-    if(check_compat){
+    if(check_compat) {
 
-        // randomize spp order
-        std::vector<int> indices(nSpp);
-        std::iota(indices.begin(), indices.end(), 0);
-        std::shuffle(indices.begin(), indices.end(), gen);
-
-        for (int j = 0; j < nSpp; j++) {
-            int a = indices[j];
-            if (selection[a+1] == 0) continue;
-            for(int i = 0; i < nSpp; i++) {
-                int b = indices[i];
-                if (selection[b+1] == 0 || a == b) continue;
-                if (incompat(a, b) == 1) {
-                    bool a_req = required_spp[a] == 1;
-                    bool b_req = required_spp[b] == 1;
+        size_t j = 0;
+        while(j + 1 < spp_selected.size()) {
+            int spa = spp_selected[j];
+            size_t i = j + 1;
+            while(i < spp_selected.size()) {
+                int spb = spp_selected[i];
+                if (incompat(spa, spb) == 1) {
+                    bool a_req = required_spp[spa] == 1;
+                    bool b_req = required_spp[spb] == 1;
                     if (a_req && b_req) {
                         passing_solution = 0;
+                        i += 1;
                         continue;
                     }
+                    // If neither species is required, select randomly (weighed on suitability)
                     if( !a_req && !b_req ) {
-                        std::uniform_real_distribution<double> dist(0.0, selection[a+1] + selection[b+1]);
+                        std::uniform_real_distribution<double> dist(0.0, selection[spa+1] + selection[spb+1]);
                         double r = dist(gen);
-                        a_req = r < selection[a+1];
+                        a_req = r < selection[spa+1];
                         b_req = !a_req;
                     }
+                    // Remove species that is not required
+                    n_spp_selected -= 1;
                     if( a_req ) {
-                        selection[b+1] = 0;
-                        unit_counts_l(b, selected_region) -= 1;
-                        spp_units[b] -= 1;
+                        selection[spb+1] = 0;
+                        spp_selected.erase(spp_selected.begin() + i);
+                        unit_counts_l(spb, selected_region) -= 1;
+                        spp_units[spb] -= 1;
                         continue;
                     }
                     if( b_req ) {
-                        selection[a+1] = 0;
-                        unit_counts_l(a, selected_region) -= 1;
-                        spp_units[a] -= 1;
+                        selection[spa+1] = 0;
+                        spp_selected.erase(spp_selected.begin() + j);
+                        unit_counts_l(spa, selected_region) -= 1;
+                        spp_units[spa] -= 1;
                         break;
                     }
                 }
+                i += 1; // not incompat -> continue
             }
+            j += 1; // continue
         }
     }
 
