@@ -5,8 +5,8 @@
 #include <functional>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
-IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
+
+std::vector<double> select_unit(NumericMatrix suitability, int rand_tolerance, std::mt19937_64 &gen) {
   int nUnits = suitability.nrow();
   int nSpp = suitability.ncol();
 
@@ -51,8 +51,8 @@ IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
   if (nCandidates == 0) {
     // stop("No candidate rows found.");
     // TODO! decide if we want to stop here or not
-    Rprintf("STOPPING EARLY\n");
-    return IntegerVector::create();
+    Rprintf("STOPPING EARLY - SOMETHING IS WRONG\n");
+    return {};
   }
 
   // Compute the total weight from all candidate rows.
@@ -62,12 +62,12 @@ IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
   }
 
   // Perform weighted random selection
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count() +
-                 std::hash<std::thread::id>{}(std::this_thread::get_id());
-  std::mt19937 generator(seed);
+//   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count() +
+//                  std::hash<std::thread::id>{}(std::this_thread::get_id());
+//   std::mt19937 generator(seed);
   std::uniform_real_distribution<double> distribution(0.0, total_weight);
 
-  double random_value = distribution(generator);
+  double random_value = distribution(gen);
   double cumulative = 0.0;
   int selected_candidate = candidate_indices[0];
   for (int i = 0; i < nCandidates; i++) {
@@ -78,21 +78,11 @@ IntegerVector select_unit(NumericMatrix suitability, int rand_tolerance) {
     }
   }
 
-  // Identifiy selected spp
-  std::vector<int> selected_spp(nSpp, 0);
-  for (int j = 0; j < nSpp; j++) {
-    if (suitability(selected_candidate, j) > 0.0) {
-      selected_spp[j] = 1;
-    } else {
-      selected_spp[j] = 0;
-    }
-  }
-
   // Construct Output (index of selected unit + binary spp vector)
-  IntegerVector output(nSpp + 1);
-  output[0] = selected_candidate; // + 1; // convert to 1-indexed
-  for (int j = 1; j <= nSpp; j++) {
-    output[j] = selected_spp[j-1];
+  std::vector<double> output(nSpp + 1);
+  output[0] = selected_candidate; // zero-indexed
+  for (int j = 0; j < nSpp; j++) {
+    output[j+1] = suitability(selected_candidate, j);
   }
 
   return output;

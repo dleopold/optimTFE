@@ -4,8 +4,8 @@
 #include <random>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
-IntegerMatrix solution_gen(
+
+std::vector<int> solution_gen(
                             NumericMatrix suitability,
                             IntegerVector spp_targets,
                             IntegerVector unit_regions,
@@ -14,11 +14,12 @@ IntegerMatrix solution_gen(
                             IntegerMatrix regional_max,
                             IntegerMatrix populations,
                             IntegerMatrix population_counts,
-                            IntegerMatrix incompat = IntegerMatrix(0, 0),
-                            bool single_pu_pop = true,
-                            int rand_tolerance = 10,
-                            int max_spp_selected = -1,
-                            int solution_id = 1) {
+                            bool single_pu_pop,
+                            int rand_tolerance,
+                            int max_spp_selected,
+                            int solution_id,
+                            IntegerMatrix incompat,
+                            std::mt19937_64 &gen) {
 
   int nUnits = suitability.nrow();
   int nSpp = suitability.ncol();
@@ -32,8 +33,8 @@ IntegerMatrix solution_gen(
   IntegerMatrix regional_max_l = clone(regional_max);
   IntegerMatrix population_counts_l = clone(population_counts);
 
-  std::mt19937_64 gen(std::random_device{}());
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
+//   std::mt19937_64 gen(std::random_device{}());
+//   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
   // Pre-calculate the sum of total spp targets.
   int current_total = 0;
@@ -41,8 +42,14 @@ IntegerMatrix solution_gen(
     current_total += spp_targets_l[j];
   }
 
+  // Make region-specific sets of unit indicies
+  std::vector<std::vector<int>> region_units(nRegions);
+  for (int i = 0; i < nUnits; ++i){
+    region_units[unit_regions[i] - 1].push_back(i);
+  }
+
   // Total sub-region targets for each species
-  IntegerVector total_sub_targets(nSpp, 0);
+  std::vector<int> total_sub_targets(nSpp, 0);
   for(int j = 0; j < nSpp; j++) {
     for(int r = 0; r < nRegions; r++) {
       total_sub_targets[j] += regional_min_l(j, r);
@@ -50,7 +57,7 @@ IntegerMatrix solution_gen(
   }
 
   // Sum of total available units for each species
-  IntegerVector spp_units(nSpp, 0);
+  std::vector<int> spp_units(nSpp, 0);
   for(int j = 0; j < nSpp; j++) {
     for(int r = 0; r < nRegions; r++) {
       spp_units[j] += unit_counts_l(j, r);
@@ -58,41 +65,41 @@ IntegerMatrix solution_gen(
   }
 
   // Sum of total populations for each species
-  IntegerVector spp_populations(nSpp, 0);
+  std::vector<int> spp_populations(nSpp, 0);
   for(int j = 0; j < nSpp; j++) {
     for(int r = 0; r < nRegions; r++) {
       spp_populations[j] += population_counts_l(j, r);
     }
   }
 
-  // Consider spp incompatabilities
-  bool check_compat = incompat.nrow() == nSpp;
-
   // Container to accumulate the outputs from each iteration.
-  std::vector< IntegerVector > results;
+  std::vector< std::vector<double> > results;
 
   // Select units until all targets are met.
-  int passing_solution = 1;
+  int passing_solution = 1; // Track if the solution meets input requirements
   while (current_total > 0) {
 
-    IntegerVector selection = select_unit(suitability_l, rand_tolerance);
+    // Select a unit using suitability weighting
+    std::vector<double> selection = select_unit(suitability_l, rand_tolerance, gen);
+    // Stop if no units remain
     if(selection.size() == 0){
       break;
     }
-    int selected_region = unit_regions[selection[0]] - 1; // Region index of selected unit (convert to 0-indexed)
+    int selected_unit = selection[0];
+    int selected_region = unit_regions[selected_unit] - 1; // Region index of selected unit (convert to 0-indexed)
+    passing_solution = 1;
 
     // Find total species with any remaining potential targets in the selected unit
-    // along with the species that must be included for meeting targets (ie, can not
+    // along with the species that must be retained for meeting targets (ie, can not
     // be excluded by max_spp_selected, or incompatibilities)
-    IntegerVector required_spp(nSpp, 0);
+    std::vector<int> required_spp(nSpp, 0);
     std::vector<int> spp_selected;
     spp_selected.reserve(nSpp);
-    int n_spp_selected = 0;
     int n_required = 0;
     for (int j = 0; j < nSpp; j++) {
         if (selection[j+1] > 0) {
             spp_selected.push_back(j);
-            n_spp_selected += 1;
+            suitability_l(selected_unit, j) = 0.0;
             // Always keep species when # remaining targets equals the # remaining units
             if(spp_targets_l[j] == spp_units[j]) {
                 required_spp[j] = 1;
@@ -106,7 +113,7 @@ IntegerMatrix solution_gen(
                 continue;
             }
             // Always keep known population
-            if(populations(selection[0], j) > 0) {
+            if(populations(selected_unit, j) > 0) {
                 required_spp[j] = 1;
                 n_required += 1;
                 continue;
@@ -116,8 +123,7 @@ IntegerMatrix solution_gen(
     std::shuffle(spp_selected.begin(), spp_selected.end(), gen);
 
     // Filter incomatabilities
-    if(check_compat) {
-
+    if(incompat.size() > 0) {
         size_t j = 0;
         while(j + 1 < spp_selected.size()) {
             int spa = spp_selected[j];
@@ -139,8 +145,7 @@ IntegerMatrix solution_gen(
                         a_req = r < selection[spa+1];
                         b_req = !a_req;
                     }
-                    // Remove species that is not required
-                    n_spp_selected -= 1;
+                    // Remove one of the incompatible species
                     if( a_req ) {
                         selection[spb+1] = 0;
                         spp_selected.erase(spp_selected.begin() + i);
@@ -162,162 +167,155 @@ IntegerMatrix solution_gen(
         }
     }
 
-
     // Limit by max spp selected
-    if (max_spp_selected > 0 && n_spp_selected > max_spp_selected) {
+    if (max_spp_selected > 0 && spp_selected.size() > static_cast<size_t>(max_spp_selected)) {
 
         // easy out if number of required spp is >= max_spp_selected
-        if(n_required > max_spp_selected){
-            passing_solution = 0;
-        }
         if (n_required >= max_spp_selected) {
-          for (int j = 0; j < nSpp; j++) {
-            if (selection[j+1] > 0 && required_spp[j] == 0) {
-              selection[j+1] = 0;
-              unit_counts_l(j, selected_region) -= 1;
-              spp_units[j] -= 1;
+          if(n_required > max_spp_selected){
+            passing_solution = 0;
+          }
+          size_t i = 0;
+          while(i < spp_selected.size()) {
+            int sp = spp_selected[i];
+            if (required_spp[sp] == 0) {
+              spp_selected.erase(spp_selected.begin() + i);
+              selection[sp+1] = 0.0;
+              unit_counts_l(sp, selected_region) -= 1;
+              spp_units[sp] -= 1;
+              continue;
             }
+            i += 1;
           }
           goto exit_max_spp; // exit the max_spp_selected loop
         }
 
-        // Find spp with highest suitability in the selected unit
-        std::vector<int> nz_idx;
-        nz_idx.reserve(nSpp);
-        for(int j = 0; j < nSpp; ++j){
-            if(selection[j+1] != 0.0) nz_idx.push_back(j);
-        }
-
         // Partition into required and non-required spp
         auto it = std::stable_partition(
-          nz_idx.begin(), nz_idx.end(),
+          spp_selected.begin(), spp_selected.end(),
           [&](int j){ return required_spp[j] == 1; }
         );
 
-        // For optional taxa keep the ones with highest suitability (randomly break ties)
-        std::vector<double> rnd_key(nSpp+1, 0.0);
-        for (int idx : nz_idx) {
-            // only optional ones get a random key
-            if ( required_spp[idx] == 0 ) {
-                rnd_key[idx] = dist(gen);
-            }
+        // Input order for optional spp (for breaking ties - still random due to initial shuffle)
+        std::vector<int> order_in(nSpp, 0);
+        for (size_t i = n_required; i < spp_selected.size(); ++i) {
+            order_in[ spp_selected[i] ] = i;
         }
 
-        int m = nz_idx.size() - n_required;
+        // reorder optional spp by suitability
+        size_t m = spp_selected.size() - n_required;
         int keep = max_spp_selected - n_required;
-        if (keep > 0 && keep < m) {
-            std::nth_element(
-              it,
-              it + keep,
-              nz_idx.end(),
-              [&](int a, int b){
-                if (selection[a+1] != selection[b+1])
-                  return selection[a+1] > selection[b+1];
-                return rnd_key[a] > rnd_key[b];
-              }
-            );
+        if (keep > 0 && static_cast<size_t>(keep) < m) {
+          std::nth_element(
+            it,
+            it + keep,
+            spp_selected.end(),
+            [&](int a, int b){
+              double va = selection[a+1], vb = selection[b+1];
+              if (va != vb) return va > vb;
+              return order_in[a] < order_in[b];
+            }
+          );
         }
 
         // Set the rest of the spp to zero
-        for(int k = keep; k < m; ++k){
-            int sp = nz_idx[n_required + k];
-            selection[sp+1] = 0.0;
-            unit_counts_l(sp, selected_region) -= 1;
-            spp_units[sp] -= 1;
+        auto k = it + keep;
+        for (auto itr = spp_selected.end(); itr != k;) {
+          --itr;
+          int sp = *itr;
+          selection[sp + 1] = 0.0;
+          unit_counts_l(sp, selected_region) -= 1;
+          spp_units[sp] -= 1;
+          spp_selected.erase(itr);
         }
 
     }
     exit_max_spp:
 
     // ---- Update tracking inputs ---- //
-    for (int j = 0; j < nSpp; j++) {
-        // Set the selected candidate row in suitability matrix to all zeros.
-        suitability_l(selection[0], j) = 0.0;
+    for(int sp : spp_selected){
 
-        // Skip species if not selected
-        if(selection[j+1] == 0) continue;
-
-        // Increment target trackers
+         // Increment target trackers
         current_total -= 1;
-        spp_targets_l[j] -= 1;
-        unit_counts_l(j, selected_region) -= 1;
-        spp_units[j] -= 1;
-        regional_max_l(j, selected_region) -= 1;
-        if(regional_min_l(j, selected_region) > 0){
-            regional_min_l(j, selected_region) -= 1;
-            total_sub_targets[j] -= 1;
+        spp_targets_l[sp] -= 1;
+        unit_counts_l(sp, selected_region) -= 1;
+        spp_units[sp] -= 1;
+        regional_max_l(sp, selected_region) -= 1;
+        if(regional_min_l(sp, selected_region) > 0){
+            regional_min_l(sp, selected_region) -= 1;
+            total_sub_targets[sp] -= 1;
         }
 
         // If all targets are met for the species, zero out suitability and skip
-        if (spp_targets_l[j] == 0) {
-            spp_units[j] = 0;
-            spp_populations[j] = 0;
-            for(int r = 0; r < nRegions; r++){
-                population_counts_l(j, r) = 0;
-                unit_counts_l(j, r) = 0;
-            }
+        if (spp_targets_l[sp] == 0) {
+            // spp_units[sp] = 0;
+            // spp_populations[sp] = 0;
+            // for(int r = 0; r < nRegions; r++){
+            //     population_counts_l(sp, r) = 0;
+            //     unit_counts_l(sp, r) = 0;
+            // }
             for (int i = 0; i < nUnits; i++) {
-              suitability_l(i, j) = 0.0;
+              suitability_l(i, sp) = 0.0;
             }
             continue;
         }
 
-        // Zero out suitability any region where the max possible selections is now zero
+        // Zero out suitability for any region where the max possible selections is now zero
         for(int r = 0; r < nRegions; r++){
-            int max = spp_targets_l[j] - total_sub_targets[j] + regional_min_l(j, r);
-            regional_max_l(j, r) = std::min(max, unit_counts_l(j, r));
-            if(regional_max_l(j, r) == 0) {
-                spp_units[j] -= unit_counts_l(j, r);
-                unit_counts_l(j, r) = 0;
-                spp_populations[j] -= population_counts_l(j, r);
-                population_counts_l(j, r) = 0;
-                for(int i = 0; i < nUnits; i++){
-                    if(unit_regions[i] - 1 != r) continue;
-                    if(suitability_l(i, j) == 0.0) continue;
-                    suitability_l(i, j) = 0.0;
+            int new_max = spp_targets_l[sp] - total_sub_targets[sp] + regional_min_l(sp, r);
+            new_max = std::min(new_max, unit_counts_l(sp, r));
+            regional_max_l(sp, r) = new_max;
+            if(new_max == 0) {
+                int uc = unit_counts_l(sp, r);
+                spp_units[sp] -= uc;
+                unit_counts_l(sp, r) = 0;
+                int pc = population_counts_l(sp, r);
+                spp_populations[sp] -= pc;
+                population_counts_l(sp, r) = 0;
+                for(int unit : region_units[r]){
+                    suitability_l(unit, sp) = 0.0;
                 }
             }
         }
+
         // If current region has been zeroed out, skip population handing
-        if(regional_max_l(j, selected_region) == 0){
+        int spp_r_max = regional_max_l(sp, selected_region);
+        if(spp_r_max == 0){
+            continue;
+        }
+
+        // If there are no known populations, skip population logic
+        if(spp_populations[sp] == 0){
             continue;
         }
 
         // Handle known populations;
-        if (populations(selection[0], j) > 0) {
-            population_counts_l(j, selected_region) -= 1;
-            spp_populations[j] -= 1;
+        int selected_pop = populations(selected_unit, sp);
+        if (selected_pop > 0) {
+            population_counts_l(sp, selected_region) -= 1;
+            spp_populations[sp] -= 1;
             // Handle population spanning multiple units if single_pu_pop = TRUE
             if(single_pu_pop){
-                std::vector<int> pop_matches;
-                pop_matches.reserve(nUnits);
-                for (int i = 0; i < nUnits; ++i) {
-                    if (i == selection[0]) continue;
-                    if (populations(i, j) == populations(selection[0], j)) {
-                        pop_matches.push_back(i);
-                    }
-                }
-                if(pop_matches.size() > 0){
-                    for (std::vector<int>::size_type k = 0; k < pop_matches.size(); ++k) {
-                        suitability_l(pop_matches[k], j) = 0.0;
+                for(int unit : region_units[selected_region]){
+                    if (populations(unit, sp) == selected_pop) {
+                        suitability_l(unit, sp) = 0.0;
                     }
                 }
             }
         }
 
         // When there are as many populations as targets, zero out non-population units
-        // in any region where there are enough populations to meet the regional target
-        if(spp_populations[j] >= spp_targets_l[j]){
+        // in any region where there are enough populations to meet the regional min target
+        if(spp_populations[sp] >= spp_targets_l[sp]){
             for(int r = 0; r < nRegions; r++){
-                if(population_counts_l(j, r) == unit_counts_l(j, r)) continue;
-                if(population_counts_l(j, r) >= regional_min_l(j, r)){
-                    unit_counts_l(j, r) = population_counts_l(j, r);
-                    for(int i = 0; i < nUnits; i++){
-                        if(unit_regions[i] - 1 != r) continue;
-                        if(suitability_l(i, j) == 0.0) continue;
-                        if(populations(i, j) == 0){
-                            spp_units[j] -= 1;
-                            suitability_l(i, j) = 0.0;
+                int spp_rpops = population_counts_l(sp, r);
+                if(spp_rpops == unit_counts_l(sp, r)) continue;
+                if(spp_rpops >= regional_min_l(sp, r)){
+                    unit_counts_l(sp, r) = spp_rpops;
+                    for(int unit : region_units[r]){
+                        if(populations(unit, sp) == 0){
+                            spp_units[sp] -= 1;
+                            suitability_l(unit, sp) = 0.0;
                         }
                     }
                 }
@@ -325,15 +323,15 @@ IntegerMatrix solution_gen(
             continue;
         }
 
+        // When regional populations equal to or greater than regional max, zero out non-population units
         for(int r = 0; r < nRegions; r++){
-            if(population_counts_l(j, r) >= regional_max_l(j, r)){
-                unit_counts_l(j, r) = population_counts_l(j, r);
-                for(int i = 0; i < nUnits; i++){
-                    if(unit_regions[i] - 1 != r) continue;
-                    if(suitability_l(i, j) == 0.0) continue;
-                    if(populations(i, j) == 0){
-                        spp_units[j] -= 1;
-                        suitability_l(i, j) = 0.0;
+            int spp_rpops = population_counts_l(sp, r);
+            if(spp_rpops >= regional_max_l(sp, r)){
+                unit_counts_l(sp, r) = spp_rpops;
+                for(int unit : region_units[r]){
+                    if(populations(unit, sp) == 0){
+                        spp_units[sp] -= 1;
+                        suitability_l(unit, sp) = 0.0;
                     }
                 }
             }
@@ -346,19 +344,21 @@ IntegerMatrix solution_gen(
 
   }
 
-  // Construct final output matrix with one row per solution
-  // First 3 columns are, solution_id, selection order, unit_index
-  int n = results.size();
-  IntegerMatrix finalMat(n, nSpp + 4);
+  // Construct final output
+  size_t nrows = results.size(), ncols = nSpp + 4;
+  std::vector<int> finalMat(nrows * ncols, 0);
+  auto idx = [&](size_t i, size_t j){
+    return i * ncols + j;
+  };
 
-  for (int i = 0; i < n; i++) {
-    finalMat(i, 0) = solution_id;         // solution id
-    finalMat(i, 1) = i;                   // selection order
-    finalMat(i, 2) = results[i][0] + 1;   // planning unit index (base-1)
-    finalMat(i, 3) = passing_solution;    // does solution met requirements?
+  for (size_t i = 0; i < nrows; i++) {
+    finalMat[idx(i,0)] = solution_id;         // solution id
+    finalMat[idx(i,1)] = i;                   // selection order
+    finalMat[idx(i,2)] = results[i][0] + 1;   // planning unit index (base-1)
+    finalMat[idx(i,3)] = passing_solution;    // does solution met requirements?
     for (int j = 0; j < nSpp; j++) {
       if(results[i][j+1] == 0) continue;
-      finalMat(i, j+4) = 1;
+      finalMat[idx(i,j+4)] = 1;
     }
   }
 

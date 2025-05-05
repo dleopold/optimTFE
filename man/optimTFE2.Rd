@@ -10,6 +10,7 @@ optimTFE2(
   subregions = optimTFE::example_subregions,
   populations = optimTFE::example_populations,
   incompatibility = optimTFE::example_incompatibility,
+  spatial = optimTFE::example_spatial,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
   max_spp_selected = -1,
@@ -18,13 +19,15 @@ optimTFE2(
   cores = NULL,
   progress = TRUE,
   batch_size = NULL,
-  max_batch_size = 250,
+  max_batch_size = 1000,
   seed = NULL,
-  output_dir = NULL,
-  output_prefix = "solutions",
+  out_dir = ".",
+  run_id = "optimTFE",
   output_csv = TRUE,
+  return_df = FALSE,
   force_overwrite = FALSE,
-  return_df = FALSE
+  summary = TRUE,
+  spatial_projection = NULL
 )
 }
 \arguments{
@@ -66,18 +69,15 @@ frequently, but at the cost of more disk writes.}
 
 \item{seed}{seed for reproducible output (optional)}
 
-\item{output_dir}{location to write outputs (default = `file.path(dir,
-'output')`). Created for user if does not exist.}
-
-\item{output_prefix}{prefix for output files (default = 'solutions')}
+\item{run_id}{prefix for output files (default = 'solutions')}
 
 \item{output_csv}{Should the solutions be written to a single csv file
 (default = TRUE)}
 
-\item{force_overwrite}{overwrite existing output files (default = FALSE)}
-
 \item{return_df}{return all generated solutions as a data frame (default =
 FALSE)}
+
+\item{force_overwrite}{overwrite existing output files (default = FALSE)}
 
 \item{dir}{working directory}
 
@@ -105,6 +105,9 @@ species data by highest suitability score to the number of units listed,
 but will not exclude known populations.}
 
 \item{min_batch_size}{default = 100.}
+
+\item{output_dir}{location to write outputs (default = `file.path(dir,
+'output')`). Created for user if does not exist.}
 }
 \description{
 Generate a suite of conservation footprint 'solutions' based on feature

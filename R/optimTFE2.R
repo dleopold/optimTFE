@@ -65,7 +65,7 @@
 #'   frequently, but at the cost of more disk writes.
 #' @param min_batch_size default = 100.
 #' @param progress show progress bar
-#' @param output_prefix prefix for output files (default = 'solutions')
+#' @param run_id prefix for output files (default = 'solutions')
 #' @param output_dir location to write outputs (default = `file.path(dir,
 #'   'output')`). Created for user if does not exist.
 #' @param output_csv Should the solutions be written to a single csv file
@@ -85,6 +85,7 @@ optimTFE2 <- function(
   subregions = optimTFE::example_subregions,
   populations = optimTFE::example_populations,
   incompatibility = optimTFE::example_incompatibility,
+  spatial = optimTFE::example_spatial,
   # Config parameters,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
@@ -95,50 +96,76 @@ optimTFE2 <- function(
   cores = NULL,
   progress = TRUE,
   batch_size = NULL,
-  max_batch_size = 250,
+  max_batch_size = 1000,
   seed = NULL,
   # Output parameters,
-  output_dir = NULL,
-  output_prefix = "solutions",
+  out_dir = ".",
+  run_id = "optimTFE",
   output_csv = TRUE,
+  return_df = FALSE,
   force_overwrite = FALSE,
-  return_df = FALSE
+  summary = TRUE,
+  spatial_projection = NULL
 ) {
+  message("Beginning optimTFE...")
+
+  # DEBUG ----
   # list2env(as.list(environment()), envir = .GlobalEnv)
   # return()
-  # message("Beginning optimTFE...")
 
-  # start_time <- Sys.time()
-  # output_dir <- output_dir %||% file.path(".", "output")
-  # cores <- cores %||% future::availableCores()
+  start_time <- Sys.time()
+  cores <- cores %||% (future::availableCores() - 1)
+  meta <- list(
+    rand_tolerance = rand_tolerance,
+    max_spp_selected = max_spp_selected,
+    min_spp_suit_score = min_spp_suit_score,
+    batch_size = batch_size,
+    cores = cores,
+    seed = seed
+  )
 
   # Determine if progress bar should be used
-  # if (isTRUE(progress) &&
-  #   interactive() &&
-  #   !isTRUE(getOption("knitr.in.progress")) &&
-  #   !isTRUE(getOption("rstudio.notebook.executing"))) {
-  #   progressr::handlers(global = TRUE)
-  # } else if (interactive() &&
-  #   !isTRUE(getOption("knitr.in.progress")) &&
-  #   !isTRUE(getOption("rstudio.notebook.executing"))) {
-  #   progressr::handlers(global = FALSE)
-  # }
+  if (
+    isTRUE(progress) &&
+      interactive() &&
+      !isTRUE(getOption("knitr.in.progress")) &&
+      !isTRUE(getOption("rstudio.notebook.executing"))
+  ) {
+    progressr::handlers(global = TRUE)
+  } else if (
+    interactive() &&
+      !isTRUE(getOption("knitr.in.progress")) &&
+      !isTRUE(getOption("rstudio.notebook.executing"))
+  ) {
+    progressr::handlers(global = FALSE)
+  }
 
   # Output Files ----
-  # if (length(output_prefix) == 0L || nchar(output_prefix) == 0L) {
-  #   stop(crayon::bold(crayon::red("output_prefix must be a non-empty string")))
-  # }
-  # if (dir.exists(file.path(output_dir, output_prefix))) {
-  #   if (!force_overwrite) {
-  #     stop(crayon::bold(crayon::red(glue::glue("Output with the prefix '{output_prefix}' already exists: "))) |>
-  #       paste0(crayon::bgBlue(crayon::white(output_dir)), crayon::bold(crayon::red(output_prefix))))
-  #   }
-  #   unlink(
-  #     list.files(output_dir, pattern = output_prefix),
-  #     recursive = TRUE,
-  #     force = TRUE
-  #   )
-  # }
+  ## If no output directory provided, return all solutions as a data frame
+  if (is.null(out_dir)) {
+    return_df = TRUE
+    out_dir <- tempdir()
+    run_id <- uuid::UUIDgenerate()
+  }
+
+  if (dir.exists(file.path(out_dir, run_id))) {
+    if (!force_overwrite) {
+      stop(
+        crayon::bold(crayon::red(
+          "Output for the run_id, {run_id}, already exists: "
+        )) |>
+          paste0(
+            crayon::bgBlue(crayon::white(out_dir)),
+            crayon::bold(crayon::red(run_id))
+          )
+      )
+    }
+    unlink(
+      list.files(out_dir, pattern = run_id),
+      recursive = TRUE,
+      force = TRUE
+    )
+  }
 
   # Read inputs ----
   ## Load species targets ----
@@ -180,6 +207,8 @@ optimTFE2 <- function(
   n_spp <- nrow(targets)
   spp_names <- rownames(targets)
   spp_targets <- targets[, 1]
+  meta$spp_names <- spp_names
+  meta$targets <- targets
 
   message(crayon::cyan(glue::glue(
     "Species targets loaded: {length(spp_names)}"
@@ -198,7 +227,7 @@ optimTFE2 <- function(
   }
   if (!is.matrix(suitability)) {
     stop(crayon::bold(crayon::red(
-      "Could not the the required species suitability matrix."
+      "Could not load the the required species suitability matrix."
     )))
   }
 
@@ -212,8 +241,9 @@ optimTFE2 <- function(
   suitability <- suitability[, spp_names, drop = FALSE]
   n_units <- nrow(suitability)
   unit_ids <- rownames(suitability)
-  # Local copy for modifications
-  suitability_l <- suitability
+  suitability_mx <- suitability # Local copy for modifications
+  meta$suitability <- suitability
+  meta$unit_ids <- unit_ids
 
   message(crayon::cyan(glue::glue(
     "Species suitability matrix loaded: {nrow(suitability)} planning units"
@@ -304,6 +334,7 @@ optimTFE2 <- function(
     )
   }
 
+  meta$regions <- regions
   # Map units to regions
   unit_regions <- apply(regions, 1, \(x) which(x == 1))
 
@@ -342,7 +373,41 @@ optimTFE2 <- function(
       )
     }
     if (is.data.frame(populations)) {
-      populations <- as.matrix(populations)
+      if (
+        all(populations[, 1] %in% unit_ids) &&
+          all(colnames(populations)[-1] %in% spp_names)
+      ) {
+        populations <- populations |>
+          tibble::column_to_rownames(colnames(populations)[1]) |>
+          as.matrix()
+      }
+      if (
+        all(populations[, 1] %in% spp_names) &&
+          all(populations[, 2] %in% unit_ids)
+      ) {
+        if (ncols(populations) > 3) {
+          stop(crayon::bold(crayon::red(
+            "Long-format populations input must only have 3 columns: unit id, species, and population."
+          )))
+        }
+        if (any(duplicated(populations[, 1:2]))) {
+          stop(crayon::bold(crayon::red(
+            "Species can not have more than one population per planning unit."
+          )))
+        }
+        populations <- populations |>
+          (\(x) {
+            cols <- colnames(x)
+            tidyr::pivot_wider(
+              x,
+              names_from = cols[1],
+              values_from = cols[3],
+              values_fill = NA
+            ) |>
+              tibble::column_to_rownames(cols[2])
+          })() |>
+          as.matrix()
+      }
     }
     if (is.null(populations) || !is.matrix(populations)) {
       stop(crayon::bold(crayon::red(
@@ -362,11 +427,38 @@ optimTFE2 <- function(
       )))
     }
 
-    populations <- populations[unit_ids, spp_names] |>
+    # Coearse to character matrix
+    populations <- populations |>
       apply(
         1:2,
         \(x) ifelse(is.na(x) || x == 0, NA_character_, as.character(x))
       )
+
+    # Expand to add any missing spp or units
+    missing_spp <- setdiff(spp_names, colnames(populations))
+    if (length(missing_spp) > 0) {
+      populations <- cbind(
+        populations,
+        matrix(
+          NA_character_,
+          nrow(populations),
+          length(missing_spp),
+          dimnames = list(rownames(populations), missing_spp)
+        )
+      )
+    }
+    missing_units <- setdiff(unit_ids, rownames(populations))
+    if (length(missing_units) > 0) {
+      populations <- cbind(
+        populations,
+        matrix(
+          NA_character_,
+          length(missing_units),
+          ncol(populations),
+          dimnames = list(missing_units, colnames(populations))
+        )
+      )
+    }
 
     # Check that populations do not span sub-regions
     if (length(region_ids) > 1) {
@@ -383,8 +475,9 @@ optimTFE2 <- function(
       }
     }
 
-    # Convert populations to integer mx and key
-    populations_l <- matrix(
+    # Generate population integer mx and key
+    populations <- populations[unit_ids, spp_names]
+    populations_mx <- matrix(
       as.integer(0),
       nrow = n_units,
       ncol = n_spp,
@@ -393,21 +486,28 @@ optimTFE2 <- function(
     population_names <- list()
     pop_idx <- 1
     for (sp in spp_names) {
-      for(unit in unit_ids){
-        if(is.na(populations[unit, sp])) next
-        pop <- paste(sp, populations[unit, sp], sep="-")
-        if(pop %in% names(population_names)) {
-          populations_l[unit, sp] <- as.integer(population_names[[pop]])
+      for (unit in unit_ids) {
+        if (is.na(populations[unit, sp])) next
+        pop <- paste(sp, populations[unit, sp], sep = "-")
+        if (pop %in% names(population_names)) {
+          populations_mx[unit, sp] <- as.integer(population_names[[pop]])
           next
         }
-        population_names[[pop]] <- populations_l[unit, sp] <- as.integer(pop_idx)
+        population_names[[pop]] <- populations_mx[unit, sp] <- as.integer(
+          pop_idx
+        )
         pop_idx <- pop_idx + 1
       }
     }
+
+    meta$populations <- populations_mx
+    meta$population_names <- population_names
+    meta$single_pu_pop <- single_pu_pop
     message(crayon::cyan("Known population matrix loaded."))
   }
 
-  if(is.null(populations)){
+  # Generate empty populations matrix if needed
+  if (is.null(populations)) {
     populations <- matrix(
       as.integer(0),
       nrow = n_units,
@@ -419,14 +519,14 @@ optimTFE2 <- function(
   # Set populations with 0 suitability to min suitability for species
   for (sp in spp_names) {
     unsuitable_pops <- which(
-      !is.na(populations[, sp]) & suitability_l[, sp] == 0
+      !is.na(populations[, sp]) & suitability_mx[, sp] == 0
     )
     if (length(unsuitable_pops) > 0) {
       message(crayon::red(glue::glue(
         "{length(unsuitable_pops)} population in area with 0 suitability detected for {spp_names[i]} - setting to minimum observed suitability."
       )))
-      suitability_l[unsuitable_pops, sp] <- min(suitability_l[
-        suitability_l[, sp] > 0,
+      suitability_mx[unsuitable_pops, sp] <- min(suitability_mx[
+        suitability_mx[, sp] > 0,
         sp
       ])
     }
@@ -470,19 +570,19 @@ optimTFE2 <- function(
         sum(population_counts[sp, ]) >= spp_targets[sp] &&
           population_counts[sp, region] >= regional_min[sp, region]
       ) {
-        suitability_l[region_idx & is.na(populations[, sp]), sp] <- 0
+        suitability_mx[region_idx & is.na(populations[, sp]), sp] <- 0
       }
       if (
         population_counts[sp, region] > 0 &&
           population_counts[sp, region] >= regional_max[sp, region]
       ) {
-        suitability_l[region_idx & is.na(populations[, sp]), sp] <- 0
+        suitability_mx[region_idx & is.na(populations[, sp]), sp] <- 0
       }
     }
   }
 
   # Apply minimum species suitability score
-  suitability_l[suitability_l < min_spp_suit_score & is.na(populations)] <- 0
+  suitability_mx[suitability_mx < min_spp_suit_score & is.na(populations)] <- 0
 
   # Count available units
   unit_counts <- matrix(
@@ -494,7 +594,7 @@ optimTFE2 <- function(
   for (sp in spp_names) {
     for (region in region_ids) {
       region_idx <- unit_regions == which(region_ids == region)
-      unit_counts[sp, region] <- sum(suitability_l[region_idx, sp] > 0)
+      unit_counts[sp, region] <- sum(suitability_mx[region_idx, sp] > 0)
       if (single_pu_pop) {
         duplicates <- populations[region_idx, sp] |>
           na.omit() |>
@@ -529,7 +629,6 @@ optimTFE2 <- function(
       }
     }
   }
-
   if (length(impossible_targets) > 0) {
     stop(crayon::bold(crayon::red(
       "Not enough units to meet all targets: ",
@@ -537,150 +636,227 @@ optimTFE2 <- function(
     )))
   }
 
-  list2env(as.list(environment()), envir = .GlobalEnv)
-  return()
+  # Load optional species incompatibility data ----
+  if (!is.null(incompatibility)) {
+    if (
+      length(incompatibility) == 1L &&
+        is.character(incompatibility) &&
+        file.exists(incompatibility)
+    ) {
+      incompatibility <- tryCatch(
+        read.csv(incompatibility, row.names = 1),
+        error = function(e) NULL
+      )
+    }
+    if (is.data.frame(incompatibility)) {
+      incompatibility <- as.matrix(incompatibility)
+    }
+    if (is.null(incompatibility) || !is.matrix(incompatibility)) {
+      stop(crayon::bold(crayon::red(
+        "Invalid input prodived for species incompatibility input."
+      )))
+    }
+    if (!isSymmetric(incompatibility) || !all(incompatibility %in% 0:1)) {
+      stop(crayon::bold(crayon::red(
+        "Species incompatibility input must be a symmetric matrix of 0/1 values."
+      )))
+    }
+    if (
+      !all(colnames(incompatibility) %in% spp_names) ||
+        !all(rownames(incompatibility) %in% spp_names)
+    ) {
+      stop(crayon::bold(crayon::red(
+        "Species mismatch detected in incompatibility input."
+      )))
+    }
 
+    # Expand incompatibility matrix to cover all species
+    missing_spp <- setdiff(spp_names, colnames(incompatibility))
+    if (length(missing_spp) > 0) {
+      incompatibility <- cbind(
+        incompatibility,
+        matrix(
+          0,
+          nrow(incompatibility),
+          length(missing_spp),
+          dimnames = list(rownames(incompatibility), missing_spp)
+        )
+      )
+      incompatibility <- rbind(
+        incompatibility,
+        matrix(
+          0,
+          length(missing_spp),
+          ncol(incompatibility),
+          dimnames = list(missing_spp, colnames(incompatibility))
+        )
+      )
+    }
 
+    incompatibility <- incompatibility[spp_names, spp_names] |>
+      apply(1:2, as.integer)
 
-  sol <- solution_gen(
-    suitability = suitability_l,
-    spp_targets = spp_targets,
-    unit_regions = unit_regions,
-    unit_counts = unit_counts,
-    regional_min = regional_min,
-    regional_max = regional_max,
-    populations = populations_l,
-    population_counts = population_counts,
-    single_pu_pop = single_pu_pop,
-    rand_tolerance = rand_tolerance,
-    max_spp_selected = 5,
-    solution_id = 1
-  )
-  spp_names[colSums(sol[, -1:-3]) < 10]
-  rowSums(sol[, -1:-3])
+    meta$incompatibility <- incompatibility
+    message(crayon::cyan("Loaded species incompatibility data."))
 
-  n <- 100000
-  workers <- 12
-  batch_size <- min(ceiling(n / (4 * workers)), 1000)
+    # TODO - add some validation that there are not too many incompatibilities
+  }
+
+  # Load spatial data if provided ----
+  if (!is.null(spatial)) {
+    if (is.character(spatial) && file.exists(spatial)) {
+      spatial <- tryCatch(
+        sf::read_sf(spatial),
+        error = function(e) NULL
+      )
+    }
+    if (!inherits(spatial, "sf") && !methods::is(spatial, "Spatial")) {
+      stop(crayon::bold(crayon::red(
+        "Invalid spatial data input."
+      )))
+    }
+    if (!all(sf::st_is(spatial, "POLYGON"))) {
+      stop(crayon::bold(crayon::red(
+        "Spatial input must only contain POLYGON geometries."
+      )))
+    }
+    if (!identical(sort(dplyr::pull(spatial, 1)), sort(unit_ids))) {
+      stop(crayon::bold(crayon::red(
+        "Spatial input unit_ids do not other inputs."
+      )))
+    }
+  }
+
+  # DEBUG ----
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+
+  # Generate Solutions ----
+  # Batch
+  if (is.null(batch_size)) {
+    batch_size <- min(ceiling(n / cores), max_batch_size)
+  }
   btchs <- seq_len(n) |>
     {
       \(x) split(x, ceiling(x / batch_size))
     }()
+  message(crayon::cyan(glue::glue(
+    "Generating {n} solutions in {length(btchs)} batches..."
+  )))
+  # Set up future backend
+  if (parallelly::supportsMulticore()) {
+    future_mode <- future::multicore
+  } else {
+    future_mode <- future::multisession
+  }
+  future::plan(future_mode, workers = min(cores, length(btchs)))
 
-  future::plan(future::multicore, workers = workers)
-  library(tictoc)
-  tic()
-  furrr::future_walk(
+  # Create output file names
+  dir.create(
+    solutions_dir <- file.path(out_dir, run_id, "solutions"),
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  fns <- file.path(
+    solutions_dir,
+    paste0(uuid::UUIDgenerate(n = length(btchs)), ".parquet")
+  )
+
+  # Generate solutions
+  p <- progressor(along = btchs) # Init progress bar
+  furrr::future_walk2(
     btchs,
+    fns,
     ~ {
-      solutions_gen_parquet(
-        .x,
+      solutions_gen_df(
+        solution_ids = .x,
         suitability = suitability_mx,
-        targets = spp_targets,
-        spp_names = spp_names,
-        output_folder = "output",
-        rand_tolerance = rand_tolerance
-      )
-    },
-    .options = furrr::furrr_options(
-      seed = TRUE,
-      globals = list(
-        suitability_mx = suitability_mx,
         spp_targets = spp_targets,
-        spp_names = spp_names,
-        rand_tolerance = rand_tolerance
-      )
-    )
-  )
-  toc()
-
-  solutions_gen_parquet(
-    1:1000,
-    suitability = suitability_mx,
-    targets = spp_targets,
-    rand_tolerance = rand_tolerance,
-    spp_names = spp_names,
-    output_folder = "output"
-  )
-
-  library(tictoc)
-  tic()
-  purrr::walk(
-    btchs,
-    ~ {
-      solutions_gen(
-        .x,
-        suitability = suitability_mx,
-        targets = spp_targets,
+        unit_regions = unit_regions,
+        unit_counts = unit_counts,
+        regional_min = regional_min,
+        regional_max = regional_max,
+        populations = populations_mx,
+        population_counts = population_counts,
+        single_pu_pop = single_pu_pop,
         rand_tolerance = rand_tolerance,
-        file.path(normalizePath("output"), paste0(Sys.getpid(), ".csv"))
-      )
-    }
-  )
-  toc()
-
-  tic()
-  solutions_gen(
-    seq_len(n),
-    suitability = suitability_mx,
-    targets = spp_targets,
-    rand_tolerance = rand_tolerance,
-    file.path(normalizePath("output"), paste0(Sys.getpid(), ".csv"))
-  )
-  toc()
-
-  foo <- solution_gen(
-    suitability = suitability_mx,
-    targets = spp_targets,
-    rand_tolerance = rand_tolerance
-  )
-  solutions_gen(
-    1:10,
-    suitability = suitability_mx,
-    targets = spp_targets,
-    rand_tolerance = rand_tolerance,
-    file.path(normalizePath("output"), "test.csv")
-  )
-  foos <- purrr::map(
-    1:1000,
-    ~ {
-      print(.x)
-      solution_gen(
-        solution_id = .x,
-        suitability = suitability_mx,
-        targets = spp_targets,
-        rand_tolerance = rand_tolerance
-      )
-    }
-  )
-
-  tic()
-  foos <- furrr::future_map(
-    1:100000,
-    ~ {
-      solution_gen(
-        suitability = suitability_mx,
-        targets = spp_targets,
-        rand_tolerance = rand_tolerance
-      )
+        max_spp_selected = max_spp_selected,
+        spp_names = spp_names,
+        incompat = incompatibility,
+        seed = sample.int(.Machine$integer.max, 1)
+      ) |>
+        arrow::write_parquet(.y)
+      p()
     },
     .options = furrr::furrr_options(
-      seed = TRUE,
-      globals = list(
-        suitability_mx = suitability_mx,
-        spp_targets = spp_targets,
-        rand_tolerance = rand_tolerance
+      seed = ifelse(is.null(seed), TRUE, seed),
+      globals = c(
+        "suitability_mx",
+        "spp_targets",
+        "unit_regions",
+        "unit_counts",
+        "regional_min",
+        "regional_max",
+        "populations_mx",
+        "population_counts",
+        "single_pu_pop",
+        "rand_tolerance",
+        "max_spp_selected",
+        "spp_names",
+        "incompatibility"
       )
     )
   )
-  toc()
 
-  solutions_gen(
-    suitability = suitability_mx,
-    total_targets = spp_targets,
-    rand_tolerance = rand_tolerance,
-    n = 1000,
-    workers = 8,
-    folder = normalizePath("output")
+  elapsed_time <- Sys.time() - start_time
+  meta$elapsed_time <- glue::glue(
+    "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
   )
+  message(crayon::cyan(glue::glue(
+    "Finished generating {n} solutions in {meta$elapsed_time}."
+  )))
+
+  # write metadata ----
+  meta |>
+    purrr::compact() |>
+    jsonlite::toJSON(auto_unbox = TRUE) |>
+    # jsonlite::prettify() |>
+    write(file.path(out_dir, paste0(run_id, ".meta")))
+
+  # Load solutions ----
+  solutions <- arrow::open_dataset(solutions_dir) |>
+    dplyr::collect()
+
+  # Write output to csv ----
+  if (output_csv) {
+    arrow::write_csv_arrow(
+      solutions |>
+        dplyr::arrange(solution),
+      file = file.path(out_dir, run_id, paste0(run_id, ".solutions.csv"))
+    )
+  }
+
+  # Generate summary data ----
+  if (isTRUE(summary)) {
+    message(crayon::cyan("Generating summary data for {n} solutions..."))
+    generate_summary(
+      data = dplyr::collect(solutions),
+      out_dir = out_dir,
+      run_id = run_id,
+      suitability_mx = suitability_mx,
+      unit_ids = unit_ids,
+      spatial = spatial,
+      spatial_projection = spatial_projection
+    )
+  }
+
+  # DEBUG ----
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+
+  if (return_df) {
+    return(solutions)
+  }
+  return(invisible())
+
 }
