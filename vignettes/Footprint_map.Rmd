@@ -46,26 +46,26 @@ All files of interest need to be added to this list.
 We can also map selected planning units of individual species to the map.
 Use the species names as listed in the `PU_polygons` file to plot correctly on the map.
 ```{r Setup datasets, echo=TRUE}
-
 # enter the filepath to "solutions.csv" generated from the optimTFE algorithm
 solution_file <- read.csv(file.path(project_dir, "output", "solutions.csv"))
 
-PU_polygons <- optimTFE::units_spp_suit #spatial data with PU_id and species suitability values
+PU_polygons <- optimTFE::units_spp_suit # spatial data with PU_id and species suitability values
 
 native_cons_lands <- list(
   list(name = "Native habitat", filename = system.file("extdata", "native_habitat.shp", package = "optimTFE"), hidden = T),
-  list(name = "Conservation lands", filename = system.file("extdata", "reserves.shp", package = "optimTFE"), hidden=T))
+  list(name = "Conservation lands", filename = system.file("extdata", "reserves.shp", package = "optimTFE"), hidden = T)
+)
 map_spp <- list(
-  list(species = "sp_08", hidden=T),
-  list(species = "sp_12", hidden=T),
-  list(species = "sp_29", hidden=T)
+  list(species = "sp_08", hidden = T),
+  list(species = "sp_12", hidden = T),
+  list(species = "sp_29", hidden = T)
 )
 ```
 
 #### Create a conservation footprint map
 ```{r Create a conservation footprint map, warning=FALSE, message=FALSE, eval = FALSE}
 # Conservation footprint showing conservation footprint; set solution number manually.
-create_interactive_map(solution_file, PU_polygons, selected_sol_index=35)
+create_interactive_map(solution_file, PU_polygons, selected_sol_index = 35)
 ```
 ```{r basic footprint open, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("./vignette_images/leaflet_map_basic.PNG")
@@ -76,7 +76,7 @@ It is possible to toggle on and off the PUs selected for a given set of species
 by ticking the 'map_individual_species' box in the upper right legend. 
 ```{r footprint map with species list, warning=FALSE, message=FALSE, eval = FALSE}
 # Solution 35 showing conservation footprint and individual species target distributions
-create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index=35, map_individual_spp = map_spp)
+create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons, selected_sol_index = 35, map_individual_spp = map_spp)
 ```
 ```{r show map of footprint with map_individual_spp, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("./vignette_images/target_species_highlight.PNG")
@@ -96,8 +96,10 @@ a conservation footprint with a map of existing native habitat.
 ```{r Create footprint map with target species list and additional spatial data, warning=FALSE, message=FALSE, eval=FALSE}
 # Solution 35 showing conservation footprint, additional spatial layers for reference,
 # and individual species target distributions
-create_interactive_map(solution_result_file = solution_file, original_PU_polygons = PU_polygons,
-                       auxiliaryLayers = native_cons_lands,  selected_sol_index=35, map_individual_spp = map_spp)
+create_interactive_map(
+  solution_result_file = solution_file, original_PU_polygons = PU_polygons,
+  auxiliaryLayers = native_cons_lands, selected_sol_index = 35, map_individual_spp = map_spp
+)
 ```
 ```{r footprint map with native habitat map overlay, echo=F, out.width = "650px", fig.align="center"}
 knitr::include_graphics("./vignette_images/native_habitat_footprint.PNG")

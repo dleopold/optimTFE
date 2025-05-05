@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_histograms_ui <- function(id){
+mod_histograms_ui <- function(id) {
   ns <- NS(id)
   tagList(
     div(
@@ -22,15 +22,15 @@ mod_histograms_ui <- function(id){
 #' @import ggplot2
 #'
 #' @noRd
-mod_histograms_server <- function(id, rv){
-  moduleServer( id, function(input, output, session){
+mod_histograms_server <- function(id, rv) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     # dynamic plot outputs ----
     output$panels <- renderUI({
       req(rv$selected_solution)
       req(rv$selected_stats) |>
-        purrr::map(~{
+        purrr::map(~ {
           bslib::card(
             bslib::card_header(
               class = "bg-dark",
@@ -49,7 +49,7 @@ mod_histograms_server <- function(id, rv){
     on("update_histograms", {
       req(rv$selected_solution)
       req(rv$selected_stats) |>
-        purrr::walk(~{
+        purrr::walk(~ {
           dat <- rv$solutions |>
             dplyr::transmute(
               solution,
@@ -60,7 +60,7 @@ mod_histograms_server <- function(id, rv){
             aes(x = stat) +
             geom_histogram(
               fill = "#008cba",
-              binwidth = \(x) (max(x) - min(x))/100,
+              binwidth = \(x) (max(x) - min(x)) / 100,
             ) +
             geom_vline(
               data = {
@@ -75,17 +75,13 @@ mod_histograms_server <- function(id, rv){
             theme(
               axis.title = element_blank(),
             )
-          if(rv$weights[[.x]][['desc']]==-1){
+          if (rv$weights[[.x]][["desc"]] == -1) {
             plot <- plot + scale_x_reverse()
           }
           output[[paste0("hist_", .x)]] <- renderPlot({
-             plot
+            plot
           })
         })
     })
-
   })
 }
-
-
-

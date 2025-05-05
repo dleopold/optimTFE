@@ -22,6 +22,4 @@ app_server <- function(input, output, session) {
   mod_load_data_server("load_data", rv)
   mod_map_server("map", rv)
   mod_histograms_server("hist", rv)
-
 }
-

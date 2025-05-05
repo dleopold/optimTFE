@@ -10,7 +10,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
-  #set directory
+  # set directory
 )
 ```
 ```{r klippy, echo=FALSE, include=TRUE}
@@ -56,7 +56,7 @@ PU_metrics <- read_sf(system.file("extdata", "PU_metrics.gpkg", package = "optim
 # Merge to get all summary data, footprint metric calculations, and spatial data. This could get
 # big,so you may want to subset based on footprint unit count, etc.
 
-# Keep unit_id and solution as columns 1 and 2 followed by columns for getting summary stats 
+# Keep unit_id and solution as columns 1 and 2 followed by columns for getting summary stats
 # (planning unit area, conservation lands, etc.)
 
 # Load sample_sols100 if not already in the environment; this is in the output folder
@@ -73,18 +73,22 @@ sample_sols100_metrics_df <- as.data.frame(sample_sols100_metrics) |>
 # Example of creating solution summary metric dataframe:
 # Make a new df, summarized by solution number. Get solution-level metrics:
 solutions_metrics <- sample_sols100_metrics_df |>
-  filter(!is.na(solution)) |> #some units do not occur in any solution
+  filter(!is.na(solution)) |> # some units do not occur in any solution
   group_by(solution) |>
   summarise(
     total_area_kmsq = sum(area_km2, na.rm = TRUE), # total footprint area
-    good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
-          = TRUE)) * 100, #mean percent of footprint with 'good' habitat
+    good_hab_mean_pct = (sum(good_hab_kmsq, na.rm = TRUE) / sum(area_km2,
+      na.rm = TRUE
+    )) * 100, # mean percent of footprint with 'good' habitat
     area_unfenced_mean_pct = (sum(not_fenced_kmsq, na.rm = TRUE) / sum(area_km2,
-          na.rm = TRUE)) * 100, #mean percent of footprint unfenced
+      na.rm = TRUE
+    )) * 100, # mean percent of footprint unfenced
     area_fenced_mean_pct = (sum(fenced_kmsq, na.rm = TRUE) / sum(area_km2,
-          na.rm = TRUE)) * 100,
-    cons_lands_mean_pct = (sum(reserved_kmsq, na.rm = TRUE) / sum(area_km2, na.rm 
-          = TRUE)) * 100,
+      na.rm = TRUE
+    )) * 100,
+    cons_lands_mean_pct = (sum(reserved_kmsq, na.rm = TRUE) / sum(area_km2,
+      na.rm = TRUE
+    )) * 100,
     FB_richness_max_mean = mean(max_FB_richness, na.rm = TRUE),
     accessibility_max_mean = mean(max_accessibility, na.rm = TRUE)
   )
