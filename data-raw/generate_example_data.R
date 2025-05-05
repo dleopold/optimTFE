@@ -25,6 +25,10 @@ hex_sf <- st_sf(
   geometry = hex_grid
 )
 
+# Define a Lambert Azimuthal Equal‐Area projection centered on the hex grid
+laea_crs <- "+proj=laea +lat_0=25 +lon_0=25 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+hex_sf <- st_set_crs(hex_sf, laea_crs)
+
 # Generate speies testing data for 30 species
 n_units <- nrow(hex_sf)
 unit_names <- hex_sf$unit_id
