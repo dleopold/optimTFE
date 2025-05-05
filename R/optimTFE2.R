@@ -17,68 +17,80 @@
 #' same planning unit for two taxa. This process is then repeated to generate
 #' many spatially efficient solutions that meet all targets for each species.
 #'
-#' @param dir working directory
-#' @param targets species targets file - path to a csv/tsv file or a
-#'   pre-loaded data frame. First 2 columns should be species names and total
-#'   targets populations, respectively. Additional columns must be provided when
-#'   using sub-region targets. If specifying subregion targets, column names
-#'   must match the sub-region names provided in `subregions_in` and values
-#'   should be the minimum number of populations required in the sub-region.
-#' @param suitability_in species suitability matrix - path to a csv/tsv file or
-#'   a pre-loaded data frame. The first column must be the planning unit id /
-#'   number and following columns are species. Values indicate the suitability
-#'   scores for each species / taxon in each planning unit.
-#' @param subregions_in (optional) path to a csv/tsv file or a pre-loaded data
-#'   frame defining sub-regions within the set of planning units. Must include 1
-#'   row for each planning unit with binary values indicating the sub-region
-#'   membership of each planning unit. Sub-region column names must match those
-#'   in the `targets_in`.
-#' @param populations_in (optional) path to a csv/tsv file or a pre-loaded
-#'   data frame of delineated populations. Must have columns unit_id, species,
-#'   and population. Values in the population column will be interpreted and
-#'   unique populations for each species, and values can be repeated across
-#'   species (i.e.,  population '1' for species A will not conflict with
-#'   population '1' for species B).
-#' @param single_pu_pop should only one location (ie unit) be selected per
-#'   delineated population (default=TRUE). Only applies if a know population
-#'   file (`populations_in`) is provided.
-#' @param rand_tolerance  the range of species richness, from maximum, to
-#'   consider for selection at each iteration(default = 5)
-#' @param max_spp_selected maximum number of species to select in each location
-#'   (default = Inf) to reduce 'species packing' within units. This parameter
-#'   could cause species to be unable to meet targets.
+#' @param targets species targets file - path to a csv file or a pre-loaded data
+#'   frame or matrix. If loading from file, the first column should contain the
+#'   species names, otherwise species names should be included as row names. The
+#'   column direclty following the species names should contain the total
+#'   targets for each species. Additional columns should specify the (optional)
+#'   subregion targets, with values specifying the minimum targets required in
+#'   each subregion.
+#' @param suitability species suitability matrix - path to a csv/tsv file or a
+#'   pre-loaded data frame or matrix. The first column must be the planning unit
+#'   id / number and following columns are species. If using a preloaded matrix
+#'   or data frame, unit ids should be set as row names, not in the first
+#'   column. Values indicate the suitability scores for each species / taxon in
+#'   each planning unit.
+#' @param subregions (optional) path to a csv/tsv file or a pre-loaded data
+#'   frame or matrix defining sub-regions within the set of planning units. Must
+#'   include 1 row for each planning unit with binary values indicating the
+#'   sub-region membership of each planning unit. Sub-region column names must
+#'   match those provided in the `targets` input.
+#' @param populations (optional) path to a csv/tsv file or a pre-loaded data
+#'   frame or matrix of delineated populations. When loading from file data can
+#'   be in long or wide format. Long format should consist of 3 columns,
+#'   unit_id, species, and population. Wide format should have one column per
+#'   species and one row per unit_id. If providing a data frame or matrix
+#'   directly, only wide formats is accepted and unit ids should be set as
+#'   rownames, not as a column.
+#' @param incompatibility (optional) path to a csv/tsv file or a pre-loaded data
+#'   frame or matrix specifying species that cannot share the same planning
+#'   unit. Must be a symmetric matrix with species names as row and column
+#'   names, where a value of 1 indicates the species are incompatible (cannot be
+#'   in the same unit).
+#' @param spatial (optional) path to a spatial file data file (.shp or .gpkg) or
+#'   a pre-loaded sf object containing the planning unit polygons. Must have the
+#'   same unit IDs as the suitability matrix included as the first column of the
+#'   attribute table.
 #' @param min_spp_suit_score minimum suitability score for a species to be
-#'   considered in a location (default = 0)
-#' @param max_candidate_units maximum number of candidate units to consider for
-#'   a species at each round of selection (default = Inf). This will subset
-#'   species data by highest suitability score to the number of units listed,
-#'   but will not exclude known populations.
-#' @param seed seed for reproducible output (optional)
-#' @param n number of solutions to generate
-#' @param cores number of cores to use (default = all available)
+#'   considered in a location (default = 0.25)
+#' @param rand_tolerance the range of species richness, from maximum, to
+#'   consider for selection at each iteration (default = 5)
+#' @param max_spp_selected maximum number of species to select in each location
+#'   (default = -1) to reduce 'species packing' within units. This parameter
+#'   could cause species to be unable to meet targets. Use -1 for no limit.
+#' @param single_pu_pop should only one location (ie unit) be selected per
+#'   delineated population (default = TRUE). Only applies if a known population
+#'   file (`populations`) is provided.
+#' @param n number of solutions to generate (default = 100)
+#' @param cores number of cores to use (default = NULL, uses all available - 1)
+#' @param progress show progress bar (default = TRUE)
 #' @param batch_size when parallel processing is used, this parameter can be
 #'   used to process solution in batches for improved efficiency (default =
-#'   NULL). If not provided (NULL), batch size will be calculated automatically
-#'   as `ceiling(n/(cores*4))`.
+#'   NULL). If not provided (NULL), batch size will be calculated automatically.
 #' @param max_batch_size limit batch size for parallel processing (default =
 #'   1000). Smaller values will allow the progress bar to update more
 #'   frequently, but at the cost of more disk writes.
-#' @param min_batch_size default = 100.
-#' @param progress show progress bar
-#' @param run_id prefix for output files (default = 'solutions')
-#' @param output_dir location to write outputs (default = `file.path(dir,
-#'   'output')`). Created for user if does not exist.
-#' @param output_csv Should the solutions be written to a single csv file
+#' @param seed seed for reproducible output (optional)
+#' @param out_dir location to write outputs (default = "."). If NULL, results
+#'   will be returned as a data frame and temporary files will be used.
+#' @param run_id prefix for output files (default = "optimTFE")
+#' @param output_csv Should the solutions be compiled to a single csv file
 #'   (default = TRUE)
+#' @param return_df return all generated solutions as a data frame in the
+#'   current R session (default = FALSE)
 #' @param force_overwrite overwrite existing output files (default = FALSE)
-#' @param return_df return all generated solutions as a data frame (default =
-#'   FALSE)
+#' @param summary generate summary statistics and metrics for solutions (default
+#'   = TRUE)
+#' @param spatial_projection optional projection string or epsg code to use for
+#'   spatial data. Only applicable if spatial data is provided and summary =
+#'   TRUE. A equal area projection is needed to calculate spatial metrics such
+#'   as area and perimeter.
 #'
 #' @import progressr
 #'
 #' @export
 #'
-optimTFE2 <- function(
+optimTFE <- function(
   # Data Inputs
   targets = optimTFE::example_targets,
   suitability = optimTFE::example_suitability,
@@ -146,8 +158,16 @@ optimTFE2 <- function(
     return_df = TRUE
     out_dir <- tempdir()
     run_id <- uuid::UUIDgenerate()
+    on.exit({
+      unlink(
+        list.files(out_dir, pattern = run_id),
+        recursive = TRUE,
+        force = TRUE
+      )
+    })
   }
 
+  # Prevent overwriting existing output ----
   if (dir.exists(file.path(out_dir, run_id))) {
     if (!force_overwrite) {
       stop(
