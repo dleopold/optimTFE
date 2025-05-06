@@ -82,9 +82,9 @@
 #' @param summary generate summary statistics and metrics for solutions (default
 #'   = TRUE)
 #' @param spatial_projection optional projection string or epsg code to use for
-#'   spatial data. Only applicable if spatial data is provided and summary =
-#'   TRUE. A equal area projection is needed to calculate spatial metrics such
-#'   as area and perimeter.
+#'   spatial data. Only applicable if summary = TRUE and spatial data is not
+#'   already provided in an equal area projection (an equal area projection is
+#'   needed to calculate spatial metrics such as area and perimeter).
 #'
 #' @import progressr
 #'
@@ -236,15 +236,14 @@ optimTFE <- function(
   )))
 
   ## Load Suitability matrix ----
-  if (is.data.frame(suitability)) {
-    suitability <- as.matrix(suitability)
-  }
   if (is.character(suitability) && file.exists(suitability)) {
     suitability <- tryCatch(
-      read.csv(suitability, row.names = 1, na.strings = c("", "NA", "N/A")) |>
-        as.matrix(),
+      read.csv(suitability, row.names = 1, na.strings = c("", "NA", "N/A")),
       error = function(e) NULL
     )
+  }
+  if (is.data.frame(suitability)) {
+    suitability <- as.matrix(suitability)
   }
   if (!is.matrix(suitability)) {
     stop(crayon::bold(crayon::red(
@@ -545,13 +544,15 @@ optimTFE <- function(
     )
     if (length(unsuitable_pops) > 0) {
       message(crayon::red(glue::glue(
-        "{length(unsuitable_pops)} population in units with 0 suitability detected for {sp} - setting to mean suitability."
+        "{length(unsuitable_pops)} {sp} populations with 0 suitability detected - setting to mean suitability."
       )))
       for (unit in unsuitable_pops) {
-        suitability_mx[unit, sp] <- mean(suitability_mx[
+         val <- mean(suitability_mx[
           unit,
           suitability_mx[unit, ] >= min_spp_suit_score
         ])
+        if(is.na(val) || val == 0){val <- max(min_spp_suit_score, min(suitability_mx[suitability_mx > 0])) }
+        suitability_mx[unit, sp] <- val
       }
     }
   }
