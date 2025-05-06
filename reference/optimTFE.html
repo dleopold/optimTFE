@@ -46,12 +46,12 @@ suitability values and a list of targets for all features.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">optimTFE</span><span class="op">(</span></span>
-<span>  targets <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_targets.html">example_targets</a></span>,</span>
-<span>  suitability <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_suitability.html">example_suitability</a></span>,</span>
-<span>  subregions <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_subregions.html">example_subregions</a></span>,</span>
-<span>  populations <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_populations.html">example_populations</a></span>,</span>
-<span>  incompatibility <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_incompatibility.html">example_incompatibility</a></span>,</span>
-<span>  spatial <span class="op">=</span> <span class="fu">optimTFE</span><span class="fu">::</span><span class="va"><a href="example_spatial.html">example_spatial</a></span>,</span>
+<span>  targets <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  suitability <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  subregions <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  populations <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  incompatibility <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spatial <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_spp_suit_score <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>  rand_tolerance <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  max_spp_selected <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
@@ -228,6 +228,11 @@ suitability scores of remaining targets. Constraints, such as hybridization,
 can be introduced to specifically prohibit the algorithm from selecting the
 same planning unit for two taxa. This process is then repeated to generate
 many spatially efficient solutions that meet all targets for each species.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other main:
+<code><a href="generate_summary.html">generate_summary</a>()</code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
