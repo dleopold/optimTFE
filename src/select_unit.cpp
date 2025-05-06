@@ -6,6 +6,21 @@
 using namespace Rcpp;
 
 
+//' Select a Planning Unit Based on Species Richness and Suitability
+//'
+//' This function selects a planning unit for conservation based on both species 
+//' richness (number of species with non-zero suitability) and the mean suitability 
+//' score. The selection uses a randomized approach that considers units within 
+//' a tolerance range of the maximum richness, weighted by mean suitability.
+//'
+//' @param suitability NumericMatrix of species suitability scores, with planning
+//'   units as rows and species as columns.
+//' @param rand_tolerance Integer specifying the range of species richness from 
+//'   maximum to consider for selection (allows randomization).
+//' @param gen Random number generator reference for reproducible selection.
+//' @return std::vector<double> containing the selected unit index (0-indexed) as 
+//'   the first element, followed by the suitability scores for each species in 
+//'   that unit.
 std::vector<double> select_unit(NumericMatrix suitability, int rand_tolerance, std::mt19937_64 &gen) {
   int nUnits = suitability.nrow();
   int nSpp = suitability.ncol();

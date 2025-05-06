@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{solutions_gen_df}
 \alias{solutions_gen_df}
-\title{Generate Solutions and Write to Parquet File}
+\title{Generate Multiple Solutions as a Data Frame}
 \usage{
 solutions_gen_df(
   solution_ids,
@@ -23,20 +23,52 @@ solutions_gen_df(
 )
 }
 \arguments{
-\item{solution_ids}{IntegerVector of solution IDs. One solution will be generated for each ID provided.}
+\item{solution_ids}{IntegerVector of solution IDs. One solution will be 
+generated for each ID provided.}
 
-\item{suitability}{NumericMatrix input for solution_gen.}
+\item{suitability}{NumericMatrix of species suitability scores, with planning
+units as rows and species as columns.}
 
-\item{rand_tolerance}{Integer tolerance for solution_gen.}
+\item{spp_targets}{IntegerVector of target populations for each species.}
 
-\item{spp_names}{Character vector of species names (one per species column).}
+\item{unit_regions}{IntegerVector mapping planning units to their respective
+regions.}
 
-\item{targets}{IntegerVector input for solution_gen.}
+\item{unit_counts}{IntegerMatrix of unit counts by species and region.}
 
-\item{output_file}{Path to the .parquet file to write (will overwrite).}
+\item{regional_min}{IntegerMatrix of minimum targets for each species by region.}
+
+\item{regional_max}{IntegerMatrix of maximum targets for each species by region.}
+
+\item{populations}{IntegerMatrix specifying known populations for each
+species in each planning unit.}
+
+\item{population_counts}{IntegerMatrix of population counts by species and region.}
+
+\item{single_pu_pop}{Logical flag indicating whether only one unit should be
+selected per known population (default = TRUE).}
+
+\item{rand_tolerance}{Integer specifying the range of species richness from
+maximum to consider for selection at each iteration (default = 5).}
+
+\item{max_spp_selected}{Integer maximum number of species to select in each
+location to reduce 'species packing' within units. Use -1 for no limit.}
+
+\item{spp_names}{CharacterVector of species names.}
+
+\item{seed}{Unsigned 64-bit integer seed for random number generation.}
+
+\item{incompat}{Optional IntegerMatrix specifying species incompatibilities,
+where 1 indicates two species cannot share the same planning unit.}
+}
+\value{
+A data frame with columns: solution, order, unit_id, passing, and
+  one column per species indicating which species targets are satisfied
+  in each planning unit.
 }
 \description{
-This function iterates over solution_ids, calls `solution_gen` (which
-prepends the solution ids as the first column), stacks all results into one data.frame,
-and then writes that data.frame to a .parquet file via arrow::write_parquet().
+This function iterates over solution_ids, calls `solution_gen` for each ID,
+and combines all results into a single data frame. The solution generation
+process implements a greedy algorithm that iteratively selects planning units
+with high species richness to satisfy species targets across subregions.
 }

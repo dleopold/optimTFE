@@ -5,6 +5,28 @@
 using namespace Rcpp;
 
 
+//' Generate a Single Conservation Solution
+//' 
+//' Core optimization algorithm that generates a single conservation solution
+//' through an iterative greedy selection process. The algorithm selects 
+//' planning units with the highest number of remaining species targets, 
+//' using randomization to avoid local minima.
+//' 
+//' @param suitability NumericMatrix of species suitability scores
+//' @param spp_targets IntegerVector of target populations for each species
+//' @param unit_regions IntegerVector mapping planning units to regions
+//' @param unit_counts IntegerMatrix of unit counts by species and region
+//' @param regional_min IntegerMatrix of minimum targets for each species by region
+//' @param regional_max IntegerMatrix of maximum targets for each species by region
+//' @param populations IntegerMatrix of known populations for species in planning units
+//' @param population_counts IntegerMatrix of population counts by species and region
+//' @param single_pu_pop Logical flag for selecting only one unit per known population
+//' @param rand_tolerance Integer range for randomization in planning unit selection
+//' @param max_spp_selected Maximum number of species to select in each location
+//' @param solution_id Integer identifier for this specific solution
+//' @param incompat IntegerMatrix of species incompatibilities (1 = incompatible)
+//' @param gen Random number generator reference
+//' @return std::vector<int> of solution data in a flattened format
 std::vector<int> solution_gen(
                             NumericMatrix suitability,
                             IntegerVector spp_targets,
