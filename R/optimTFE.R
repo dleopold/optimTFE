@@ -274,13 +274,13 @@ optimTFE <- function(
   # Subregions ----
   if (!is.null(subregions)) {
     if (is.character(subregions) && file.exists(subregions)) {
-      regions <- tryCatch(
+      subregions <- tryCatch(
         read.csv(subregions, row.names = 1),
         error = function(e) NULL
       )
     }
     if (is.data.frame(subregions)) {
-      regions <- as.matrix(subregions)
+      subregions <- as.matrix(subregions)
     }
     if (!is.matrix(subregions)) {
       stop(crayon::bold(crayon::red(
