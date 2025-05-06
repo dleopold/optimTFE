@@ -7,7 +7,7 @@
 #'
 #' @return Returns a dataframe with the count and list of solutions that are identical;
 #' also includes the planning unit (PU) combinations for each unique solution.
-#' @export
+#' @noRd
 #'
 
 unique_solution_ct <- function(solution_output) {
@@ -40,7 +40,7 @@ unique_solution_ct <- function(solution_output) {
 #'
 #' @return Returns a data.frame with two columns; solution (solution number) and
 #' PU_ct (number of planning units in the solution)
-#' @export
+#' @noRd
 
 solutions_unit_ct <- function(solution_output) {
   PU_ct_sols <- solution_output |>
@@ -62,7 +62,7 @@ solutions_unit_ct <- function(solution_output) {
 #'
 #' @return Return the data.frame of unit
 #' count frequencies
-#' @export
+#' @noRd
 #'
 all_solutions_freq <- function(pu_count_by_solution_df) {
   PU_count_freq <- table(pu_count_by_solution_df$PU_ct) / length(pu_count_by_solution_df$PU_ct)
@@ -76,7 +76,7 @@ all_solutions_freq <- function(pu_count_by_solution_df) {
 #' @param PU_count_freq_df
 #'
 #' @return Plot the distribution frequency of planning unit counts
-#' @export
+#' @noRd
 #'
 plot_solutions_freq <- function(PU_count_freq_df) {
   # Convert PU_ct to numeric if it's not already
@@ -110,7 +110,7 @@ plot_solutions_freq <- function(PU_count_freq_df) {
 #' @param pu_spatial_data spatial data associated with planning units; sf object
 #'
 #' @return Map: inclusion of planning units across a solution
-#' @export
+#' @noRd
 #'
 pu_ct_freq_map <- function(solution_output, pu_spatial_data) {
   all_PUs_by_solct <- solution_output |>
@@ -149,7 +149,7 @@ pu_ct_freq_map <- function(solution_output, pu_spatial_data) {
 #'
 #' @return Dataframe with suitability values by each input feature including columns:
 #' unit_id, solution, select_order, feature suitability columns.
-#' @export
+#' @noRd
 #'
 solution_suit_values <- function(solution_number, solution_output, meta_filepath) {
   suitability <- jsonlite::fromJSON(meta_filepath)$suitability
@@ -174,7 +174,7 @@ solution_suit_values <- function(solution_number, solution_output, meta_filepath
 #' and second column the geom; no other data.
 #'
 #' @return Map of the selected solution; a potential conservation footprint
-#' @export
+#' @noRd
 
 single_solution_map <- function(solution_number, solution_output, pu_data) {
   sol_to_plot <- subset(solution_output, solution == solution_number)
@@ -202,7 +202,7 @@ single_solution_map <- function(solution_number, solution_output, pu_data) {
 #' the solution output
 #'
 #' @return Suitability value across selected features for a solution
-#' @export
+#' @noRd
 #'
 selected_spp_suit <- function(solution_number, solution_output, meta_filepath) {
   sol_subset <- subset(solution_output, solution == solution_number) |>
@@ -241,7 +241,7 @@ selected_spp_suit <- function(solution_number, solution_output, meta_filepath) {
 #' @param summary_type "min" or "max" (minimum or maximum value)
 #'
 #' @return dataframe with minimum or maximum values across all metrics
-#' @export
+#' @noRd
 
 metrics_top_solutions <- function(data, metrics, summary_type = min) {
   # Group by solution and find extreme values for each metric
@@ -271,7 +271,7 @@ metrics_top_solutions <- function(data, metrics, summary_type = min) {
 #' then quantile = 0.9
 #'
 #' @return object, then call object to view ggplot
-#' @export
+#' @noRd
 #'
 plot_solution_metric <- function(solution_number, solution_metric_df, metric, quantile = NA) {
   solution_value <- solution_metric_df[[metric]][solution_metric_df$solution == solution_number]

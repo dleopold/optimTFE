@@ -14,7 +14,7 @@
 #' @param save_HTML_loc (Optional) save location of html file for sharing with collaborators.
 #'
 #' @return An interactive leaflet map with solutions from the optimTFE alogrithm.
-#' @export
+#' @noRd
 #'
 
 create_interactive_map <- function(solution_result_file, original_PU_polygons,

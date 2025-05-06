@@ -4,7 +4,7 @@
 #' See `?golem::get_golem_options` for more details.
 #' @inheritParams shiny::shinyApp
 #'
-#' @export
+#' @noRd
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
 explore_footprints <- function(

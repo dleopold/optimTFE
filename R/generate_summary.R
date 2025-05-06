@@ -254,7 +254,7 @@ extract_segments <- function(geom, crs) {
 #'
 #' @return A data frame with polygon IDs and segment lengths for each boundary segment
 #'
-#' @export
+#' @noRd
 #'
 generate_segment_key <- function(spatial) {
 
@@ -300,7 +300,7 @@ generate_segment_key <- function(spatial) {
 #'
 #' @return Numeric value of the perimeter length in the units of the spatial data
 #'
-#' @export
+#' @noRd
 #'
 compute_perimeter <- \(subset, key) {
   cnt <- sapply(key$polygon_ids, \(ids) sum(ids %in% subset))
