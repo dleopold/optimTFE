@@ -123,8 +123,8 @@ optimTFE <- function(
   message("Beginning optimTFE...")
 
   # DEBUG ----
-  list2env(as.list(environment()), envir = .GlobalEnv)
-  return()
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
 
   start_time <- Sys.time()
   cores <- cores %||% (future::availableCores() - 1)
