@@ -122,8 +122,8 @@ optimTFE <- function(
   message("Beginning optimTFE...")
 
   # DEBUG ----
-  # list2env(as.list(environment()), envir = .GlobalEnv)
-  # return()
+  list2env(as.list(environment()), envir = .GlobalEnv)
+  return()
 
   start_time <- Sys.time()
   cores <- cores %||% (future::availableCores() - 1)
@@ -240,7 +240,7 @@ optimTFE <- function(
   }
   if (is.character(suitability) && file.exists(suitability)) {
     suitability <- tryCatch(
-      read.csv(suitability, row.names = 1) |>
+      read.csv(suitability, row.names = 1, na.strings = c("", "NA", "N/A")) |>
         as.matrix(),
       error = function(e) NULL
     )
@@ -258,6 +258,7 @@ optimTFE <- function(
     )))
   }
 
+  suitability[is.na(suitability)] <- 0
   suitability <- suitability[, spp_names, drop = FALSE]
   n_units <- nrow(suitability)
   unit_ids <- rownames(suitability)
@@ -543,12 +544,14 @@ optimTFE <- function(
     )
     if (length(unsuitable_pops) > 0) {
       message(crayon::red(glue::glue(
-        "{length(unsuitable_pops)} population in area with 0 suitability detected for {spp_names[i]} - setting to minimum observed suitability."
+        "{length(unsuitable_pops)} population in units with 0 suitability detected for {sp} - setting to mean suitability."
       )))
-      suitability_mx[unsuitable_pops, sp] <- min(suitability_mx[
-        suitability_mx[, sp] > 0,
-        sp
-      ])
+      for (unit in unsuitable_pops) {
+        suitability_mx[unit, sp] <- mean(suitability_mx[
+          unit,
+          suitability_mx[unit, ] >= min_spp_suit_score
+        ])
+      }
     }
   }
 
@@ -878,5 +881,4 @@ optimTFE <- function(
     return(solutions)
   }
   return(invisible())
-
 }
