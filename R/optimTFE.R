@@ -471,7 +471,7 @@ optimTFE <- function(
     }
     missing_units <- setdiff(unit_ids, rownames(populations))
     if (length(missing_units) > 0) {
-      populations <- cbind(
+      populations <- rbind(
         populations,
         matrix(
           NA_character_,
