@@ -10,7 +10,7 @@ using namespace Rcpp;
 //' process implements a greedy algorithm that iteratively selects planning units
 //' with high species richness to satisfy species targets across subregions.
 //'
-//' @param solution_ids IntegerVector of solution IDs. One solution will be 
+//' @param solution_ids IntegerVector of solution IDs. One solution will be
 //'   generated for each ID provided.
 //' @param suitability NumericMatrix of species suitability scores, with planning
 //'   units as rows and species as columns.
@@ -36,7 +36,7 @@ using namespace Rcpp;
 //' @return A data frame with columns: solution, order, unit_id, passing, and
 //'   one column per species indicating which species targets are satisfied
 //'   in each planning unit.
-//' @export
+//' @noRd
 // [[Rcpp::export]]
 DataFrame solutions_gen_df(IntegerVector solution_ids,
                             NumericMatrix suitability,

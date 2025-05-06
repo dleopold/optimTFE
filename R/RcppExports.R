@@ -8,7 +8,7 @@
 #' process implements a greedy algorithm that iteratively selects planning units
 #' with high species richness to satisfy species targets across subregions.
 #'
-#' @param solution_ids IntegerVector of solution IDs. One solution will be 
+#' @param solution_ids IntegerVector of solution IDs. One solution will be
 #'   generated for each ID provided.
 #' @param suitability NumericMatrix of species suitability scores, with planning
 #'   units as rows and species as columns.
@@ -34,7 +34,7 @@
 #' @return A data frame with columns: solution, order, unit_id, passing, and
 #'   one column per species indicating which species targets are satisfied
 #'   in each planning unit.
-#' @export
+#' @noRd
 solutions_gen_df <- function(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat = NULL) {
     .Call(`_optimTFE_solutions_gen_df`, solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)
 }

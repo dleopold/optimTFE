@@ -2,7 +2,6 @@
 
 export(generate_summary)
 export(optimTFE)
-export(solutions_gen_df)
 import(bslib)
 import(collapse)
 import(gargoyle)
