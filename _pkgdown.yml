@@ -1,0 +1,23 @@
+url: https://dleopold.github.io/optimTFE/
+template:
+  bootstrap: 5
+  bootswatch: lux
+  bslib:
+    pkgdown-nav-height: 100px
+authors:
+  sidebar:
+    roles: [aut, ctb]
+home:
+  sidebar:
+    structure:
+    - authors
+    - dev
+navbar:
+  structure:
+    left:
+    - intro
+    - reference
+    - articles
+    right:
+    - search
+    - github
