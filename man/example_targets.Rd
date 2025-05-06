@@ -20,4 +20,13 @@ An example targets matrix, specifying 10 total conservation targets for each of 
 species (rows). The matrix include subregion targets for 2 Bioregions,
 `left` and `right`.
 }
+\seealso{
+Other data: 
+\code{\link{example_incompatibility}},
+\code{\link{example_populations}},
+\code{\link{example_spatial}},
+\code{\link{example_subregions}},
+\code{\link{example_suitability}}
+}
+\concept{data}
 \keyword{datasets}

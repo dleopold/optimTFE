@@ -5,12 +5,12 @@
 \title{optimTFE algorithm}
 \usage{
 optimTFE(
-  targets = optimTFE::example_targets,
-  suitability = optimTFE::example_suitability,
-  subregions = optimTFE::example_subregions,
-  populations = optimTFE::example_populations,
-  incompatibility = optimTFE::example_incompatibility,
-  spatial = optimTFE::example_spatial,
+  targets = NULL,
+  suitability = NULL,
+  subregions = NULL,
+  populations = NULL,
+  incompatibility = NULL,
+  spatial = NULL,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
   max_spp_selected = -1,
@@ -141,3 +141,8 @@ can be introduced to specifically prohibit the algorithm from selecting the
 same planning unit for two taxa. This process is then repeated to generate
 many spatially efficient solutions that meet all targets for each species.
 }
+\seealso{
+Other main: 
+\code{\link{generate_summary}()}
+}
+\concept{main}

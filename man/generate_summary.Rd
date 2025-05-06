@@ -53,3 +53,8 @@ This function calculates various summary statistics for optimization solutions,
 including unit counts, suitability metrics, species richness, and spatial
 metrics (when spatial data is provided).
 }
+\seealso{
+Other main: 
+\code{\link{optimTFE}()}
+}
+\concept{main}

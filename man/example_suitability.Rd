@@ -13,4 +13,13 @@ example_suitability
 \description{
 A matrix of habitat suitability values for 30 species.
 }
+\seealso{
+Other data: 
+\code{\link{example_incompatibility}},
+\code{\link{example_populations}},
+\code{\link{example_spatial}},
+\code{\link{example_subregions}},
+\code{\link{example_targets}}
+}
+\concept{data}
 \keyword{datasets}

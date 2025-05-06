@@ -15,4 +15,13 @@ An example know population matrix, with 795 rows (units) and 30 columns (species
 Unique values in each species column indicates a known population, which some
 popultaions spanning more that one unit.
 }
+\seealso{
+Other data: 
+\code{\link{example_incompatibility}},
+\code{\link{example_spatial}},
+\code{\link{example_subregions}},
+\code{\link{example_suitability}},
+\code{\link{example_targets}}
+}
+\concept{data}
 \keyword{datasets}

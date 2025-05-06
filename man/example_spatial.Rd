@@ -17,4 +17,13 @@ example_spatial
 \description{
 A hexagonal grid of planning units.
 }
+\seealso{
+Other data: 
+\code{\link{example_incompatibility}},
+\code{\link{example_populations}},
+\code{\link{example_subregions}},
+\code{\link{example_suitability}},
+\code{\link{example_targets}}
+}
+\concept{data}
 \keyword{datasets}

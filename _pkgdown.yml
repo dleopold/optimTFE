@@ -21,3 +21,10 @@ navbar:
     right:
     - search
     - github
+reference:
+- title: Main Package Functions
+- contents: has_concept("main")
+- title: Example Data Sets
+  desc: |
+    Synthetic data for the optimTFE package.
+- contents: has_concept("data")

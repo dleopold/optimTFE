@@ -26,6 +26,7 @@
 #'
 #' @import collapse
 #'
+#' @family main
 #' @export
 #'
 generate_summary <- function(
@@ -146,7 +147,7 @@ generate_summary <- function(
     out$perimeter <- out$units |>
       furrr::future_map_dbl(
         ~ {
-          optimTFE::compute_perimeter(.x, segment_key)
+          optimTFE:::compute_perimeter(.x, segment_key)
         },
         .options = furrr::furrr_options(
           seed = NULL,

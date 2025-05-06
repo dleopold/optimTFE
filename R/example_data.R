@@ -2,6 +2,7 @@
 #'
 #' A hexagonal grid of planning units.
 #'
+#' @family data
 #' @format A spatial data frame with 795 rows:
 #' \describe{
 #'   \item{unit_id}{Planning unit name / identifier}
@@ -13,6 +14,7 @@
 #'
 #' A matrix of habitat suitability values for 30 species.
 #'
+#' @family data
 #' @format numeric matrix with 796 rows (units) and 30 columns (species)
 "example_suitability"
 
@@ -22,6 +24,7 @@
 #' species (rows). The matrix include subregion targets for 2 Bioregions,
 #' `left` and `right`.
 #'
+#' @family data
 #' @format A matrix with 30 rows and 3 columns:
 #' \describe{
 #'   \item{total}{the total target value for the species}
@@ -35,6 +38,7 @@
 #' An example subregions matrix, specifying which of the example planning
 #' units comprise the `left` and `right` regions.
 #'
+#' @family data
 "example_subregions"
 
 #' Example Known population input
@@ -43,6 +47,7 @@
 #' Unique values in each species column indicates a known population, which some
 #' popultaions spanning more that one unit.
 #'
+#' @family data
 #' @format A matrix with 795 rows and 30 columns
 "example_populations"
 
@@ -50,5 +55,6 @@
 #'
 #' A n x n binary matrix indicating which species pairs are compatable (0) or incompatibile (1).
 #'
+#' @family data
 #' @format A matrix with 30 rows and 30 columns
 "example_incompatibility"

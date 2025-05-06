@@ -13,4 +13,13 @@ example_incompatibility
 \description{
 A n x n binary matrix indicating which species pairs are compatable (0) or incompatibile (1).
 }
+\seealso{
+Other data: 
+\code{\link{example_populations}},
+\code{\link{example_spatial}},
+\code{\link{example_subregions}},
+\code{\link{example_suitability}},
+\code{\link{example_targets}}
+}
+\concept{data}
 \keyword{datasets}

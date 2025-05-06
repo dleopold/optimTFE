@@ -14,4 +14,13 @@ example_subregions
 An example subregions matrix, specifying which of the example planning
 units comprise the `left` and `right` regions.
 }
+\seealso{
+Other data: 
+\code{\link{example_incompatibility}},
+\code{\link{example_populations}},
+\code{\link{example_spatial}},
+\code{\link{example_suitability}},
+\code{\link{example_targets}}
+}
+\concept{data}
 \keyword{datasets}

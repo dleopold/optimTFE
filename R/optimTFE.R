@@ -88,16 +88,17 @@
 #'
 #' @import progressr
 #'
+#' @family main
 #' @export
 #'
 optimTFE <- function(
   # Data Inputs
-  targets = optimTFE::example_targets,
-  suitability = optimTFE::example_suitability,
-  subregions = optimTFE::example_subregions,
-  populations = optimTFE::example_populations,
-  incompatibility = optimTFE::example_incompatibility,
-  spatial = optimTFE::example_spatial,
+  targets = NULL,
+  suitability = NULL,
+  subregions = NULL,
+  populations = NULL,
+  incompatibility = NULL,
+  spatial = NULL,
   # Config parameters,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
