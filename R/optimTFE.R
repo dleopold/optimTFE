@@ -547,11 +547,16 @@ optimTFE <- function(
         "{length(unsuitable_pops)} {sp} populations with 0 suitability detected - setting to mean suitability."
       )))
       for (unit in unsuitable_pops) {
-         val <- mean(suitability_mx[
+        val <- mean(suitability_mx[
           unit,
           suitability_mx[unit, ] >= min_spp_suit_score
         ])
-        if(is.na(val) || val == 0){val <- max(min_spp_suit_score, min(suitability_mx[suitability_mx > 0])) }
+        if (is.na(val) || val == 0) {
+          val <- max(
+            min_spp_suit_score,
+            min(suitability_mx[suitability_mx > 0])
+          )
+        }
         suitability_mx[unit, sp] <- val
       }
     }
@@ -619,6 +624,14 @@ optimTFE <- function(
   for (sp in spp_names) {
     for (region in region_ids) {
       region_idx <- unit_regions == which(region_ids == region)
+      # Remove Suitability from units in regions where regional max == 0
+      if (regional_max[sp, region] == 0) {
+        suitability_mx[region_idx, sp] <- 0
+        populations_mx[region_idx, sp] <- 0
+        population_counts[sp, region] <- 0
+        unit_counts[sp, region] <- 0
+        next
+      }
       unit_counts[sp, region] <- sum(suitability_mx[region_idx, sp] > 0)
       if (single_pu_pop) {
         duplicates <- populations[region_idx, sp] |>
@@ -863,7 +876,9 @@ optimTFE <- function(
 
   # Generate summary data ----
   if (isTRUE(summary)) {
-    message(crayon::cyan("Generating summary data for {n} solutions..."))
+    message(crayon::cyan(glue::glue(
+      "Generating summary data for {n} solutions..."
+    )))
     generate_summary(
       data = dplyr::collect(solutions),
       out_dir = out_dir,
