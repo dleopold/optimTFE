@@ -753,7 +753,7 @@ optimTFE <- function(
         "Invalid spatial data input."
       )))
     }
-    if (!all(sf::st_is(spatial, "POLYGON"))) {
+    if (!all(sf::st_is(spatial, "POLYGON") | sf::st_is(spatial, "MULTIPOLYGON"))) {
       stop(crayon::bold(crayon::red(
         "Spatial input must only contain POLYGON geometries."
       )))
