@@ -41,7 +41,6 @@ generate_summary <- function(
   summary_out = file.path(out_dir, run_id, "summary.csv"),
   return_df = FALSE
 ) {
-
   if (is.null(data)) {
     data <- arrow::open_dataset(file.path(out_dir, run_id, "solutions")) |>
       dplyr::collect()
@@ -80,7 +79,7 @@ generate_summary <- function(
     spatial$idx <- seq_along(unit_ids)
     # Filter unused units
     uids <- unique(data$unit_id)
-    spatial <-spatial[fmatch(uids, spatial$idx), ]
+    spatial <- spatial[fmatch(uids, spatial$idx), ]
   }
 
   # Calculate standard summary metrics
@@ -127,16 +126,16 @@ generate_summary <- function(
       toupper(colnames(spatial)),
       "^AREA"
     ))]
-    if (length(area_col) == 0) {
-      area <- spatial |>
-        fmutate(
-          area = as.numeric(sf::st_area(sf::st_geometry(spatial)))
-        ) |>
-        dplyr::pull("area")
-    } else {
-      area <- spatial |>
-        dplyr::pull(area_col)
-    }
+    # if (length(area_col) == 0) {
+    area <- spatial |>
+      fmutate(
+        area = as.numeric(sf::st_area(sf::st_geometry(spatial)))
+      ) |>
+      dplyr::pull("area")
+    # } else {
+    #   area <- spatial |>
+    #     dplyr::pull(area_col)
+    # }
     units_flat <- unlist(out$units, use.names = FALSE)
     grp <- rep(seq_along(out$units), lengths(out$units))
     pos <- fmatch(units_flat, spatial$idx, nomatch = 0L)
@@ -213,7 +212,11 @@ is_equal_area_sf <- function(x) {
   }
   # fallback: check PROJ4 for known proj names
   p4 <- crs$proj4string %||% ""
-  grepl("\\+proj=(aea|laea|cea|eqc|sinu)", p4, ignore.case = TRUE)
+  grepl(
+    "\\+proj=(aea|laea|cea|eqc|sinu|utm|sterea|tmerc|lcc|merc|omerc)",
+    p4,
+    ignore.case = TRUE
+  )
 }
 
 #' Extract all unique boundary segments from a geometry
@@ -258,7 +261,6 @@ extract_segments <- function(geom, crs) {
 #' @noRd
 #'
 generate_segment_key <- function(spatial) {
-
   poly_edges <- do.call(
     rbind,
     lapply(seq_len(nrow(spatial)), function(i) {
@@ -288,7 +290,6 @@ generate_segment_key <- function(spatial) {
     fmutate(length = as.numeric(sf::st_length(geometry))) |>
     sf::st_drop_geometry() |>
     fselect(polygon_ids, length)
-
 }
 
 #' Compute perimeter of a subset of polygons
