@@ -52,10 +52,9 @@ metrics (when spatial data is provided).</p>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  out_dir <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  run_id <span class="op">=</span> <span class="st">"optimTFE"</span>,</span>
-<span>  suitability_mx <span class="op">=</span> <span class="va">suitability_mx</span>,</span>
-<span>  unit_ids <span class="op">=</span> <span class="va">unit_ids</span>,</span>
-<span>  spatial <span class="op">=</span> <span class="va">spatial</span>,</span>
-<span>  spatial_projection <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  suitability_mx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spatial <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  spatial_crs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_units_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="va">run_id</span>, <span class="st">"n_units.pdf"</span><span class="op">)</span>,</span>
 <span>  summary_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="va">run_id</span>, <span class="st">"summary.csv"</span><span class="op">)</span>,</span>
 <span>  return_df <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -85,17 +84,16 @@ from the specified output directory.</p></dd>
 species as column names.</p></dd>
 
 
-<dt id="arg-unit-ids">unit_ids<a class="anchor" aria-label="anchor" href="#arg-unit-ids"></a></dt>
-<dd><p>Vector of unit IDs (must be in the same order as the rows of suitability_mx).</p></dd>
-
-
 <dt id="arg-spatial">spatial<a class="anchor" aria-label="anchor" href="#arg-spatial"></a></dt>
 <dd><p>Spatial data frame (sf object) containing geometries for planning units.</p></dd>
 
 
-<dt id="arg-spatial-projection">spatial_projection<a class="anchor" aria-label="anchor" href="#arg-spatial-projection"></a></dt>
-<dd><p>CRS object or string for transforming spatial data to
-an equal area projection if needed.</p></dd>
+<dt id="arg-spatial-crs">spatial_crs<a class="anchor" aria-label="anchor" href="#arg-spatial-crs"></a></dt>
+<dd><p>CRS object for spatial data. By default this will be set to the CRS
+of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
+assume an equal area projection and a suitable crs can be provided to project the
+existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")“ will
+project the existing spatial data to UTM zone 4 before calculating spatial metrics.</p></dd>
 
 
 <dt id="arg-min-units-plot">min_units_plot<a class="anchor" aria-label="anchor" href="#arg-min-units-plot"></a></dt>
