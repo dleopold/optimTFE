@@ -10,10 +10,12 @@
 #' @param run_id Character string specifying the run identifier. Default is "optimTFE".
 #' @param suitability_mx Matrix of suitability values with unit IDs as row names and
 #'   species as column names.
-#' @param unit_ids Vector of unit IDs (must be in the same order as the rows of suitability_mx).
 #' @param spatial Spatial data frame (sf object) containing geometries for planning units.
-#' @param spatial_projection CRS object or string for transforming spatial data to
-#'   an equal area projection if needed.
+#' @param spatial_crs CRS object for spatial data. By default this will be set to the CRS
+#'   of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
+#'   assume an equal area projection and a suitable crs can be provided to project the
+#'   existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
+#'   project the existing spatial data to UTM zone 4 before calculating spatial metrics.
 #' @param min_units_plot Character string specifying the output path for the minimum units
 #'   plot description (default = `file.path(out_dir, run_id, "n_units.pdf")`).
 #' @param summary_out Character string specifying the output path for the summary
@@ -34,16 +36,14 @@ generate_summary <- function(
   data = NULL,
   out_dir = ".",
   run_id = "optimTFE",
-  suitability_mx = suitability_mx,
-  unit_ids = unit_ids,
-  spatial = spatial,
-  spatial_projection = NULL,
+  suitability_mx = NULL,
+  spatial = NULL,
+  spatial_crs = NULL,
   min_units_plot = file.path(out_dir, run_id, "n_units.pdf"),
   summary_out = file.path(out_dir, run_id, "summary.csv"),
   return_df = FALSE,
   progress = TRUE
 ) {
-
   # Determine if progress bar should be used
   if (
     isTRUE(progress) &&
@@ -65,35 +65,68 @@ generate_summary <- function(
       dplyr::collect()
   }
 
-  if (is.null(suitability_mx)) {
-    # TODO - read from run meta
+  meta <- tryCatch(
+    jsonlite::fromJSON(file.path(
+      out_dir,
+      run_id,
+      paste0(run_id, ".meta")
+    )),
+    error = function(e) NULL
+  )
+
+  if (is.null(suitability_mx) && !is.null(meta)) {
+    suitability_mx <- meta$suitability
+    colnames(suitability_mx) <- meta$spp_names
+    rownames(suitability_mx) <- meta$unit_ids
   }
+  if (is.null(suitability_mx)) {
+    stop(crayon::bold(crayon::red(
+      "Failed to load suitability matrix"
+    )))
+  }
+  unit_ids <- rownames(suitability_mx)
 
   if (!is.null(spatial)) {
-    if (is.null(unit_ids)) {
-      # TODO - read from run meta
+    if (is.character(spatial) && file.exists(spatial)) {
+      spatial <- tryCatch(
+        sf::read_sf(spatial),
+        error = function(e) NULL
+      )
     }
-    if (!identical(sort(dplyr::pull(spatial, 1)), sort(unit_ids))) {
+    if (!inherits(spatial, "sf") && !methods::is(spatial, "Spatial")) {
       stop(crayon::bold(crayon::red(
-        "Spatial input unit_ids do not other inputs."
+        "Invalid spatial data input."
+      )))
+    }
+    if (
+      !all(sf::st_is(spatial, "POLYGON") | sf::st_is(spatial, "MULTIPOLYGON"))
+    ) {
+      stop(crayon::bold(crayon::red(
+        "Spatial input must only contain POLYGON geometries."
+      )))
+    }
+    if (!identical(sort(spatial[[1]]), sort(unit_ids))) {
+      stop(crayon::bold(crayon::red(
+        "Spatial input unit_ids do not match suitability matrix."
       )))
     }
     if (
       !is_equal_area_sf(spatial) &&
-        is_equal_area_sf(spatial_projection)
+        is_equal_area_sf(spatial_crs)
     ) {
-      spatial <- sf::st_transform(spatial, spatial_projection)
+      spatial <- sf::st_transform(spatial, spatial_crs)
     }
     if (
       !is_equal_area_sf(spatial) &&
-        !is_equal_area_sf(spatial_projection)
+        !is_equal_area_sf(spatial_crs)
     ) {
       stop(crayon::bold(crayon::red(
-        "Spatial input must be in an equal area projection or a suitable projection must be provided as spatial_projection (eg, a UTM projection)."
+        "Spatial input must be in an equal area projection or a suitable projection must be provided as spatial_crs (eg, a UTM projection)."
       )))
     }
     # Ensure row order of spatial data matches unit_ids
     spatial <- spatial[fmatch(unit_ids, spatial[[1]], nomatch = 0L), ]
+    colnames(spatial)[1] <- "unit_id"
     # Filter unused units
     uids <- unique(data$unit_id)
     spatial <- spatial |> fsubset(unit_id %iin% uids)
@@ -155,14 +188,14 @@ generate_summary <- function(
         "Calculating spatial summary metrics"
       )
     )
+    segment_key <- generate_segment_key(spatial)
     p <- progressor(
       along = seq_along(out$solution)
     )
-    segment_key <- generate_segment_key(spatial)
     out$perimeter <- out$units |>
       furrr::future_map_dbl(
         ~ {
-          p()
+          # p()
           optimTFE:::compute_perimeter(.x, segment_key)
         },
         .options = furrr::furrr_options(
