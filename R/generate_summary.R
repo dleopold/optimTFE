@@ -151,7 +151,7 @@ generate_summary <- function(
     # Calculate perimeter ----
     message(
       crayon::cyan(
-        "Calculating spatial summary metrics..."
+        "Calculating spatial summary metrics"
       )
     )
     p <- progressor(
