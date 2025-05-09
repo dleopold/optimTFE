@@ -524,7 +524,7 @@ optimTFE <- function(
     meta$populations <- populations_mx
     meta$population_names <- population_names
     meta$single_pu_pop <- single_pu_pop
-    message(crayon::cyan("Known population matrix loaded."))
+    message(crayon::cyan("Known population matrix loaded"))
   }
 
   # Generate empty populations matrix if needed
@@ -753,7 +753,9 @@ optimTFE <- function(
         "Invalid spatial data input."
       )))
     }
-    if (!all(sf::st_is(spatial, "POLYGON") | sf::st_is(spatial, "MULTIPOLYGON"))) {
+    if (
+      !all(sf::st_is(spatial, "POLYGON") | sf::st_is(spatial, "MULTIPOLYGON"))
+    ) {
       stop(crayon::bold(crayon::red(
         "Spatial input must only contain POLYGON geometries."
       )))
@@ -778,9 +780,18 @@ optimTFE <- function(
     {
       \(x) split(x, ceiling(x / batch_size))
     }()
-  message(crayon::cyan(glue::glue(
-    "Generating {n} solutions in {length(btchs)} batches..."
-  )))
+  message(
+    crayon::cyan(
+      "Generating",
+      n,
+      "solutions in",
+      length(btchs),
+      "batches"
+    )
+  )
+  p <- progressor(
+    along = btchs
+  )
   # Set up future backend
   if (parallelly::supportsMulticore()) {
     future_mode <- future::multicore
@@ -801,7 +812,6 @@ optimTFE <- function(
   )
 
   # Generate solutions
-  p <- progressor(along = btchs) # Init progress bar
   furrr::future_walk2(
     btchs,
     fns,
@@ -823,6 +833,9 @@ optimTFE <- function(
         incompat = incompatibility,
         seed = sample.int(.Machine$integer.max, 1)
       ) |>
+        collapse::fmutate(
+          unit_id = unit_ids[unit_id]
+        ) |>
         arrow::write_parquet(.y)
       p()
     },
@@ -841,7 +854,8 @@ optimTFE <- function(
         "rand_tolerance",
         "max_spp_selected",
         "spp_names",
-        "incompatibility"
+        "incompatibility",
+        "unit_ids"
       )
     )
   )
@@ -851,7 +865,7 @@ optimTFE <- function(
     "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
   )
   message(crayon::cyan(glue::glue(
-    "Finished generating {n} solutions in {meta$elapsed_time}."
+    "Finished generating {n} solutions in {meta$elapsed_time}"
   )))
 
   # write metadata ----
@@ -859,7 +873,7 @@ optimTFE <- function(
     purrr::compact() |>
     jsonlite::toJSON(auto_unbox = TRUE) |>
     # jsonlite::prettify() |>
-    write(file.path(out_dir, paste0(run_id, ".meta")))
+    write(file.path(out_dir, run_id, paste0(run_id, ".meta")))
 
   # Load solutions ----
   solutions <- arrow::open_dataset(solutions_dir) |>
@@ -874,6 +888,10 @@ optimTFE <- function(
     )
   }
 
+  # DEBUG ----
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+
   # Generate summary data ----
   if (isTRUE(summary)) {
     message(crayon::cyan(glue::glue(
@@ -886,13 +904,10 @@ optimTFE <- function(
       suitability_mx = suitability_mx,
       unit_ids = unit_ids,
       spatial = spatial,
-      spatial_projection = spatial_projection
+      spatial_projection = spatial_projection,
+      progress = progress
     )
   }
-
-  # DEBUG ----
-  # list2env(as.list(environment()), envir = .GlobalEnv)
-  # return()
 
   if (return_df) {
     return(solutions)
