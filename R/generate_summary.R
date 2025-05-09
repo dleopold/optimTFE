@@ -39,8 +39,26 @@ generate_summary <- function(
   spatial_projection = NULL,
   min_units_plot = file.path(out_dir, run_id, "n_units.pdf"),
   summary_out = file.path(out_dir, run_id, "summary.csv"),
-  return_df = FALSE
+  return_df = FALSE,
+  progress = TRUE
 ) {
+
+  # Determine if progress bar should be used
+  if (
+    isTRUE(progress) &&
+      interactive() &&
+      !isTRUE(getOption("knitr.in.progress")) &&
+      !isTRUE(getOption("rstudio.notebook.executing"))
+  ) {
+    progressr::handlers(global = TRUE)
+  } else if (
+    interactive() &&
+      !isTRUE(getOption("knitr.in.progress")) &&
+      !isTRUE(getOption("rstudio.notebook.executing"))
+  ) {
+    progressr::handlers(global = FALSE)
+  }
+
   if (is.null(data)) {
     data <- arrow::open_dataset(file.path(out_dir, run_id, "solutions")) |>
       dplyr::collect()
@@ -75,11 +93,9 @@ generate_summary <- function(
     }
     # Ensure row order of spatial data matches unit_ids
     spatial <- spatial[fmatch(unit_ids, spatial[[1]], nomatch = 0L), ]
-    # Add unit index to spatial data
-    spatial$idx <- seq_along(unit_ids)
     # Filter unused units
     uids <- unique(data$unit_id)
-    spatial <- spatial[fmatch(uids, spatial$idx), ]
+    spatial <- spatial |> fsubset(unit_id %iin% uids)
   }
 
   # Calculate standard summary metrics
@@ -122,30 +138,30 @@ generate_summary <- function(
     }
     future::plan(future_mode, workers = future::availableCores() - 1)
     # Calculate area ----
-    area_col <- colnames(spatial)[which(stringr::str_detect(
-      toupper(colnames(spatial)),
-      "^AREA"
-    ))]
-    # if (length(area_col) == 0) {
     area <- spatial |>
       fmutate(
         area = as.numeric(sf::st_area(sf::st_geometry(spatial)))
       ) |>
       dplyr::pull("area")
-    # } else {
-    #   area <- spatial |>
-    #     dplyr::pull(area_col)
-    # }
     units_flat <- unlist(out$units, use.names = FALSE)
     grp <- rep(seq_along(out$units), lengths(out$units))
-    pos <- fmatch(units_flat, spatial$idx, nomatch = 0L)
+    pos <- fmatch(units_flat, spatial$unit_id, nomatch = 0L)
     out$area <- collap(area[pos], grp, fsum, na.rm = TRUE)[[2]]
 
     # Calculate perimeter ----
+    message(
+      crayon::cyan(
+        "Calculating spatial summary metrics"
+      )
+    )
+    p <- progressor(
+      along = seq_along(out$solution)
+    )
     segment_key <- generate_segment_key(spatial)
     out$perimeter <- out$units |>
       furrr::future_map_dbl(
         ~ {
+          p()
           optimTFE:::compute_perimeter(.x, segment_key)
         },
         .options = furrr::furrr_options(
@@ -265,7 +281,7 @@ generate_segment_key <- function(spatial) {
     rbind,
     lapply(seq_len(nrow(spatial)), function(i) {
       segs <- extract_segments(sf::st_geometry(spatial)[i], sf::st_crs(spatial))
-      data.frame(poly_id = spatial$idx[i], geometry = segs)
+      data.frame(poly_id = spatial$unit_id[i], geometry = segs)
     })
   ) |>
     sf::st_as_sf()
