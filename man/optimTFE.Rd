@@ -118,9 +118,9 @@ current R session (default = FALSE)}
 = TRUE)}
 
 \item{spatial_projection}{optional projection string or epsg code to use for
-spatial data. Only applicable if spatial data is provided and summary =
-TRUE. A equal area projection is needed to calculate spatial metrics such
-as area and perimeter.}
+spatial data. Only applicable if summary = TRUE and spatial data is not
+already provided in an equal area projection (an equal area projection is
+needed to calculate spatial metrics such as area and perimeter).}
 }
 \description{
 Generate a suite of conservation footprint 'solutions' based on feature

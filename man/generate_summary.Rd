@@ -14,7 +14,8 @@ generate_summary(
   spatial_projection = NULL,
   min_units_plot = file.path(out_dir, run_id, "n_units.pdf"),
   summary_out = file.path(out_dir, run_id, "summary.csv"),
-  return_df = FALSE
+  return_df = FALSE,
+  progress = TRUE
 )
 }
 \arguments{
