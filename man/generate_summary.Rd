@@ -43,6 +43,8 @@ plot description (default = `file.path(out_dir, run_id, "n_units.pdf")`).}
 data frame (default = `file.path(out_dir, run_id, "summary.csv")`).}
 
 \item{return_df}{Logical value indicating whether to return the summary data frame.}
+
+\item{progress}{Logical value indicating whether to show progress bar}
 }
 \value{
 A data frame with summary statistics for each solution, including number

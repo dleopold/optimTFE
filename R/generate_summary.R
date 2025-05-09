@@ -19,6 +19,7 @@
 #' @param summary_out Character string specifying the output path for the summary
 #'   data frame (default = `file.path(out_dir, run_id, "summary.csv")`).
 #' @param return_df Logical value indicating whether to return the summary data frame.
+#' @param progress Logical value indicating whether to show progress bar
 #'
 #' @return A data frame with summary statistics for each solution, including number
 #'   of units, mean/median suitability, species richness metrics, and spatial metrics
