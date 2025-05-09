@@ -8,10 +8,9 @@ generate_summary(
   data = NULL,
   out_dir = ".",
   run_id = "optimTFE",
-  suitability_mx = suitability_mx,
-  unit_ids = unit_ids,
-  spatial = spatial,
-  spatial_projection = NULL,
+  suitability_mx = NULL,
+  spatial = NULL,
+  spatial_crs = NULL,
   min_units_plot = file.path(out_dir, run_id, "n_units.pdf"),
   summary_out = file.path(out_dir, run_id, "summary.csv"),
   return_df = FALSE,
@@ -29,12 +28,13 @@ from the specified output directory.}
 \item{suitability_mx}{Matrix of suitability values with unit IDs as row names and
 species as column names.}
 
-\item{unit_ids}{Vector of unit IDs (must be in the same order as the rows of suitability_mx).}
-
 \item{spatial}{Spatial data frame (sf object) containing geometries for planning units.}
 
-\item{spatial_projection}{CRS object or string for transforming spatial data to
-an equal area projection if needed.}
+\item{spatial_crs}{CRS object for spatial data. By default this will be set to the CRS
+of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
+assume an equal area projection and a suitable crs can be provided to project the
+existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
+project the existing spatial data to UTM zone 4 before calculating spatial metrics.}
 
 \item{min_units_plot}{Character string specifying the output path for the minimum units
 plot description (default = `file.path(out_dir, run_id, "n_units.pdf")`).}

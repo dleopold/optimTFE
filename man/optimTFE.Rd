@@ -11,6 +11,7 @@ optimTFE(
   populations = NULL,
   incompatibility = NULL,
   spatial = NULL,
+  spatial_crs = NULL,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
   max_spp_selected = -1,
@@ -26,8 +27,7 @@ optimTFE(
   output_csv = TRUE,
   return_df = FALSE,
   force_overwrite = FALSE,
-  summary = TRUE,
-  spatial_projection = NULL
+  summary = TRUE
 )
 }
 \arguments{
@@ -70,6 +70,12 @@ in the same unit).}
 a pre-loaded sf object containing the planning unit polygons. Must have the
 same unit IDs as the suitability matrix included as the first column of the
 attribute table.}
+
+\item{spatial_crs}{CRS object for spatial data. By default this will be set to the CRS
+of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
+assume an equal area projection and a suitable crs can be provided to project the
+existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
+project the existing spatial data to UTM zone 4 before calculating spatial metrics.}
 
 \item{min_spp_suit_score}{minimum suitability score for a species to be
 considered in a location (default = 0.25)}
@@ -116,11 +122,6 @@ current R session (default = FALSE)}
 
 \item{summary}{generate summary statistics and metrics for solutions (default
 = TRUE)}
-
-\item{spatial_projection}{optional projection string or epsg code to use for
-spatial data. Only applicable if summary = TRUE and spatial data is not
-already provided in an equal area projection (an equal area projection is
-needed to calculate spatial metrics such as area and perimeter).}
 }
 \description{
 Generate a suite of conservation footprint 'solutions' based on feature

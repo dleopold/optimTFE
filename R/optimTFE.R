@@ -51,6 +51,11 @@
 #'   a pre-loaded sf object containing the planning unit polygons. Must have the
 #'   same unit IDs as the suitability matrix included as the first column of the
 #'   attribute table.
+#' @param spatial_crs CRS object for spatial data. By default this will be set to the CRS
+#'   of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
+#'   assume an equal area projection and a suitable crs can be provided to project the
+#'   existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
+#'   project the existing spatial data to UTM zone 4 before calculating spatial metrics.
 #' @param min_spp_suit_score minimum suitability score for a species to be
 #'   considered in a location (default = 0.25)
 #' @param rand_tolerance the range of species richness, from maximum, to
@@ -81,10 +86,6 @@
 #' @param force_overwrite overwrite existing output files (default = FALSE)
 #' @param summary generate summary statistics and metrics for solutions (default
 #'   = TRUE)
-#' @param spatial_projection optional projection string or epsg code to use for
-#'   spatial data. Only applicable if summary = TRUE and spatial data is not
-#'   already provided in an equal area projection (an equal area projection is
-#'   needed to calculate spatial metrics such as area and perimeter).
 #'
 #' @import progressr
 #'
@@ -99,6 +100,7 @@ optimTFE <- function(
   populations = NULL,
   incompatibility = NULL,
   spatial = NULL,
+  spatial_crs = NULL,
   # Config parameters,
   min_spp_suit_score = 0.25,
   rand_tolerance = 5,
@@ -117,8 +119,7 @@ optimTFE <- function(
   output_csv = TRUE,
   return_df = FALSE,
   force_overwrite = FALSE,
-  summary = TRUE,
-  spatial_projection = NULL
+  summary = TRUE
 ) {
   message("Beginning optimTFE...")
 
@@ -902,9 +903,8 @@ optimTFE <- function(
       out_dir = out_dir,
       run_id = run_id,
       suitability_mx = suitability_mx,
-      unit_ids = unit_ids,
       spatial = spatial,
-      spatial_projection = spatial_projection,
+      spatial_crs = spatial_crs,
       progress = progress
     )
   }
