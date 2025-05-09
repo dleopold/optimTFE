@@ -3,7 +3,7 @@ pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   Introduction: Introduction.html
-last_built: 2025-05-09T05:07Z
+last_built: 2025-05-09T05:12Z
 urls:
   reference: https://dleopold.github.io/optimTFE/reference
   article: https://dleopold.github.io/optimTFE/articles
