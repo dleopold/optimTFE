@@ -10,6 +10,20 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// compute_perimeters
+NumericVector compute_perimeters(const List& subsets, const List& keyPolygonIds, const NumericVector& lengths, int Pmax);
+RcppExport SEXP _optimTFE_compute_perimeters(SEXP subsetsSEXP, SEXP keyPolygonIdsSEXP, SEXP lengthsSEXP, SEXP PmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type subsets(subsetsSEXP);
+    Rcpp::traits::input_parameter< const List& >::type keyPolygonIds(keyPolygonIdsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< int >::type Pmax(PmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_perimeters(subsets, keyPolygonIds, lengths, Pmax));
+    return rcpp_result_gen;
+END_RCPP
+}
 // solutions_gen_df
 DataFrame solutions_gen_df(IntegerVector solution_ids, NumericMatrix suitability, IntegerVector spp_targets, IntegerVector unit_regions, IntegerMatrix unit_counts, IntegerMatrix regional_min, IntegerMatrix regional_max, IntegerMatrix populations, IntegerMatrix population_counts, bool single_pu_pop, int rand_tolerance, int max_spp_selected, CharacterVector spp_names, uint64_t seed, Nullable<IntegerMatrix> incompat);
 RcppExport SEXP _optimTFE_solutions_gen_df(SEXP solution_idsSEXP, SEXP suitabilitySEXP, SEXP spp_targetsSEXP, SEXP unit_regionsSEXP, SEXP unit_countsSEXP, SEXP regional_minSEXP, SEXP regional_maxSEXP, SEXP populationsSEXP, SEXP population_countsSEXP, SEXP single_pu_popSEXP, SEXP rand_toleranceSEXP, SEXP max_spp_selectedSEXP, SEXP spp_namesSEXP, SEXP seedSEXP, SEXP incompatSEXP) {
@@ -37,6 +51,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_optimTFE_compute_perimeters", (DL_FUNC) &_optimTFE_compute_perimeters, 4},
     {"_optimTFE_solutions_gen_df", (DL_FUNC) &_optimTFE_solutions_gen_df, 15},
     {NULL, NULL, 0}
 };

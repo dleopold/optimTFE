@@ -138,7 +138,7 @@ optimTFE <- function(
     seed = seed
   )
 
-  # Determine if progress bar should be used
+  # Progressr setup ---
   if (
     isTRUE(progress) &&
       interactive() &&
@@ -155,7 +155,7 @@ optimTFE <- function(
   }
 
   # Output Files ----
-  ## If no output directory provided, return all solutions as a data frame
+  ## If no output directory provided, write to tmp and return all solutions as a data frame
   if (is.null(out_dir)) {
     return_df = TRUE
     out_dir <- tempdir()
@@ -544,9 +544,12 @@ optimTFE <- function(
       !is.na(populations[, sp]) & suitability_mx[, sp] == 0
     )
     if (length(unsuitable_pops) > 0) {
-      message(crayon::red(glue::glue(
-        "{length(unsuitable_pops)} {sp} populations with 0 suitability detected - setting to mean suitability."
-      )))
+      message(paste(
+        "    ",
+        crayon::silver(glue::glue(
+          "{    length(unsuitable_pops)} {sp} population(s) with 0 suitability detected - setting to mean suitability."
+        ))
+      ))
       for (unit in unsuitable_pops) {
         val <- mean(suitability_mx[
           unit,
@@ -775,7 +778,7 @@ optimTFE <- function(
   # Generate Solutions ----
   # Batch
   if (is.null(batch_size)) {
-    batch_size <- min(ceiling(n / cores), max_batch_size)
+    batch_size <- min(ceiling(n / (2 * cores)), max_batch_size)
   }
   btchs <- seq_len(n) |>
     {
@@ -790,9 +793,7 @@ optimTFE <- function(
       "batches"
     )
   )
-  p <- progressor(
-    along = btchs
-  )
+
   # Set up future backend
   if (parallelly::supportsMulticore()) {
     future_mode <- future::multicore
@@ -813,6 +814,7 @@ optimTFE <- function(
   )
 
   # Generate solutions
+  p <- progressor(along = btchs)
   furrr::future_walk2(
     btchs,
     fns,
@@ -862,11 +864,11 @@ optimTFE <- function(
   )
 
   elapsed_time <- Sys.time() - start_time
-  meta$elapsed_time <- glue::glue(
+  elapsed_time <- glue::glue(
     "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
   )
   message(crayon::cyan(glue::glue(
-    "Finished generating {n} solutions in {meta$elapsed_time}"
+    "Finished generating {n} solutions in {elapsed_time}"
   )))
 
   # write metadata ----
@@ -876,9 +878,12 @@ optimTFE <- function(
     # jsonlite::prettify() |>
     write(file.path(out_dir, run_id, paste0(run_id, ".meta")))
 
+  # DEBUG ----
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+
   # Load solutions ----
-  solutions <- arrow::open_dataset(solutions_dir) |>
-    dplyr::collect()
+  solutions <- arrow::open_dataset(solutions_dir)
 
   # Write output to csv ----
   if (output_csv) {
@@ -889,28 +894,20 @@ optimTFE <- function(
     )
   }
 
-  # DEBUG ----
-  # list2env(as.list(environment()), envir = .GlobalEnv)
-  # return()
-
   # Generate summary data ----
   if (isTRUE(summary)) {
-    message(crayon::cyan(glue::glue(
-      "Generating summary data for {n} solutions..."
-    )))
     generate_summary(
-      data = dplyr::collect(solutions),
       out_dir = out_dir,
       run_id = run_id,
-      suitability_mx = suitability_mx,
       spatial = spatial,
       spatial_crs = spatial_crs,
-      progress = progress
+      progress = progress,
+      cores = cores
     )
   }
 
   if (return_df) {
-    return(solutions)
+    return(dplyr::collect(solutions))
   }
   return(invisible())
 }
