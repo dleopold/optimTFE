@@ -58,7 +58,10 @@ metrics (when spatial data is provided).</p>
 <span>  min_units_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="va">run_id</span>, <span class="st">"n_units.pdf"</span><span class="op">)</span>,</span>
 <span>  summary_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="va">run_id</span>, <span class="st">"summary.csv"</span><span class="op">)</span>,</span>
 <span>  return_df <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  progress <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max_batch_size <span class="op">=</span> <span class="fl">1000</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,6 +115,22 @@ data frame (default = `file.path(out_dir, run_id, "summary.csv")`).</p></dd>
 
 <dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
 <dd><p>Logical value indicating whether to show progress bar</p></dd>
+
+
+<dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
+<dd><p>Number of cores to use for parallel processing</p></dd>
+
+
+<dt id="arg-batch-size">batch_size<a class="anchor" aria-label="anchor" href="#arg-batch-size"></a></dt>
+<dd><p>when parallel processing is used, this parameter can be
+used to process solution in batches for improved efficiency (default =
+NULL). If not provided (NULL), batch size will be calculated automatically.</p></dd>
+
+
+<dt id="arg-max-batch-size">max_batch_size<a class="anchor" aria-label="anchor" href="#arg-max-batch-size"></a></dt>
+<dd><p>limit batch size for parallel processing (default =
+1000). Smaller values will allow the progress bar to update more
+frequently, but at the cost of more disk writes.</p></dd>
 
 </dl></div>
     <div class="section level2">
