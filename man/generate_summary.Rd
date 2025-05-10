@@ -14,7 +14,10 @@ generate_summary(
   min_units_plot = file.path(out_dir, run_id, "n_units.pdf"),
   summary_out = file.path(out_dir, run_id, "summary.csv"),
   return_df = FALSE,
-  progress = TRUE
+  progress = TRUE,
+  cores = NULL,
+  batch_size = NULL,
+  max_batch_size = 1000
 )
 }
 \arguments{
@@ -45,6 +48,16 @@ data frame (default = `file.path(out_dir, run_id, "summary.csv")`).}
 \item{return_df}{Logical value indicating whether to return the summary data frame.}
 
 \item{progress}{Logical value indicating whether to show progress bar}
+
+\item{cores}{Number of cores to use for parallel processing}
+
+\item{batch_size}{when parallel processing is used, this parameter can be
+used to process solution in batches for improved efficiency (default =
+NULL). If not provided (NULL), batch size will be calculated automatically.}
+
+\item{max_batch_size}{limit batch size for parallel processing (default =
+1000). Smaller values will allow the progress bar to update more
+frequently, but at the cost of more disk writes.}
 }
 \value{
 A data frame with summary statistics for each solution, including number
