@@ -11,7 +11,7 @@ std::vector<double> select_unit(NumericMatrix suitability,
                                 std::mt19937_64 &gen);
 
 // Declaration for solution_gen function.
-std::vector<int> solution_gen(NumericMatrix suitability,
+std::vector<double> solution_gen(NumericMatrix suitability,
                            IntegerVector spp_targets,
                            IntegerVector unit_regions,
                            IntegerMatrix unit_counts,

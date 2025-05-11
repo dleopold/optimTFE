@@ -27,7 +27,7 @@ using namespace Rcpp;
 //' @param incompat IntegerMatrix of species incompatibilities (1 = incompatible)
 //' @param gen Random number generator reference
 //' @return std::vector<int> of solution data in a flattened format
-std::vector<int> solution_gen(
+std::vector<double> solution_gen(
                             NumericMatrix suitability,
                             IntegerVector spp_targets,
                             IntegerVector unit_regions,
@@ -367,8 +367,8 @@ std::vector<int> solution_gen(
   }
 
   // Construct final output
-  size_t nrows = results.size(), ncols = nSpp + 4;
-  std::vector<int> finalMat(nrows * ncols, 0);
+  size_t nrows = results.size(), ncols = nSpp + 6;
+  std::vector<double> finalMat(nrows * ncols, 0);
   auto idx = [&](size_t i, size_t j){
     return i * ncols + j;
   };
@@ -378,10 +378,16 @@ std::vector<int> solution_gen(
     finalMat[idx(i,1)] = i + 1;                   // selection order
     finalMat[idx(i,2)] = results[i][0] + 1;       // planning unit index (base-1)
     finalMat[idx(i,3)] = passing_solution;        // does solution met requirements?
+    int richness = 0;
+    double suitability = 0.0;
     for (int j = 0; j < nSpp; j++) {
       if(results[i][j+1] == 0) continue;
-      finalMat[idx(i,j+4)] = 1;
+      richness += 1;
+      suitability += results[i][j+1];
+      finalMat[idx(i,j+6)] = 1;
     }
+    finalMat[idx(i,4)] = richness;                 // planning unit richness
+    finalMat[idx(i,5)] = suitability / richness;   // mean suitability
   }
 
   return finalMat;

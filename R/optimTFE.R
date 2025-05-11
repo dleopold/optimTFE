@@ -780,6 +780,7 @@ optimTFE <- function(
   if (is.null(batch_size)) {
     batch_size <- min(ceiling(n / (2 * cores)), max_batch_size)
   }
+  batch_size <- max(20, batch_size)
   btchs <- seq_len(n) |>
     {
       \(x) split(x, ceiling(x / batch_size))
@@ -813,13 +814,18 @@ optimTFE <- function(
     paste0(uuid::UUIDgenerate(n = length(btchs)), ".parquet")
   )
 
+  # DEBUG ----
+  # list2env(as.list(environment()), envir = .GlobalEnv)
+  # return()
+
+
   # Generate solutions
   p <- progressor(along = btchs)
   furrr::future_walk2(
     btchs,
     fns,
     ~ {
-      solutions_gen_df(
+      res <- solutions_gen_df(
         solution_ids = .x,
         suitability = suitability_mx,
         spp_targets = spp_targets,
@@ -838,8 +844,20 @@ optimTFE <- function(
       ) |>
         collapse::fmutate(
           unit_id = unit_ids[unit_id]
+        )
+      arrow::write_parquet(res, .y)
+      res |>
+        fgroup_by(solution) |>
+        fsummarise(
+          n_units = fnobs(solution),
+          mean_suitability = fmean(suitability, richness),
+          mean_richness = fmean(richness),
+          median_richness = fmedian(richness),
+          max_richness = fmax(richness),
+          passing = ffirst(passing),
+          units = as.character(jsonlite::toJSON(list(unit_idx)))
         ) |>
-        arrow::write_parquet(.y)
+        arrow::write_csv_arrow(stringr::str_replace(.y, ".parquet", ".csv"))
       p()
     },
     .options = furrr::furrr_options(
@@ -871,6 +889,12 @@ optimTFE <- function(
     "Finished generating {n} solutions in {elapsed_time}"
   )))
 
+  # Compile summary ----
+  summary_fns <- stringr::str_replace(fns, ".parquet", ".csv")
+  arrow::open_dataset(summary_fns, format = "csv") |>
+    arrow::write_csv_arrow(file.path(out_dir, run_id, "summary.csv"))
+  unlink(summary_fns)
+
   # write metadata ----
   meta |>
     purrr::compact() |>
@@ -895,16 +919,16 @@ optimTFE <- function(
   }
 
   # Generate summary data ----
-  if (isTRUE(summary)) {
-    generate_summary(
-      out_dir = out_dir,
-      run_id = run_id,
-      spatial = spatial,
-      spatial_crs = spatial_crs,
-      progress = progress,
-      cores = cores
-    )
-  }
+  # if (isTRUE(summary)) {
+  #   generate_summary(
+  #     out_dir = out_dir,
+  #     run_id = run_id,
+  #     spatial = spatial,
+  #     spatial_crs = spatial_crs,
+  #     progress = progress,
+  #     cores = cores
+  #   )
+  # }
 
   if (return_df) {
     return(dplyr::collect(solutions))

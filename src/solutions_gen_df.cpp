@@ -64,7 +64,7 @@ DataFrame solutions_gen_df(IntegerVector solution_ids,
   }
 
   // Generate solutions and save as ragged array
-  std::vector<std::vector<int>> results;
+  std::vector<std::vector<double>> results;
   results.reserve(solution_ids.size());
   for (int id : solution_ids) {
     results.push_back(
@@ -88,7 +88,7 @@ DataFrame solutions_gen_df(IntegerVector solution_ids,
   }
 
   // Compute total rows of results
-  size_t ncol = spp_names.size() + 4;
+  size_t ncol = spp_names.size() + 6;
   size_t total_rows = 0;
   for (auto &m : results) {
       total_rows += m.size() / ncol;
@@ -101,12 +101,14 @@ DataFrame solutions_gen_df(IntegerVector solution_ids,
   col_names[1] = "order";
   col_names[2] = "unit_id";
   col_names[3] = "passing";
-  for (size_t j = 4; j < ncol; ++j) {
-    col_names[j] = spp_names[j - 4];
+  col_names[4] = "richness";
+  col_names[5] = "suitability";
+  for (size_t j = 6; j < ncol; ++j) {
+    col_names[j] = spp_names[j - 6];
   }
   // Unpack ragged array into data.frame
   for (size_t j = 0; j < ncol; ++j) {
-    IntegerVector col(total_rows);
+    DoubleVector col(total_rows);
     size_t row = 0;
     for (auto &m : results) {
       for(size_t idx = j; idx < m.size(); idx += ncol) {
