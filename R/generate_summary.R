@@ -180,6 +180,8 @@ generate_summary <- function(
       passing = ffirst(passing),
       units = list(sort(unit_idx))
     )
+  rm(data)
+  gc()
 
   # Calculate spatial metrics
   if (!is.null(spatial)) {
