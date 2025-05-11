@@ -84,8 +84,6 @@
 #' @param return_df return all generated solutions as a data frame in the
 #'   current R session (default = FALSE)
 #' @param force_overwrite overwrite existing output files (default = FALSE)
-#' @param summary generate summary statistics and metrics for solutions (default
-#'   = TRUE)
 #'
 #' @import progressr
 #'
@@ -118,8 +116,7 @@ optimTFE <- function(
   run_id = "optimTFE",
   output_csv = TRUE,
   return_df = FALSE,
-  force_overwrite = FALSE,
-  summary = TRUE
+  force_overwrite = FALSE
 ) {
   message("Beginning optimTFE...")
 
@@ -818,7 +815,6 @@ optimTFE <- function(
   # list2env(as.list(environment()), envir = .GlobalEnv)
   # return()
 
-
   # Generate solutions
   p <- progressor(along = btchs)
   furrr::future_walk2(
@@ -852,7 +848,6 @@ optimTFE <- function(
           n_units = fnobs(solution),
           mean_suitability = fmean(suitability, richness),
           mean_richness = fmean(richness),
-          median_richness = fmedian(richness),
           max_richness = fmax(richness),
           passing = ffirst(passing),
           units = as.character(jsonlite::toJSON(list(unit_idx)))
@@ -881,19 +876,32 @@ optimTFE <- function(
     )
   )
 
-  elapsed_time <- Sys.time() - start_time
-  elapsed_time <- glue::glue(
-    "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
-  )
-  message(crayon::cyan(glue::glue(
-    "Finished generating {n} solutions in {elapsed_time}"
-  )))
-
   # Compile summary ----
   summary_fns <- stringr::str_replace(fns, ".parquet", ".csv")
   arrow::open_dataset(summary_fns, format = "csv") |>
-    arrow::write_csv_arrow(file.path(out_dir, run_id, "summary.csv"))
+    arrow::write_csv_arrow(file.path(out_dir, run_id, paste0(run_id, ".summary.csv")))
   unlink(summary_fns)
+
+  p <- arrow::open_dataset(
+    file.path(out_dir, run_id, paste0(run_id, ".summary.csv")),
+    format = "csv"
+  ) |>
+    dplyr::arrange(solution) |>
+    dplyr::collect() |>
+    collapse::fmutate(
+      min_units = cummin(n_units)
+    ) |>
+    ggplot2::ggplot(
+      ggplot2::aes(x = solution, y = min_units)
+    ) +
+    ggplot2::geom_line() +
+    ggplot2::theme_minimal()
+  ggplot2::ggsave(
+    filename = file.path(out_dir, run_id, "n_units.pdf"),
+    plot = p,
+    width = 6,
+    height = 4
+  )
 
   # write metadata ----
   meta |>
@@ -905,6 +913,14 @@ optimTFE <- function(
   # DEBUG ----
   # list2env(as.list(environment()), envir = .GlobalEnv)
   # return()
+
+  elapsed_time <- Sys.time() - start_time
+  elapsed_time <- glue::glue(
+    "{round(elapsed_time, 1)} {attr(elapsed_time, 'units')}"
+  )
+  message(crayon::cyan(glue::glue(
+    "Finished generating {n} solutions in {elapsed_time}"
+  )))
 
   # Load solutions ----
   solutions <- arrow::open_dataset(solutions_dir)

@@ -26,8 +26,7 @@ optimTFE(
   run_id = "optimTFE",
   output_csv = TRUE,
   return_df = FALSE,
-  force_overwrite = FALSE,
-  summary = TRUE
+  force_overwrite = FALSE
 )
 }
 \arguments{
@@ -119,9 +118,6 @@ will be returned as a data frame and temporary files will be used.}
 current R session (default = FALSE)}
 
 \item{force_overwrite}{overwrite existing output files (default = FALSE)}
-
-\item{summary}{generate summary statistics and metrics for solutions (default
-= TRUE)}
 }
 \description{
 Generate a suite of conservation footprint 'solutions' based on feature
