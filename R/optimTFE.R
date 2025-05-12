@@ -615,7 +615,7 @@ optimTFE <- function(
   }
 
   # Apply minimum species suitability score
-  suitability_mx[suitability_mx < min_spp_suit_score & is.na(populations)] <- 0
+  suitability_mx[suitability_mx < min_spp_suit_score & populations_mx == 0] <- 0
 
   # Count available units
   unit_counts <- matrix(
