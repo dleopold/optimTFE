@@ -12,8 +12,4 @@ inst/doc
 *.tar.gz
 CLAUDE.md
 docs
-optimTFE.meta
-optimTFE/n_units.pdf
-optimTFE/optimTFE.solutions.csv
-optimTFE/summary.csv
-optimTFE/solutions/*
+optimTFE/*
