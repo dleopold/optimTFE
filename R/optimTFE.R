@@ -345,6 +345,7 @@ optimTFE <- function(
   } else {
     # If no subregions are provided, assume all units are in one region
     region_ids <- "default"
+    n_regions <- 1
     regions <- matrix(
       as.integer(1),
       nrow = n_units,
@@ -527,12 +528,13 @@ optimTFE <- function(
 
   # Generate empty populations matrix if needed
   if (is.null(populations)) {
-    populations <- matrix(
+    populations_mx <- matrix(
       as.integer(0),
       nrow = n_units,
       ncol = n_spp,
       dimnames = list(unit_ids, spp_names)
     )
+    population_names <- list()
   }
 
   # Set populations with 0 suitability to min suitability for species
@@ -564,7 +566,7 @@ optimTFE <- function(
   }
 
   # Avoid checking for populations spanning multiple regions if non exist
-  if (single_pu_pop) {
+  if (single_pu_pop && !is.null(populations)) {
     single_pu_pop <- any(apply(
       populations,
       2,
@@ -879,7 +881,11 @@ optimTFE <- function(
   # Compile summary ----
   summary_fns <- stringr::str_replace(fns, ".parquet", ".csv")
   arrow::open_dataset(summary_fns, format = "csv") |>
-    arrow::write_csv_arrow(file.path(out_dir, run_id, paste0(run_id, ".summary.csv")))
+    arrow::write_csv_arrow(file.path(
+      out_dir,
+      run_id,
+      paste0(run_id, ".summary.csv")
+    ))
   unlink(summary_fns)
 
   p <- arrow::open_dataset(
