@@ -25,6 +25,7 @@
 #' @importFrom future plan multicore multisession
 #' @importFrom furrr future_map furrr_options
 #'
+#' @family main
 #' @export
 spatial_stats <- function(
   data = NULL,
