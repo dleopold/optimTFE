@@ -138,8 +138,4 @@ can be introduced to specifically prohibit the algorithm from selecting the
 same planning unit for two taxa. This process is then repeated to generate
 many spatially efficient solutions that meet all targets for each species.
 }
-\seealso{
-Other main: 
-\code{\link{generate_summary}()}
-}
 \concept{main}
