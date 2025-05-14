@@ -38,3 +38,8 @@ This function computes area, perimeter, and perimeter-to-area ratio for a set of
 spatial solutions. It processes solution data in parallel for improved performance
 when dealing with large datasets.
 }
+\seealso{
+Other main: 
+\code{\link{optimTFE}()}
+}
+\concept{main}
