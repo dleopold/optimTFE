@@ -852,7 +852,7 @@ optimTFE <- function(
           mean_richness = fmean(richness),
           max_richness = fmax(richness),
           passing = ffirst(passing),
-          units = as.character(jsonlite::toJSON(list(unit_id)))
+          units = as.character(jsonlite::toJSON(unit_id))
         ) |>
         arrow::write_csv_arrow(stringr::str_replace(.y, ".parquet", ".csv"))
       p()
