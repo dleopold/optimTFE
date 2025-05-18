@@ -123,7 +123,7 @@ A condensed summary of the output, with one row per solution and some summary st
 ```{r}
 (summary_fn <- file.path(projectDir, run_id, paste0(run_id, ".summary.csv")))
 sol_summary <- read.csv(summary_fn)
-sol_summary
+sol_summary[1:10, 1:10]
 ```
 
 The summary data can be use to find the range of footprint size across all solutions and extract a subset. In this case, will will plot the distribution of the number of units selected per footprint:
@@ -160,7 +160,7 @@ sols_1_to_10 <- extract_solutions(
 )
 ```
 
-## Spatial data
+## Spatial Data
 
 Spatial data can be added to the solution summary output using the function `spatial_stats()`. The spatial input to this function should be a path to an ESRI .shp file or .gpkg or a preloaded spatial data frame. In each case, the unique planning unit ids must be included in the first column of the attribute table. The function will return the input summary data frame with 3 new columns: area, perrimeter, and their ratio (pa_ratio).
 
@@ -169,7 +169,7 @@ sol_summary_spatial <- spatial_stats(
   data = sol_summary,
   spatial = example_spatial
 )
-sol_summary_spatial[, c(1, 7:10)]
+sol_summary_spatial[1:10, c(1, 7:10)]
 ```
 
 Spatial data can also be used to generate a map of a given solution. In this example we generate a map of one of the smallest footprints from our example showing the species richness for each selected unit:
@@ -194,10 +194,11 @@ left_join(
   geom_sf(color = "grey") +
   scale_fill_viridis_c(
     direction = -1,
-    na.value = "white"
+    na.value = "white",
+    name = "Richness"
   ) +
   theme_void() +
-  labs(title = "Min. Solution 1") +
+  labs(title = "Minimum Footprint 1") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
