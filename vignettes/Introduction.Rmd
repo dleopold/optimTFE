@@ -48,7 +48,7 @@ example_targets[1:10, 1, drop = FALSE]
 The species suitability can be provided as a file path to a csv with species names in the first column or a preloaded R data.frame or matrix with species names set as row names. The species names provided in the suitability matrix must match those provided in the targets input. Values in the suitability matrix should fall between 0 and 1 (inclusive) and binary values can be used when data on relative suitability across units are not available. The example suitability matrix included in the package includes data for the 30 species across a hexagonal grid of 795 planning units.
 
 ```{r}
-example_suitability[1:10, 1:10]
+example_suitability[1:10, 1:5]
 ```
 
 ## Running optimTFE
@@ -115,7 +115,7 @@ sols_1_to_10 <- extract_solutions(
   dir = projectDir,
   run_id = run_id
 )
-sols_1_to_10
+sols_1_to_10[1:10,]
 ```
 
 A condensed summary of the output, with one row per solution and some summary statistics, will be saved in the {run_id}.summary.csv file. This file will include the solution number, the number of units selected for the solution, the mean suitability score for species in their selected planning units, the mean and max species richness, whether the solution met all specified requirements (1 = yes) and the list of planning units.
@@ -123,7 +123,7 @@ A condensed summary of the output, with one row per solution and some summary st
 ```{r}
 (summary_fn <- file.path(projectDir, run_id, paste0(run_id, ".summary.csv")))
 sol_summary <- read.csv(summary_fn)
-sol_summary[1:10, 1:10]
+sol_summary[1:10, ]
 ```
 
 The summary data can be use to find the range of footprint size across all solutions and extract a subset. In this case, will will plot the distribution of the number of units selected per footprint:
