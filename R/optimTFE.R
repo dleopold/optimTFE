@@ -785,7 +785,7 @@ optimTFE <- function(
     btchs,
     fns,
     ~ {
-      res <- solutions_gen_df(
+      res <- solutions_gen(
         solution_ids = .x,
         suitability = suitability_mx,
         spp_targets = spp_targets,

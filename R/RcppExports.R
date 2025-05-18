@@ -46,7 +46,7 @@ compute_perimeters <- function(subsets, keyPolygonIds, lengths, Pmax) {
 #'   one column per species indicating which species targets are satisfied
 #'   in each planning unit.
 #' @noRd
-solutions_gen_df <- function(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat = NULL) {
-    .Call(`_optimTFE_solutions_gen_df`, solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)
+solutions_gen <- function(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat = NULL) {
+    .Call(`_optimTFE_solutions_gen`, solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)
 }
 
