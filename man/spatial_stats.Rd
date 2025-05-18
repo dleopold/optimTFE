@@ -39,7 +39,7 @@ spatial solutions. It processes solution data in parallel for improved performan
 when dealing with large datasets.
 }
 \seealso{
-Other main: 
-\code{\link{optimTFE}()}
+Other utils: 
+\code{\link{extract_solutions}()}
 }
-\concept{main}
+\concept{utils}

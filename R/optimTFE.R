@@ -47,17 +47,8 @@
 #'   unit. Must be a symmetric matrix with species names as row and column
 #'   names, where a value of 1 indicates the species are incompatible (cannot be
 #'   in the same unit).
-#' @param spatial (optional) path to a spatial file data file (.shp or .gpkg) or
-#'   a pre-loaded sf object containing the planning unit polygons. Must have the
-#'   same unit IDs as the suitability matrix included as the first column of the
-#'   attribute table.
-#' @param spatial_crs CRS object for spatial data. By default this will be set to the CRS
-#'   of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
-#'   assume an equal area projection and a suitable crs can be provided to project the
-#'   existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
-#'   project the existing spatial data to UTM zone 4 before calculating spatial metrics.
 #' @param min_spp_suit_score minimum suitability score for a species to be
-#'   considered in a location (default = 0.25)
+#'   considered in a location.
 #' @param rand_tolerance the range of species richness, from maximum, to
 #'   consider for selection at each iteration (default = 5)
 #' @param max_spp_selected maximum number of species to select in each location
@@ -97,10 +88,8 @@ optimTFE <- function(
   subregions = NULL,
   populations = NULL,
   incompatibility = NULL,
-  spatial = NULL,
-  spatial_crs = NULL,
   # Config parameters,
-  min_spp_suit_score = 0.25,
+  min_spp_suit_score = 0,
   rand_tolerance = 5,
   max_spp_selected = -1,
   single_pu_pop = TRUE,
@@ -743,33 +732,6 @@ optimTFE <- function(
     # TODO - add some validation that there are not too many incompatibilities
   }
 
-  # Load spatial data if provided ----
-  if (!is.null(spatial)) {
-    if (is.character(spatial) && file.exists(spatial)) {
-      spatial <- tryCatch(
-        sf::read_sf(spatial),
-        error = function(e) NULL
-      )
-    }
-    if (!inherits(spatial, "sf") && !methods::is(spatial, "Spatial")) {
-      stop(crayon::bold(crayon::red(
-        "Invalid spatial data input."
-      )))
-    }
-    if (
-      !all(sf::st_is(spatial, "POLYGON") | sf::st_is(spatial, "MULTIPOLYGON"))
-    ) {
-      stop(crayon::bold(crayon::red(
-        "Spatial input must only contain POLYGON geometries."
-      )))
-    }
-    if (!identical(sort(dplyr::pull(spatial, 1)), sort(unit_ids))) {
-      stop(crayon::bold(crayon::red(
-        "Spatial input unit_ids do not other inputs."
-      )))
-    }
-  }
-
   # DEBUG ----
   # list2env(as.list(environment()), envir = .GlobalEnv)
   # return()
@@ -940,17 +902,6 @@ optimTFE <- function(
     )
   }
 
-  # Generate summary data ----
-  # if (isTRUE(summary)) {
-  #   generate_summary(
-  #     out_dir = out_dir,
-  #     run_id = run_id,
-  #     spatial = spatial,
-  #     spatial_crs = spatial_crs,
-  #     progress = progress,
-  #     cores = cores
-  #   )
-  # }
 
   if (return_df) {
     return(dplyr::collect(solutions))

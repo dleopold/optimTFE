@@ -5,11 +5,11 @@
 output
 dev/
 inst/doc
-/doc/*.R
-/doc/*.Rmd
+/doc/*
 *.log
 *.tmp
 *.tar.gz
 CLAUDE.md
 docs
 optimTFE/*
+Meta/*
