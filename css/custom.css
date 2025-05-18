@@ -1,0 +1,6 @@
+#toc {
+    position: sticky;
+    top: 80px;
+    max-height: 80vh;
+    overflow-y: auto;
+}

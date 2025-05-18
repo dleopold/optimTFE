@@ -20,7 +20,7 @@ suitability values and a list of targets for all features."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Introduction.html">Introduction</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/Introduction.html">Using optimTFE</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -51,9 +51,7 @@ suitability values and a list of targets for all features.</p>
 <span>  subregions <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  populations <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  incompatibility <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  spatial <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  spatial_crs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  min_spp_suit_score <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>  min_spp_suit_score <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  rand_tolerance <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  max_spp_selected <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
 <span>  single_pu_pop <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -120,24 +118,9 @@ names, where a value of 1 indicates the species are incompatible (cannot be
 in the same unit).</p></dd>
 
 
-<dt id="arg-spatial">spatial<a class="anchor" aria-label="anchor" href="#arg-spatial"></a></dt>
-<dd><p>(optional) path to a spatial file data file (.shp or .gpkg) or
-a pre-loaded sf object containing the planning unit polygons. Must have the
-same unit IDs as the suitability matrix included as the first column of the
-attribute table.</p></dd>
-
-
-<dt id="arg-spatial-crs">spatial_crs<a class="anchor" aria-label="anchor" href="#arg-spatial-crs"></a></dt>
-<dd><p>CRS object for spatial data. By default this will be set to the CRS
-of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
-assume an equal area projection and a suitable crs can be provided to project the
-existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")“ will
-project the existing spatial data to UTM zone 4 before calculating spatial metrics.</p></dd>
-
-
 <dt id="arg-min-spp-suit-score">min_spp_suit_score<a class="anchor" aria-label="anchor" href="#arg-min-spp-suit-score"></a></dt>
 <dd><p>minimum suitability score for a species to be
-considered in a location (default = 0.25)</p></dd>
+considered in a location.</p></dd>
 
 
 <dt id="arg-rand-tolerance">rand_tolerance<a class="anchor" aria-label="anchor" href="#arg-rand-tolerance"></a></dt>
@@ -223,11 +206,6 @@ suitability scores of remaining targets. Constraints, such as hybridization,
 can be introduced to specifically prohibit the algorithm from selecting the
 same planning unit for two taxa. This process is then repeated to generate
 many spatially efficient solutions that meet all targets for each species.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other main:
-<code><a href="spatial_stats.html">spatial_stats</a>()</code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
