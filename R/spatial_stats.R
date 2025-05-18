@@ -25,7 +25,7 @@
 #' @importFrom future plan multicore multisession
 #' @importFrom furrr future_map furrr_options
 #'
-#' @family main
+#' @family utils
 #' @export
 spatial_stats <- function(
   data = NULL,
@@ -91,6 +91,16 @@ spatial_stats <- function(
     )))
   }
 
+  if (!(is_equal_area_sf(spatial))) {
+    proceed <- menu(
+      title = "The detected CRS of the spatial data could not be confirmed to be an equal area projection. Calculation of perimeter and area may be incorrect. Do you want to proceed anyway?",
+      choices = c("Yes", "No")
+    )
+    if(proceed == 2) {
+      return()
+    }
+  }
+
   ## Ensure row order of spatial data matches unit_ids
   spatial <- spatial[collapse::fmatch(unit_ids, spatial[[1]], nomatch = 0L), ]
   colnames(spatial)[1] <- "unit_id"
@@ -98,7 +108,7 @@ spatial_stats <- function(
   spatial <- spatial |> collapse::fsubset(unit_id %iin% unit_ids)
 
   message(crayon::cyan(glue::glue(
-    "Generating summary data for {nrow(data)} solutions..."
+    "Summarizing spatial data for {nrow(data)} solutions..."
   )))
 
   # Calculate area ----

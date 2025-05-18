@@ -10,9 +10,7 @@ optimTFE(
   subregions = NULL,
   populations = NULL,
   incompatibility = NULL,
-  spatial = NULL,
-  spatial_crs = NULL,
-  min_spp_suit_score = 0.25,
+  min_spp_suit_score = 0,
   rand_tolerance = 5,
   max_spp_selected = -1,
   single_pu_pop = TRUE,
@@ -65,19 +63,8 @@ unit. Must be a symmetric matrix with species names as row and column
 names, where a value of 1 indicates the species are incompatible (cannot be
 in the same unit).}
 
-\item{spatial}{(optional) path to a spatial file data file (.shp or .gpkg) or
-a pre-loaded sf object containing the planning unit polygons. Must have the
-same unit IDs as the suitability matrix included as the first column of the
-attribute table.}
-
-\item{spatial_crs}{CRS object for spatial data. By default this will be set to the CRS
-of the spatial data using `sf::st_crs(spatial)`. However, calculations of spatial metrics
-assume an equal area projection and a suitable crs can be provided to project the
-existing spatial data. For exameple, `spatial_crs = sf::st_crs("+proj=utm +zone=4")`` will
-project the existing spatial data to UTM zone 4 before calculating spatial metrics.}
-
 \item{min_spp_suit_score}{minimum suitability score for a species to be
-considered in a location (default = 0.25)}
+considered in a location.}
 
 \item{rand_tolerance}{the range of species richness, from maximum, to
 consider for selection at each iteration (default = 5)}
@@ -137,9 +124,5 @@ suitability scores of remaining targets. Constraints, such as hybridization,
 can be introduced to specifically prohibit the algorithm from selecting the
 same planning unit for two taxa. This process is then repeated to generate
 many spatially efficient solutions that meet all targets for each species.
-}
-\seealso{
-Other main: 
-\code{\link{spatial_stats}()}
 }
 \concept{main}
