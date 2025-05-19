@@ -34,6 +34,11 @@ spatial_stats <- function(
   batch_size = NULL,
   max_batch_size = 1000
 ) {
+
+  options(
+    future.globals.packages = c("optimTFE")
+  )
+
   start_time <- Sys.time()
   cores <- cores %||% (future::availableCores() - 1)
 
