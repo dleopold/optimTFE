@@ -767,7 +767,7 @@ optimTFE <- function(
     btchs,
     fns,
     ~ {
-      res <- solutions_gen(
+      res <- optimTFE:::solutions_gen(
         solution_ids = .x,
         suitability = suitability_mx,
         spp_targets = spp_targets,
@@ -802,6 +802,7 @@ optimTFE <- function(
       p()
     },
     .options = furrr::furrr_options(
+      packages = c("optimTFE", "collapse", "arrow", "jsonlite"),
       seed = ifelse(is.null(seed), TRUE, seed),
       globals = c(
         "suitability_mx",
