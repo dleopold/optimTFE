@@ -156,7 +156,7 @@ spatial_stats <- function(
     furrr::future_map(
       ~ {
         p()
-        optimTFE::compute_perimeters(
+        compute_perimeters(
           subsets = .x,
           keyPolygonIds = segment_key$unit_idx,
           lengths = segment_key$length,
