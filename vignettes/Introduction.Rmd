@@ -30,7 +30,7 @@ the package and define our project directory. For demonstration purposes, we wil
 directory, `projectDir`. In a real project you would use the root of your project directory and optimTFE will use the
 current working directory by default if not specified. The run_id (default = "optimTFE") will be used as a subdirectory to store outputs for the current optimTFE run, allowing multiple runs to be organized within a single project.
 
-```{r}
+```{r load pkgs and setup, message=FALSE, warning=FALSE}
 library(optimTFE)
 library(dplyr)
 library(ggplot2)
@@ -41,13 +41,13 @@ run_id <- "optimTFE"
 Minimally, optimTFE must be provided with 2 required inputs. The first input specifies the required targets for each species (i.e., the number of desired planning units per species). It can be provided as a file path to a csv, where the first column contains the species names and the second column specifies the total species-specific targets (note: species names must not contain spaces
 or special characters). Alternatively, the species targets can be provided as a pre-loaded R data.frame or matrix, with the species names set as the row names, not in a separate column. The optimTFE package includes an example data set of 30 species and an example targets data frame (with total targets in the first column) that can be used for testing.
 
-```{r}
+```{r example targets}
 example_targets[1:10, 1, drop = FALSE]
 ```
 
 The species suitability can be provided as a file path to a csv with species names in the first column or a preloaded R data.frame or matrix with species names set as row names. The species names provided in the suitability matrix must match those provided in the targets input. Values in the suitability matrix should fall between 0 and 1 (inclusive) and binary values can be used when data on relative suitability across units are not available. The example suitability matrix included in the package includes data for the 30 species across a hexagonal grid of 795 planning units.
 
-```{r}
+```{r exaple suitability}
 example_suitability[1:10, 1:5]
 ```
 
@@ -55,7 +55,7 @@ example_suitability[1:10, 1:5]
 
 We can then run the minimal example, which will generate output files prefixed with the `run_id` in the specified directory, `out_dir`.
 
-```{r}
+```{r run optimTFE}
 optimTFE(
   targets = example_targets[, 1, drop = FALSE],
   suitability = example_suitability,
@@ -71,17 +71,17 @@ optimTFE(
 list.files(projectDir, recursive = TRUE)
 ```
 
-### Progress
+### Progress Updates
 
 When generating a large number of solutions it can be helpful to have an indicator bar showing progress of the algorithm. optimTFE uses the package [{progressr}](https://progressr.futureverse.org/reference/progressr.html) to provide progress notification. You can activate progress bars for optimTFE by either turnning on the global progress handler once at the beginning of your R session:
 
-```{r, eval = FALSE}
+```{r prog example 1, eval = FALSE}
 progressr::handlers(global = TRUE)
 ```
 
 Or you can explicitly wrap your individual function calls:
 
-```{r, eval = FALSE}
+```{r prog example 2, eval = FALSE}
 progressr::with_progress({
   optimTFE(
     targets = example_targets[, 1, drop = FALSE],
@@ -105,7 +105,7 @@ Either method will display a progress bar for long running calls to optimTFE. Ho
 
 When there are known populations that should be prioritized for conservation targets, an additional `populations` input can be provided. Known populations can be provided as a file path to a csv in one of 2 formats. The file should either be in long-format, with 3 columns, unit_id, species, and population, or wide format, with columns for each species and one row per unit_id (with unit_id in the first column). Alternatively, the populations input can be provided directly as a wide format R matrix with unit_ids for row names and species names as column names. In the example populations data, viewing the first 10 planning units for the first 10 species shows single known population, "F", in unit_5 for sp_5:
 
-```{r demo populations}
+```{r example populations}
 example_populations[1:10, 1:10]
 ```
 
@@ -115,13 +115,13 @@ When provided to the optimTFE algorithm, species populations will always be pref
 
 When explicit minimum numbers of targets are required within one or more subregions of the larger conservation area, subregion inputs can be provided. The subregion input should consist of a path to a csv with unit_id in the first column and a binary indicator in the remaining columns showing which region each planning unit occurs in. Alternatively, an R data.frame or matrix with unit_ids assigned to the row names can be provided. Planning units not assigned to a region will be assigned to a 'default' region at run time. For the first 10 planning units of the example data, units 1:7 will be placed in the default region, while units 8:10 occur in the 'left' region:
 
-```{r}
+```{r example subregions}
 example_subregions[1:10, ]
 ```
 
 When subregions are included, the minimum subregion targets should be provided in the targets input, with the extra column names matching those in the subregions file. Here, we can see the minimum species targets required in the "left" and "right" subregions for the first 10 species in the example data:
 
-```{r}
+```{r example subregion targets}
 example_targets[1:10, ]
 ```
 
@@ -129,7 +129,7 @@ example_targets[1:10, ]
 
 When species with overlapping ranges must not be assigned to the same conservation planning units (e.g., due to the potential for undesired hybridization), a species incompatibility matrix can be provided. This input does not need to include all species (only those with incompatibilities) but must be a symmetric binary matrix with species names defining rows and columns with 1 indicating an incompatibility. Here we can see the incompatibilities between a few of the first 10 species in the example data:
 
-```{r}
+```{r example incompat}
 example_incompatibility[1:10, 1:10]
 ```
 
@@ -137,7 +137,7 @@ example_incompatibility[1:10, 1:10]
 
 By default, the complete details of all solutions will be saved as a collection of .parquet files in the `solutions` subdirectory, but can also be saved as a single csv file with the `output_csv = T` option. However, generating a very large number of solutions can result in large file sizes and it will most often be more efficient to query the parquet files using the [{arrow}](https://arrow.apache.org/docs/r/) package, which provide efficient data filtering and loading without requiring the entire output to be read into memory. The optimTFE package includes some helper function to simplify this process. For, example, the `get_solutions()` function can be used to import one or more solutions from the output. For example, to extract the first 10 solutions:
 
-```{r}
+```{r extract solutions}
 sols_1_to_10 <- extract_solutions(
   solutions = 1:10,
   dir = projectDir,
@@ -148,7 +148,7 @@ sols_1_to_10[1:10,]
 
 A condensed summary of the output, with one row per solution and some summary statistics, will be saved in the {run_id}.summary.csv file. This file will include the solution number, the number of units selected for the solution, the mean suitability score for species in their selected planning units, the mean and max species richness, whether the solution met all specified requirements (1 = yes) and the list of planning units.
 
-```{r}
+```{r load summary}
 (summary_fn <- file.path(projectDir, run_id, paste0(run_id, ".summary.csv")))
 sol_summary <- read.csv(summary_fn)
 sol_summary[1:10, ]
@@ -178,7 +178,7 @@ sol_summary |>
 
 Then we can use the helper function, `extract_solutions()` to extract the solution data for the smallest 10% for footprints base on the n_units summary attribute:
 
-```{r}
+```{r extract minumal footprints}
 min_10_pct <- quantile(sol_summary$n_units, probs = 0.1)
 min_10_pct
 sols_1_to_10 <- extract_solutions(
@@ -192,7 +192,7 @@ sols_1_to_10 <- extract_solutions(
 
 Spatial data can be added to the solution summary output using the function `spatial_stats()`. The spatial input to this function should be a path to an ESRI .shp file or .gpkg or a preloaded spatial data frame. In each case, the unique planning unit ids must be included in the first column of the attribute table. The function will return the input summary data frame with 3 new columns: area, perrimeter, and their ratio (pa_ratio).
 
-```{r}
+```{r add spatial}
 sol_summary_spatial <- spatial_stats(
   data = sol_summary,
   spatial = example_spatial
