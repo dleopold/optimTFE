@@ -739,7 +739,7 @@ optimTFE <- function(
   )
 
   # Set up future backend
-  if (parallelly::supportsMulticore()) {
+  if (future::supportsMulticore()) {
     future_mode <- future::multicore
   } else {
     future_mode <- future::multisession

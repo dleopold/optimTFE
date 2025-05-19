@@ -73,7 +73,7 @@ spatial_stats <- function(
       error = function(e) NULL
     )
   }
-  if (!inherits(spatial, "sf") && !methods::is(spatial, "Spatial")) {
+  if (!inherits(spatial, "sf") && !inherits(spatial, "Spatial")) {
     stop(crayon::bold(crayon::red(
       "Invalid spatial data input."
     )))
@@ -137,7 +137,7 @@ spatial_stats <- function(
   # Decompose polygons into segments
   segment_key <- generate_segment_key(spatial)
   # Set up future backend
-  if (parallelly::supportsMulticore()) {
+  if (future::supportsMulticore()) {
     future_mode <- future::multicore
   } else {
     future_mode <- future::multisession

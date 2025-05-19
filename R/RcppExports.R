@@ -9,7 +9,7 @@
 #' @return numeric vector of perimeters
 #' @noRd
 compute_perimeters <- function(subsets, keyPolygonIds, lengths, Pmax) {
-    .Call(`_optimTFE_compute_perimeters`, subsets, keyPolygonIds, lengths, Pmax)
+    .Call('_optimTFE_compute_perimeters', PACKAGE = 'optimTFE', subsets, keyPolygonIds, lengths, Pmax)
 }
 
 #' Generate Multiple Solutions as a Data Frame
@@ -47,6 +47,6 @@ compute_perimeters <- function(subsets, keyPolygonIds, lengths, Pmax) {
 #'   in each planning unit.
 #' @noRd
 solutions_gen <- function(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat = NULL) {
-    .Call(`_optimTFE_solutions_gen`, solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)
+    .Call('_optimTFE_solutions_gen', PACKAGE = 'optimTFE', solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)
 }
 
