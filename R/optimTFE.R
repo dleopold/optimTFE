@@ -59,7 +59,6 @@
 #'   file (`populations`) is provided.
 #' @param n number of solutions to generate (default = 100)
 #' @param cores number of cores to use (default = NULL, uses all available - 1)
-#' @param progress show progress bar (default = TRUE)
 #' @param batch_size when parallel processing is used, this parameter can be
 #'   used to process solution in batches for improved efficiency (default =
 #'   NULL). If not provided (NULL), batch size will be calculated automatically.
@@ -96,7 +95,6 @@ optimTFE <- function(
   # Compute parameters,
   n = 100,
   cores = NULL,
-  progress = TRUE,
   batch_size = NULL,
   max_batch_size = 1000,
   seed = NULL,
@@ -123,22 +121,6 @@ optimTFE <- function(
     cores = cores,
     seed = seed
   )
-
-  # Progressr setup ---
-  if (
-    isTRUE(progress) &&
-      interactive() &&
-      !isTRUE(getOption("knitr.in.progress")) &&
-      !isTRUE(getOption("rstudio.notebook.executing"))
-  ) {
-    progressr::handlers(global = TRUE)
-  } else if (
-    interactive() &&
-      !isTRUE(getOption("knitr.in.progress")) &&
-      !isTRUE(getOption("rstudio.notebook.executing"))
-  ) {
-    progressr::handlers(global = FALSE)
-  }
 
   # Output Files ----
   ## If no output directory provided, write to tmp and return all solutions as a data frame

@@ -71,6 +71,34 @@ optimTFE(
 list.files(projectDir, recursive = TRUE)
 ```
 
+### Progress
+
+When generating a large number of solutions it can be helpful to have an indicator bar showing progress of the algorithm. optimTFE uses the package [{progressr}](https://progressr.futureverse.org/reference/progressr.html) to provide progress notification. You can activate progress bars for optimTFE by either turnning on the global progress handler once at the beginning of your R session:
+
+```{r, eval = FALSE}
+progressr::handlers(global = TRUE)
+```
+
+Or you can explicitly wrap your individual function calls:
+
+```{r, eval = FALSE}
+progressr::with_progress({
+  optimTFE(
+    targets = example_targets[, 1, drop = FALSE],
+    suitability = example_suitability,
+    min_spp_suit_score = 0.25, # Set suitability scores lower than 0.25 to 0
+    rand_tolerance = 5, # Range of species richness to consider at each step
+    n = 1000, # number of solutions to generate
+    out_dir = projectDir,
+    run_id = run_id,
+    output_csv = TRUE,
+    cores = 4 # number of parallel threads to use
+  )
+})
+```
+
+Either method will display a progress bar for long running calls to optimTFE. However, because optimTFE batches solution generation for efficiency, progress updated will occur at the batch level. As a result, if the number of batches in not significantly greater than the number of processing cores in use, updated will be minimal.
+
 ## Optional Inputs
 
 ### Known Populations
