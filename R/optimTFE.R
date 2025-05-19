@@ -106,10 +106,6 @@ optimTFE <- function(
   force_overwrite = FALSE
 ) {
 
-  options(
-    future.globals.packages = c("optimTFE")
-  )
-
   message("Beginning optimTFE...")
 
   # DEBUG ----
