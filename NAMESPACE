@@ -2,6 +2,7 @@
 
 export(extract_solutions)
 export(optimTFE)
+export(solutions_gen)
 export(spatial_stats)
 import(collapse)
 import(progressr)
