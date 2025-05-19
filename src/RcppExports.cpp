@@ -24,9 +24,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// solutions_gen_df
-DataFrame solutions_gen_df(IntegerVector solution_ids, NumericMatrix suitability, IntegerVector spp_targets, IntegerVector unit_regions, IntegerMatrix unit_counts, IntegerMatrix regional_min, IntegerMatrix regional_max, IntegerMatrix populations, IntegerMatrix population_counts, bool single_pu_pop, int rand_tolerance, int max_spp_selected, CharacterVector spp_names, uint64_t seed, Nullable<IntegerMatrix> incompat);
-RcppExport SEXP _optimTFE_solutions_gen_df(SEXP solution_idsSEXP, SEXP suitabilitySEXP, SEXP spp_targetsSEXP, SEXP unit_regionsSEXP, SEXP unit_countsSEXP, SEXP regional_minSEXP, SEXP regional_maxSEXP, SEXP populationsSEXP, SEXP population_countsSEXP, SEXP single_pu_popSEXP, SEXP rand_toleranceSEXP, SEXP max_spp_selectedSEXP, SEXP spp_namesSEXP, SEXP seedSEXP, SEXP incompatSEXP) {
+// solutions_gen
+DataFrame solutions_gen(IntegerVector solution_ids, NumericMatrix suitability, IntegerVector spp_targets, IntegerVector unit_regions, IntegerMatrix unit_counts, IntegerMatrix regional_min, IntegerMatrix regional_max, IntegerMatrix populations, IntegerMatrix population_counts, bool single_pu_pop, int rand_tolerance, int max_spp_selected, CharacterVector spp_names, uint64_t seed, Nullable<IntegerMatrix> incompat);
+RcppExport SEXP _optimTFE_solutions_gen(SEXP solution_idsSEXP, SEXP suitabilitySEXP, SEXP spp_targetsSEXP, SEXP unit_regionsSEXP, SEXP unit_countsSEXP, SEXP regional_minSEXP, SEXP regional_maxSEXP, SEXP populationsSEXP, SEXP population_countsSEXP, SEXP single_pu_popSEXP, SEXP rand_toleranceSEXP, SEXP max_spp_selectedSEXP, SEXP spp_namesSEXP, SEXP seedSEXP, SEXP incompatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -45,14 +45,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< CharacterVector >::type spp_names(spp_namesSEXP);
     Rcpp::traits::input_parameter< uint64_t >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< Nullable<IntegerMatrix> >::type incompat(incompatSEXP);
-    rcpp_result_gen = Rcpp::wrap(solutions_gen_df(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat));
+    rcpp_result_gen = Rcpp::wrap(solutions_gen(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_optimTFE_compute_perimeters", (DL_FUNC) &_optimTFE_compute_perimeters, 4},
-    {"_optimTFE_solutions_gen_df", (DL_FUNC) &_optimTFE_solutions_gen_df, 15},
+    {"_optimTFE_solutions_gen", (DL_FUNC) &_optimTFE_solutions_gen, 15},
     {NULL, NULL, 0}
 };
 

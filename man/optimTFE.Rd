@@ -16,7 +16,6 @@ optimTFE(
   single_pu_pop = TRUE,
   n = 100,
   cores = NULL,
-  progress = TRUE,
   batch_size = NULL,
   max_batch_size = 1000,
   seed = NULL,
@@ -80,8 +79,6 @@ file (`populations`) is provided.}
 \item{n}{number of solutions to generate (default = 100)}
 
 \item{cores}{number of cores to use (default = NULL, uses all available - 1)}
-
-\item{progress}{show progress bar (default = TRUE)}
 
 \item{batch_size}{when parallel processing is used, this parameter can be
 used to process solution in batches for improved efficiency (default =

@@ -38,7 +38,7 @@ using namespace Rcpp;
 //'   in each planning unit.
 //' @noRd
 // [[Rcpp::export]]
-DataFrame solutions_gen_df(IntegerVector solution_ids,
+DataFrame solutions_gen(IntegerVector solution_ids,
                             NumericMatrix suitability,
                             IntegerVector spp_targets,
                             IntegerVector unit_regions,
