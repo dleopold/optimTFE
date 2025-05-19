@@ -16,6 +16,8 @@ extract_solutions(
 
 \item{run_id}{The run identifier used to create the subfolder. Default is "optimTFE".}
 
+\item{columns}{(optional) columns to subset}
+
 \item{solution}{numbers to return}
 }
 \value{

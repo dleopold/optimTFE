@@ -51,15 +51,16 @@ not_na <- Negate(is.na)
 #' @param solution numbers to return
 #' @param dir Directory containing the solution files. Default is current directory.
 #' @param run_id The run identifier used to create the subfolder. Default is "optimTFE".
+#' @param columns (optional) columns to subset
 #'
 #' @return A data frame containing the requested solutions, or NULL if solutions is empty.
 #'
 #' @importFrom arrow open_dataset
 #' @importFrom dplyr filter collect
 #'
-#'
 #' @family utils
 #' @export
+#'
 extract_solutions <- function(
   solutions = NULL,
   dir = ".",
