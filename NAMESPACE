@@ -3,6 +3,7 @@
 export(extract_solutions)
 export(optimTFE)
 export(spatial_stats)
+export(solutions_gen)
 import(collapse)
 import(progressr)
 importFrom(arrow,open_dataset)
