@@ -48,7 +48,7 @@ not_na <- Negate(is.na)
 #'
 #' Retrieves specific solutions from a parquet dataset of optimization solutions.
 #'
-#' @param solution numbers to return
+#' @param solutions numbers to return
 #' @param dir Directory containing the solution files. Default is current directory.
 #' @param run_id The run identifier used to create the subfolder. Default is "optimTFE".
 #' @param columns (optional) columns to subset

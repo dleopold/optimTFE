@@ -12,13 +12,13 @@ extract_solutions(
 )
 }
 \arguments{
+\item{solutions}{numbers to return}
+
 \item{dir}{Directory containing the solution files. Default is current directory.}
 
 \item{run_id}{The run identifier used to create the subfolder. Default is "optimTFE".}
 
 \item{columns}{(optional) columns to subset}
-
-\item{solution}{numbers to return}
 }
 \value{
 A data frame containing the requested solutions, or NULL if solutions is empty.
