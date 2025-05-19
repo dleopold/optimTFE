@@ -61,11 +61,12 @@ optimTFE(
   suitability = example_suitability,
   min_spp_suit_score = 0.25, # Set suitability scores lower than 0.25 to 0
   rand_tolerance = 5, # Range of species richness to consider at each step
-  n = 1000, # number of solutions to generate
+  n = 10000, # number of solutions to generate
   out_dir = projectDir,
   run_id = run_id,
   output_csv = TRUE,
-  cores = 4 # number of parallel threads to use
+  cores = 8, # number of parallel threads to use
+  seed = 1234 # Seed for reproducible output
 )
 ```
 
@@ -87,17 +88,7 @@ Or you can explicitly wrap your individual function calls:
 
 ```{r prog example 2, eval = FALSE}
 progressr::with_progress({
-  optimTFE(
-    targets = example_targets[, 1, drop = FALSE],
-    suitability = example_suitability,
-    min_spp_suit_score = 0.25, # Set suitability scores lower than 0.25 to 0
-    rand_tolerance = 5, # Range of species richness to consider at each step
-    n = 1000, # number of solutions to generate
-    out_dir = projectDir,
-    run_id = run_id,
-    output_csv = TRUE,
-    cores = 4 # number of parallel threads to use
-  )
+  optimTFE(...)
 })
 ```
 
@@ -147,7 +138,7 @@ sols_1_to_10 <- extract_solutions(
   dir = projectDir,
   run_id = run_id
 )
-sols_1_to_10[1:10,]
+sols_1_to_10[1:10, ]
 ```
 
 A condensed summary of the output, with one row per solution and some summary statistics, will be saved in the {run_id}.summary.csv file. This file will include the solution number, the number of units selected for the solution, the mean suitability score for species in their selected planning units, the mean and max species richness, whether the solution met all specified requirements (1 = yes) and the list of planning units.
@@ -204,22 +195,26 @@ sol_summary_spatial <- spatial_stats(
 sol_summary_spatial[1:10, c(1, 7:10)]
 ```
 
-Spatial data can also be used to generate a map of a given solution. In this example we generate a map of one of the smallest footprints from our example showing the species richness for each selected unit:
+Spatial data can also be used to generate a map of a given solution. In this example we generate a map of one of the footprints in subset with smallest total area and lowest perrimeter to area ratio, showing the species richness for each selected unit:
 
-```{r map a footprint, fig.height = 8, fig.width = 7, fig.align = "center"}
+```{r map a footprint, fig.height = 5, fig.width = 7, fig.align = "center"}
 # Find a minimal solution
-min_sols <- sols_1_to_10 |>
-  arrange(richness) |>
-  pull(solution)
-min_solution_1 <- extract_solutions(
-  solutions = min_sols[1],
-  dir = projectDir,
-  run_id = run_id
-)
+min_solution <- sol_summary_spatial |>
+  filter(area <= quantile(area, probs = 0.1)) |>
+  arrange(pa_ratio) |>
+  slice(1) |>
+  pull(solution) |>
+  extract_solutions(
+    solutions = _,
+    dir = projectDir,
+    run_id = run_id
+  )
+
 # Join with spatial data and plot
+min_area <- quantile(sol_summary_spatial$area, probs = 0.05)
 left_join(
   example_spatial,
-  min_solution_1,
+  min_solution,
   by = "unit_id"
 ) |>
   ggplot(aes(fill = richness)) +
@@ -230,13 +225,13 @@ left_join(
     name = "Richness"
   ) +
   theme_void() +
-  labs(title = "Minimum Footprint 1") +
+  labs(title = "Minimal Footprint") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
 Or, to create a map of planning unit selection frequency across all solutions:
 
-```{r unit frequency map, fig.height = 8, fig.width = 7, fig.align = "center"}
+```{r unit frequency map, fig.height = 5, fig.width = 7, fig.align = "center"}
 # Calculate unit frequency
 unit_frequency <- extract_solutions(
   dir = projectDir,
@@ -258,7 +253,7 @@ left_join(
   scale_fill_viridis_c(
     direction = -1,
     na.value = "white",
-    name = "Richness"
+    name = "Frequency"
   ) +
   theme_void() +
   labs(title = "Frequency of planning unit selection") +
