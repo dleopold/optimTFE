@@ -767,7 +767,7 @@ optimTFE <- function(
     btchs,
     fns,
     ~ {
-      res <- optimTFE:::solutions_gen(
+      res <- solutions_gen(
         solution_ids = .x,
         suitability = suitability_mx,
         spp_targets = spp_targets,
@@ -787,7 +787,7 @@ optimTFE <- function(
         collapse::fmutate(
           unit_id = unit_ids[unit_id]
         )
-      arrow::write_parquet(res, .y)
+      write_parquet(res, .y)
       res |>
         fgroup_by(solution) |>
         fsummarise(
@@ -796,13 +796,13 @@ optimTFE <- function(
           mean_richness = fmean(richness),
           max_richness = fmax(richness),
           passing = ffirst(passing),
-          units = as.character(jsonlite::toJSON(sort(unit_id)))
+          units = as.character(toJSON(sort(unit_id)))
         ) |>
-        arrow::write_csv_arrow(stringr::str_replace(.y, ".parquet", ".csv"))
+        write_csv_arrow(stringr::str_replace(.y, ".parquet", ".csv"))
       p()
     },
     .options = furrr::furrr_options(
-      packages = c("optimTFE", "collapse", "arrow", "jsonlite"),
+      packages = c("collapse", "arrow", "jsonlite"),
       seed = ifelse(is.null(seed), TRUE, seed),
       globals = c(
         "suitability_mx",
