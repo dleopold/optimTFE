@@ -2,14 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-inst/doc
-/doc/*
 *.log
 *.tmp
 *.tar.gz
 CLAUDE.md
 docs
 optimTFE/*
-Meta/*
-/doc/
 /Meta/
+/doc/
