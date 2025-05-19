@@ -2,8 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-output
-dev/
 inst/doc
 /doc/*
 *.log

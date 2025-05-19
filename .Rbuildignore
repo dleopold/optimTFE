@@ -7,3 +7,9 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^data-raw$
+^optimTFE$
+CLAUDE.md
+^[^/]+\.json$
+^[^/]+\.yml$
+^dev$

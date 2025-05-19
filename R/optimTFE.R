@@ -847,7 +847,7 @@ optimTFE <- function(
     ggplot2::geom_line() +
     ggplot2::theme_minimal()
   ggplot2::ggsave(
-    filename = file.path(out_dir, run_id, "n_units.pdf"),
+    filename = file.path(out_dir, run_id, paste0(run_id, ".n_units.pdf")),
     plot = p,
     width = 6,
     height = 4
