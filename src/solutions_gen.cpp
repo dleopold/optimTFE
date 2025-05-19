@@ -37,6 +37,7 @@ using namespace Rcpp;
 //'   one column per species indicating which species targets are satisfied
 //'   in each planning unit.
 //' @noRd
+//' @export
 // [[Rcpp::export]]
 DataFrame solutions_gen(IntegerVector solution_ids,
                             NumericMatrix suitability,
