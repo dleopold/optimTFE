@@ -104,17 +104,17 @@ of 30 species and an example targets data frame (with total targets in
 the first column) that can be used for testing.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_targets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
-<span><span class="co">#&gt;       total</span></span>
-<span><span class="co">#&gt; sp_1     10</span></span>
-<span><span class="co">#&gt; sp_2     10</span></span>
-<span><span class="co">#&gt; sp_3     10</span></span>
-<span><span class="co">#&gt; sp_4     10</span></span>
-<span><span class="co">#&gt; sp_5     10</span></span>
-<span><span class="co">#&gt; sp_6     10</span></span>
-<span><span class="co">#&gt; sp_7     10</span></span>
-<span><span class="co">#&gt; sp_8     10</span></span>
-<span><span class="co">#&gt; sp_9     10</span></span>
-<span><span class="co">#&gt; sp_10    10</span></span></code></pre></div>
+<span><span class="co">##       total</span></span>
+<span><span class="co">## sp_1     10</span></span>
+<span><span class="co">## sp_2     10</span></span>
+<span><span class="co">## sp_3     10</span></span>
+<span><span class="co">## sp_4     10</span></span>
+<span><span class="co">## sp_5     10</span></span>
+<span><span class="co">## sp_6     10</span></span>
+<span><span class="co">## sp_7     10</span></span>
+<span><span class="co">## sp_8     10</span></span>
+<span><span class="co">## sp_9     10</span></span>
+<span><span class="co">## sp_10    10</span></span></code></pre></div>
 <p>The species suitability can be provided as a file path to a csv with
 species names in the first column or a preloaded R data.frame or matrix
 with species names set as row names. The species names provided in the
@@ -126,17 +126,17 @@ package includes data for the 30 species across a hexagonal grid of 795
 planning units.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_suitability</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
-<span><span class="co">#&gt;                sp_1       sp_2        sp_3       sp_4      sp_5</span></span>
-<span><span class="co">#&gt; unit_1  0.001960665 0.02733608 0.001481227 0.03737422 0.2208343</span></span>
-<span><span class="co">#&gt; unit_2  0.003175365 0.02936978 0.001696577 0.03857623 0.2552939</span></span>
-<span><span class="co">#&gt; unit_3  0.005038974 0.03094247 0.001817711 0.03857623 0.2942858</span></span>
-<span><span class="co">#&gt; unit_4  0.007789768 0.03193833 0.002473365 0.03737422 0.3378808</span></span>
-<span><span class="co">#&gt; unit_5  0.011641326 0.03227946 0.004573422 0.04644064 0.3857163</span></span>
-<span><span class="co">#&gt; unit_6  0.016651109 0.03193833 0.008351537 0.06049417 0.4366035</span></span>
-<span><span class="co">#&gt; unit_7  0.022513833 0.03094247 0.014980556 0.07776645 0.4878725</span></span>
-<span><span class="co">#&gt; unit_8  0.028366253 0.02936978 0.026168931 0.09823579 0.5344800</span></span>
-<span><span class="co">#&gt; unit_9  0.032829771 0.02733608 0.043890287 0.12123203 0.5685397</span></span>
-<span><span class="co">#&gt; unit_10 0.034517178 0.02497801 0.069019582 0.14505001 0.5812752</span></span></code></pre></div>
+<span><span class="co">##                sp_1       sp_2        sp_3       sp_4      sp_5</span></span>
+<span><span class="co">## unit_1  0.001960665 0.02733608 0.001481227 0.03737422 0.2208343</span></span>
+<span><span class="co">## unit_2  0.003175365 0.02936978 0.001696577 0.03857623 0.2552939</span></span>
+<span><span class="co">## unit_3  0.005038974 0.03094247 0.001817711 0.03857623 0.2942858</span></span>
+<span><span class="co">## unit_4  0.007789768 0.03193833 0.002473365 0.03737422 0.3378808</span></span>
+<span><span class="co">## unit_5  0.011641326 0.03227946 0.004573422 0.04644064 0.3857163</span></span>
+<span><span class="co">## unit_6  0.016651109 0.03193833 0.008351537 0.06049417 0.4366035</span></span>
+<span><span class="co">## unit_7  0.022513833 0.03094247 0.014980556 0.07776645 0.4878725</span></span>
+<span><span class="co">## unit_8  0.028366253 0.02936978 0.026168931 0.09823579 0.5344800</span></span>
+<span><span class="co">## unit_9  0.032829771 0.02733608 0.043890287 0.12123203 0.5685397</span></span>
+<span><span class="co">## unit_10 0.034517178 0.02497801 0.069019582 0.14505001 0.5812752</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="running-optimtfe">Running optimTFE<a class="anchor" aria-label="anchor" href="#running-optimtfe"></a>
@@ -148,42 +148,75 @@ prefixed with the <code>run_id</code> in the specified directory,
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/optimTFE.html">optimTFE</a></span><span class="op">(</span></span>
 <span>  targets <span class="op">=</span> <span class="va">example_targets</span><span class="op">[</span>, <span class="fl">1</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
 <span>  suitability <span class="op">=</span> <span class="va">example_suitability</span>,</span>
-<span>  min_spp_suit_score <span class="op">=</span> <span class="fl">0.2</span>, <span class="co"># Set suitability scores lower than 0.2 to 0</span></span>
-<span>  rand_tolerance <span class="op">=</span> <span class="fl">10</span>, <span class="co"># Range of species richness to consider at each step</span></span>
+<span>  min_spp_suit_score <span class="op">=</span> <span class="fl">0.1</span>, <span class="co"># Set suitability scores lower than 0.1 to 0</span></span>
+<span>  rand_tolerance <span class="op">=</span> <span class="fl">5</span>, <span class="co"># Range of species richness to consider at each step</span></span>
 <span>  n <span class="op">=</span> <span class="fl">10000</span>, <span class="co"># number of solutions to generate</span></span>
 <span>  out_dir <span class="op">=</span> <span class="va">projectDir</span>,</span>
 <span>  run_id <span class="op">=</span> <span class="va">run_id</span>,</span>
 <span>  output_csv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fl">8</span>, <span class="co"># number of processing threads to use</span></span>
 <span>  seed <span class="op">=</span> <span class="fl">101010</span> <span class="co"># Seed for reproducible output</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Beginning optimTFE...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">Species targets loaded: 30</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">Species suitability matrix loaded: 795 planning units</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">Generating 10000 solutions in 10 batches</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">Finished generating 10000 solutions in 12.3 secs</span></span></span></code></pre></div>
+<span><span class="co">## Beginning optimTFE...</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Species targets loaded: 30</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Species suitability matrix loaded: 795 planning units</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Generating 10000 solutions in 16 batches</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Finished generating 10000 solutions in 8.5 secs</span></span></span></code></pre></div>
 <p>Output files generated by optimTFE:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">projectDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "file228110bcb47f"                                               </span></span>
-<span><span class="co">#&gt;  [2] "file22812ecf95e4"                                               </span></span>
-<span><span class="co">#&gt;  [3] "file2281451cb46e"                                               </span></span>
-<span><span class="co">#&gt;  [4] "file2281648cbdb9"                                               </span></span>
-<span><span class="co">#&gt;  [5] "file2281c109898"                                                </span></span>
-<span><span class="co">#&gt;  [6] "optimTFE/optimTFE.meta"                                         </span></span>
-<span><span class="co">#&gt;  [7] "optimTFE/optimTFE.n_units.pdf"                                  </span></span>
-<span><span class="co">#&gt;  [8] "optimTFE/optimTFE.solutions.csv"                                </span></span>
-<span><span class="co">#&gt;  [9] "optimTFE/optimTFE.summary.csv"                                  </span></span>
-<span><span class="co">#&gt; [10] "optimTFE/solutions/18fa672b-563f-44af-b060-e5500b551e19.parquet"</span></span>
-<span><span class="co">#&gt; [11] "optimTFE/solutions/39464acd-a8e5-4d02-b98e-b7e7bc4df406.parquet"</span></span>
-<span><span class="co">#&gt; [12] "optimTFE/solutions/3e4f371e-1e25-4037-94b9-0dd7d83c5850.parquet"</span></span>
-<span><span class="co">#&gt; [13] "optimTFE/solutions/5183d39d-dbfa-4f95-bf1a-02845f55b42c.parquet"</span></span>
-<span><span class="co">#&gt; [14] "optimTFE/solutions/589d97f6-f154-4dd2-be4f-38ca509ffba8.parquet"</span></span>
-<span><span class="co">#&gt; [15] "optimTFE/solutions/6768dc60-0a2b-4aea-9708-888b238980aa.parquet"</span></span>
-<span><span class="co">#&gt; [16] "optimTFE/solutions/80067d3c-e57b-4d01-ab6f-14ec8d058e24.parquet"</span></span>
-<span><span class="co">#&gt; [17] "optimTFE/solutions/8a7d55b6-fecc-4442-a11a-54ab2ccac6f2.parquet"</span></span>
-<span><span class="co">#&gt; [18] "optimTFE/solutions/a60eb37e-8575-4688-8aa0-1f6cb3fbaf8e.parquet"</span></span>
-<span><span class="co">#&gt; [19] "optimTFE/solutions/aa018c08-894f-4e45-aacb-7086e8dfe7e0.parquet"</span></span>
-<span><span class="co">#&gt; [20] "rmarkdown-str228125272798.html"</span></span></code></pre></div>
+<span><span class="co">##  [1] "file2253140cfe28"                                               </span></span>
+<span><span class="co">##  [2] "file22532b6c967f"                                               </span></span>
+<span><span class="co">##  [3] "file22533d571eb7"                                               </span></span>
+<span><span class="co">##  [4] "file22533ef51310"                                               </span></span>
+<span><span class="co">##  [5] "file225372153d9f"                                               </span></span>
+<span><span class="co">##  [6] "optimTFE/optimTFE.meta"                                         </span></span>
+<span><span class="co">##  [7] "optimTFE/optimTFE.n_units.pdf"                                  </span></span>
+<span><span class="co">##  [8] "optimTFE/optimTFE.solutions.csv"                                </span></span>
+<span><span class="co">##  [9] "optimTFE/optimTFE.summary.csv"                                  </span></span>
+<span><span class="co">## [10] "optimTFE/solutions/173cc02c-4ee5-40db-8aba-0fe3cba18eb8.parquet"</span></span>
+<span><span class="co">## [11] "optimTFE/solutions/1c10c925-557e-40f4-ad85-c65ebe1b4544.parquet"</span></span>
+<span><span class="co">## [12] "optimTFE/solutions/1c8fe64b-4cc4-46cd-8ed1-bb41e2aecf41.parquet"</span></span>
+<span><span class="co">## [13] "optimTFE/solutions/2191e732-8394-4c6a-a2e8-4ad8a67b361e.parquet"</span></span>
+<span><span class="co">## [14] "optimTFE/solutions/284bcb90-1bb8-4b4e-8548-3b932c56c32e.parquet"</span></span>
+<span><span class="co">## [15] "optimTFE/solutions/2ea0451d-72d3-4385-ba92-433e8ed9227e.parquet"</span></span>
+<span><span class="co">## [16] "optimTFE/solutions/3b6c65f6-b6e2-4d9c-8b8f-31071921ed7a.parquet"</span></span>
+<span><span class="co">## [17] "optimTFE/solutions/5f7c11a8-b0f6-4c11-b04e-e54a386f783f.parquet"</span></span>
+<span><span class="co">## [18] "optimTFE/solutions/660d9e76-680d-4622-b76d-91e6d6e2d8a0.parquet"</span></span>
+<span><span class="co">## [19] "optimTFE/solutions/674fc656-a750-4447-b590-a02188bafcd1.parquet"</span></span>
+<span><span class="co">## [20] "optimTFE/solutions/7ef7f6bf-2093-4228-bddb-79477ad32192.parquet"</span></span>
+<span><span class="co">## [21] "optimTFE/solutions/97274ca9-7343-4965-905d-cf8ce384b1b5.parquet"</span></span>
+<span><span class="co">## [22] "optimTFE/solutions/a25bf8b9-8596-4424-a06b-08abc212f520.parquet"</span></span>
+<span><span class="co">## [23] "optimTFE/solutions/b3da5b4f-fcbc-4e55-a20d-00c645f28f01.parquet"</span></span>
+<span><span class="co">## [24] "optimTFE/solutions/bc9ca70b-f7e1-4316-b8b2-cf4673bcfd2e.parquet"</span></span>
+<span><span class="co">## [25] "optimTFE/solutions/cbd65e61-e0f6-4592-99d1-5df47a4d5ef8.parquet"</span></span>
+<span><span class="co">## [26] "rmarkdown-str2253fa621cf.html"</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="input-validation">Input Validation<a class="anchor" aria-label="anchor" href="#input-validation"></a>
+</h3>
+<p>The optimTFE algorithm will attempt to validate all inputs to ensure
+that inputs are in the proper format, that the species names and
+planning unit ids are consistent across inputs, and that the requested
+targets can be met. A dry_run parameter is available to validate inputs
+without running the algorithm:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">impossible_targets</span> <span class="op">&lt;-</span> <span class="va">example_targets</span><span class="op">[</span>, <span class="fl">1</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="va">impossible_targets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="fu"><a href="../reference/optimTFE.html">optimTFE</a></span><span class="op">(</span></span>
+<span>  targets <span class="op">=</span> <span class="va">impossible_targets</span>,</span>
+<span>  suitability <span class="op">=</span> <span class="va">example_suitability</span>,</span>
+<span>  dry_run <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">## Beginning optimTFE...</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Species targets loaded: 30</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Species suitability matrix loaded: 795 planning units</span></span></span>
+<span><span class="co">## <span style="color: #BB0000; font-weight: bold;">Not enough units to meet all targets:</span></span></span>
+<span><span class="co">## <span style="color: #BB0000;">--   sp_1-global</span></span></span>
+<span><span class="co">## <span style="color: #BB0000;">--   sp_2-global</span></span></span>
+<span><span class="co">## <span style="color: #BB0000;">--   sp_3-global</span></span></span>
+<span><span class="co">## <span style="color: #BB0000;">--   sp_4-global</span></span></span>
+<span><span class="co">## <span style="color: #BB0000;">--   sp_5-global</span></span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="progress-updates">Progress Updates<a class="anchor" aria-label="anchor" href="#progress-updates"></a>
 </h3>
@@ -193,10 +226,10 @@ package <a href="https://progressr.futureverse.org/reference/progressr.html" cla
 to provide progress notification. You can activate progress bars for
 optimTFE by either turnning on the global progress handler once at the
 beginning of your R session:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span>global <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Or you can explicitly wrap your individual function calls:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/with_progress.html" class="external-link">with_progress</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/optimTFE.html">optimTFE</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
@@ -224,19 +257,19 @@ as a wide format R matrix with unit_ids for row names and species names
 as column names. In the example populations data, viewing the first 10
 planning units for the first 10 species shows single known population,
 “F”, in unit_5 for sp_5:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_populations</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
-<span><span class="co">#&gt;         sp_1 sp_2 sp_3 sp_4 sp_5 sp_6 sp_7 sp_8 sp_9 sp_10</span></span>
-<span><span class="co">#&gt; unit_1  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_2  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_3  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_4  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_5  NA   NA   NA   NA   "F"  NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_6  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_7  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_8  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_9  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
-<span><span class="co">#&gt; unit_10 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA</span></span></code></pre></div>
+<span><span class="co">##         sp_1 sp_2 sp_3 sp_4 sp_5 sp_6 sp_7 sp_8 sp_9 sp_10</span></span>
+<span><span class="co">## unit_1  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_2  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_3  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_4  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_5  NA   NA   NA   NA   "F"  NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_6  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_7  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_8  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_9  NA   NA   NA   NA   NA   NA   NA   NA   NA   NA   </span></span>
+<span><span class="co">## unit_10 NA   NA   NA   NA   NA   NA   NA   NA   NA   NA</span></span></code></pre></div>
 <p>When provided to the optimTFE algorithm, species populations will
 always be preferentially selected and populations with suitability
 scores below the threshold (<code>min_spp_suitability</code>) will not
@@ -255,37 +288,37 @@ row names can be provided. Planning units not assigned to a region will
 be assigned to a ‘default’ region at run time. For the first 10 planning
 units of the example data, units 1:7 will be placed in the default
 region, while units 8:10 occur in the ‘left’ region:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_subregions</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;         left right</span></span>
-<span><span class="co">#&gt; unit_1     0     0</span></span>
-<span><span class="co">#&gt; unit_2     0     0</span></span>
-<span><span class="co">#&gt; unit_3     0     0</span></span>
-<span><span class="co">#&gt; unit_4     0     0</span></span>
-<span><span class="co">#&gt; unit_5     0     0</span></span>
-<span><span class="co">#&gt; unit_6     0     0</span></span>
-<span><span class="co">#&gt; unit_7     0     0</span></span>
-<span><span class="co">#&gt; unit_8     1     0</span></span>
-<span><span class="co">#&gt; unit_9     1     0</span></span>
-<span><span class="co">#&gt; unit_10    1     0</span></span></code></pre></div>
+<span><span class="co">##         left right</span></span>
+<span><span class="co">## unit_1     0     0</span></span>
+<span><span class="co">## unit_2     0     0</span></span>
+<span><span class="co">## unit_3     0     0</span></span>
+<span><span class="co">## unit_4     0     0</span></span>
+<span><span class="co">## unit_5     0     0</span></span>
+<span><span class="co">## unit_6     0     0</span></span>
+<span><span class="co">## unit_7     0     0</span></span>
+<span><span class="co">## unit_8     1     0</span></span>
+<span><span class="co">## unit_9     1     0</span></span>
+<span><span class="co">## unit_10    1     0</span></span></code></pre></div>
 <p>When subregions are included, the minimum subregion targets should be
 provided in the targets input, with the extra column names matching
 those in the subregions file. Here, we can see the minimum species
 targets required in the “left” and “right” subregions for the first 10
 species in the example data:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_targets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;       total left right</span></span>
-<span><span class="co">#&gt; sp_1     10    0     0</span></span>
-<span><span class="co">#&gt; sp_2     10    0     0</span></span>
-<span><span class="co">#&gt; sp_3     10    4     3</span></span>
-<span><span class="co">#&gt; sp_4     10    1     5</span></span>
-<span><span class="co">#&gt; sp_5     10    3     4</span></span>
-<span><span class="co">#&gt; sp_6     10    2     3</span></span>
-<span><span class="co">#&gt; sp_7     10    1     1</span></span>
-<span><span class="co">#&gt; sp_8     10    0     0</span></span>
-<span><span class="co">#&gt; sp_9     10    3     1</span></span>
-<span><span class="co">#&gt; sp_10    10    3     3</span></span></code></pre></div>
+<span><span class="co">##       total left right</span></span>
+<span><span class="co">## sp_1     10    0     0</span></span>
+<span><span class="co">## sp_2     10    0     0</span></span>
+<span><span class="co">## sp_3     10    4     3</span></span>
+<span><span class="co">## sp_4     10    1     5</span></span>
+<span><span class="co">## sp_5     10    3     4</span></span>
+<span><span class="co">## sp_6     10    2     3</span></span>
+<span><span class="co">## sp_7     10    1     1</span></span>
+<span><span class="co">## sp_8     10    0     0</span></span>
+<span><span class="co">## sp_9     10    3     1</span></span>
+<span><span class="co">## sp_10    10    3     3</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="species-incompatibilities">Species Incompatibilities<a class="anchor" aria-label="anchor" href="#species-incompatibilities"></a>
@@ -298,19 +331,19 @@ incompatibilities) but must be a symmetric binary matrix with species
 names defining rows and columns with 1 indicating an incompatibility.
 Here we can see the incompatibilities between a few of the first 10
 species in the example data:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_incompatibility</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
-<span><span class="co">#&gt;       sp_1 sp_2 sp_3 sp_4 sp_5 sp_6 sp_7 sp_8 sp_9 sp_10</span></span>
-<span><span class="co">#&gt; sp_1     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_2     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_3     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_4     0    0    0    0    1    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_5     0    0    0    1    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_6     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_7     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_8     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_9     0    0    0    0    0    0    0    0    0     0</span></span>
-<span><span class="co">#&gt; sp_10    0    0    0    0    0    0    0    0    0     0</span></span></code></pre></div>
+<span><span class="co">##       sp_1 sp_2 sp_3 sp_4 sp_5 sp_6 sp_7 sp_8 sp_9 sp_10</span></span>
+<span><span class="co">## sp_1     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_2     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_3     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_4     0    0    0    0    1    0    0    0    0     0</span></span>
+<span><span class="co">## sp_5     0    0    0    1    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_6     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_7     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_8     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_9     0    0    0    0    0    0    0    0    0     0</span></span>
+<span><span class="co">## sp_10    0    0    0    0    0    0    0    0    0     0</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -328,32 +361,32 @@ helper function to simplify this process. For, example, the
 <code>get_solutions()</code> function can be used to import one or more
 solutions from the output. For example, to extract the first 10
 solutions:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sols_1_to_10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_solutions.html">extract_solutions</a></span><span class="op">(</span></span>
 <span>  solutions <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
 <span>  dir <span class="op">=</span> <span class="va">projectDir</span>,</span>
 <span>  run_id <span class="op">=</span> <span class="va">run_id</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">sols_1_to_10</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 36</span></span></span>
-<span><span class="co">#&gt;    solution order unit_id  passing richness suitability  sp_1  sp_2  sp_3  sp_4</span></span>
-<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>        1     1 unit_545       1       19       0.526     0     1     1     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>        1     2 unit_427       1       14       0.389     0     1     0     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>        1     3 unit_54        1       15       0.422     0     0     0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>        1     4 unit_501       1       17       0.513     0     1     1     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>        1     5 unit_370       1       17       0.402     1     0     0     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>        1     6 unit_634       1       14       0.635     0     1     0     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>        1     7 unit_144       1       18       0.501     0     0     0     0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>        1     8 unit_572       1       17       0.499     0     1     1     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>        1     9 unit_192       1       22       0.581     0     0     1     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>        1    10 unit_484       1       18       0.585     0     1     1     1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 26 more variables: sp_5 &lt;dbl&gt;, sp_6 &lt;dbl&gt;, sp_7 &lt;dbl&gt;, sp_8 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   sp_9 &lt;dbl&gt;, sp_10 &lt;dbl&gt;, sp_11 &lt;dbl&gt;, sp_12 &lt;dbl&gt;, sp_13 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   sp_14 &lt;dbl&gt;, sp_15 &lt;dbl&gt;, sp_16 &lt;dbl&gt;, sp_17 &lt;dbl&gt;, sp_18 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   sp_19 &lt;dbl&gt;, sp_20 &lt;dbl&gt;, sp_21 &lt;dbl&gt;, sp_22 &lt;dbl&gt;, sp_23 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   sp_24 &lt;dbl&gt;, sp_25 &lt;dbl&gt;, sp_26 &lt;dbl&gt;, sp_27 &lt;dbl&gt;, sp_28 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   sp_29 &lt;dbl&gt;, sp_30 &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 10 × 36</span></span></span>
+<span><span class="co">##    solution order unit_id  passing richness suitability  sp_1  sp_2  sp_3  sp_4</span></span>
+<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>        1     1 unit_454       1       22       0.434     0     1     1     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>        1     2 unit_294       1       25       0.339     1     1     0     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>        1     3 unit_191       1       25       0.556     1     0     1     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>        1     4 unit_279       1       25       0.386     1     1     0     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>        1     5 unit_87        1       23       0.459     0     0     1     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>        1     6 unit_364       1       23       0.280     0     1     1     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>        1     7 unit_323       1       23       0.288     1     1     0     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>        1     8 unit_371       1       21       0.350     1     1     0     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>        1     9 unit_440       1       22       0.397     0     1     1     1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>        1    10 unit_70        1       23       0.424     0     0     1     1</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 26 more variables: sp_5 &lt;dbl&gt;, sp_6 &lt;dbl&gt;, sp_7 &lt;dbl&gt;, sp_8 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   sp_9 &lt;dbl&gt;, sp_10 &lt;dbl&gt;, sp_11 &lt;dbl&gt;, sp_12 &lt;dbl&gt;, sp_13 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   sp_14 &lt;dbl&gt;, sp_15 &lt;dbl&gt;, sp_16 &lt;dbl&gt;, sp_17 &lt;dbl&gt;, sp_18 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   sp_19 &lt;dbl&gt;, sp_20 &lt;dbl&gt;, sp_21 &lt;dbl&gt;, sp_22 &lt;dbl&gt;, sp_23 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   sp_24 &lt;dbl&gt;, sp_25 &lt;dbl&gt;, sp_26 &lt;dbl&gt;, sp_27 &lt;dbl&gt;, sp_28 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">## <span style="color: #949494;">#   sp_29 &lt;dbl&gt;, sp_30 &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>A condensed summary of the output, with one row per solution and some
 summary statistics, will be saved in the {run_id}.summary.csv file. This
 file will include the solution number, the number of units selected for
@@ -361,37 +394,37 @@ the solution, the mean suitability score for species in their selected
 planning units, the mean and max species richness, whether the solution
 met all specified requirements (1 = yes) and the list of planning
 units.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">summary_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">projectDir</span>, <span class="va">run_id</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">run_id</span>, <span class="st">".summary.csv"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/tmp/RtmpYrAw4k/optimTFE/optimTFE.summary.csv"</span></span>
+<span><span class="co">## [1] "/tmp/RtmpRU0284/optimTFE/optimTFE.summary.csv"</span></span>
 <span><span class="va">sol_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">summary_fn</span><span class="op">)</span></span>
 <span><span class="va">sol_summary</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;    solution n_units mean_suitability mean_richness max_richness passing</span></span>
-<span><span class="co">#&gt; 1         1      45        0.4735072      6.666667           22       1</span></span>
-<span><span class="co">#&gt; 2         2      43        0.4577539      6.976744           24       1</span></span>
-<span><span class="co">#&gt; 3         3      47        0.4736968      6.382979           23       1</span></span>
-<span><span class="co">#&gt; 4         4      49        0.4628924      6.122449           21       1</span></span>
-<span><span class="co">#&gt; 5         5      47        0.4415932      6.382979           22       1</span></span>
-<span><span class="co">#&gt; 6         6      42        0.4565698      7.142857           22       1</span></span>
-<span><span class="co">#&gt; 7         7      44        0.4676254      6.818182           24       1</span></span>
-<span><span class="co">#&gt; 8         8      43        0.4861704      6.976744           20       1</span></span>
-<span><span class="co">#&gt; 9         9      42        0.4854372      7.142857           21       1</span></span>
-<span><span class="co">#&gt; 10       10      45        0.4883142      6.666667           24       1</span></span>
-<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    units</span></span>
-<span><span class="co">#&gt; 1                                             ["unit_101","unit_135","unit_144","unit_146","unit_160","unit_161","unit_189","unit_192","unit_223","unit_224","unit_234","unit_238","unit_239","unit_264","unit_265","unit_27","unit_299","unit_323","unit_328","unit_354","unit_356","unit_370","unit_371","unit_385","unit_39","unit_393","unit_427","unit_440","unit_445","unit_453","unit_484","unit_499","unit_501","unit_530","unit_54","unit_545","unit_572","unit_602","unit_603","unit_620","unit_634","unit_649","unit_681","unit_8","unit_84"]</span></span>
-<span><span class="co">#&gt; 2                                                                  ["unit_10","unit_101","unit_115","unit_145","unit_176","unit_178","unit_179","unit_204","unit_207","unit_235","unit_236","unit_267","unit_269","unit_281","unit_295","unit_310","unit_354","unit_355","unit_398","unit_408","unit_423","unit_468","unit_498","unit_515","unit_516","unit_54","unit_543","unit_544","unit_588","unit_602","unit_604","unit_606","unit_618","unit_634","unit_653","unit_664","unit_665","unit_69","unit_693","unit_73","unit_743","unit_760","unit_84"]</span></span>
-<span><span class="co">#&gt; 3                     ["unit_100","unit_116","unit_128","unit_147","unit_161","unit_165","unit_174","unit_188","unit_206","unit_209","unit_221","unit_222","unit_267","unit_277","unit_296","unit_312","unit_313","unit_328","unit_349","unit_356","unit_357","unit_362","unit_366","unit_39","unit_398","unit_409","unit_458","unit_467","unit_514","unit_515","unit_543","unit_561","unit_573","unit_574","unit_588","unit_60","unit_604","unit_605","unit_609","unit_633","unit_672","unit_693","unit_71","unit_728","unit_743","unit_75","unit_771"]</span></span>
-<span><span class="co">#&gt; 4  ["unit_102","unit_105","unit_113","unit_116","unit_118","unit_119","unit_144","unit_163","unit_205","unit_234","unit_246","unit_253","unit_277","unit_279","unit_295","unit_296","unit_298","unit_310","unit_323","unit_324","unit_340","unit_386","unit_408","unit_409","unit_41","unit_482","unit_486","unit_515","unit_560","unit_562","unit_572","unit_576","unit_587","unit_588","unit_591","unit_603","unit_619","unit_633","unit_653","unit_656","unit_663","unit_665","unit_69","unit_70","unit_770","unit_84","unit_85","unit_87","unit_89"]</span></span>
-<span><span class="co">#&gt; 5                      ["unit_102","unit_105","unit_127","unit_143","unit_145","unit_146","unit_147","unit_157","unit_159","unit_189","unit_205","unit_222","unit_223","unit_233","unit_252","unit_279","unit_28","unit_29","unit_296","unit_319","unit_323","unit_356","unit_368","unit_371","unit_401","unit_423","unit_441","unit_471","unit_483","unit_485","unit_496","unit_501","unit_543","unit_545","unit_557","unit_559","unit_572","unit_588","unit_590","unit_592","unit_633","unit_648","unit_699","unit_70","unit_724","unit_84","unit_88"]</span></span>
-<span><span class="co">#&gt; 6                                                                               ["unit_10","unit_114","unit_132","unit_145","unit_146","unit_149","unit_163","unit_180","unit_222","unit_252","unit_268","unit_278","unit_280","unit_310","unit_338","unit_353","unit_370","unit_394","unit_399","unit_42","unit_427","unit_428","unit_454","unit_483","unit_497","unit_516","unit_544","unit_55","unit_572","unit_58","unit_603","unit_619","unit_633","unit_651","unit_652","unit_662","unit_664","unit_69","unit_692","unit_695","unit_70","unit_87"]</span></span>
-<span><span class="co">#&gt; 7                                                         ["unit_160","unit_161","unit_174","unit_191","unit_194","unit_221","unit_224","unit_234","unit_236","unit_249","unit_25","unit_267","unit_27","unit_283","unit_284","unit_29","unit_308","unit_327","unit_353","unit_354","unit_369","unit_408","unit_429","unit_452","unit_454","unit_468","unit_498","unit_518","unit_532","unit_542","unit_543","unit_559","unit_560","unit_587","unit_602","unit_605","unit_651","unit_664","unit_684","unit_695","unit_772","unit_87","unit_9","unit_99"]</span></span>
-<span><span class="co">#&gt; 8                                                                  ["unit_115","unit_128","unit_130","unit_147","unit_161","unit_162","unit_174","unit_193","unit_206","unit_220","unit_224","unit_252","unit_26","unit_310","unit_311","unit_324","unit_328","unit_370","unit_371","unit_379","unit_385","unit_411","unit_453","unit_486","unit_515","unit_543","unit_557","unit_559","unit_56","unit_57","unit_59","unit_603","unit_620","unit_621","unit_631","unit_649","unit_664","unit_680","unit_693","unit_696","unit_718","unit_746","unit_88"]</span></span>
-<span><span class="co">#&gt; 9                                                                          ["unit_102","unit_131","unit_134","unit_144","unit_145","unit_160","unit_164","unit_190","unit_204","unit_207","unit_224","unit_250","unit_251","unit_252","unit_255","unit_267","unit_269","unit_270","unit_281","unit_298","unit_310","unit_312","unit_340","unit_353","unit_366","unit_373","unit_425","unit_452","unit_482","unit_514","unit_54","unit_545","unit_560","unit_574","unit_587","unit_592","unit_603","unit_621","unit_647","unit_664","unit_678","unit_72"]</span></span>
-<span><span class="co">#&gt; 10                                           ["unit_100","unit_117","unit_127","unit_146","unit_147","unit_148","unit_162","unit_221","unit_236","unit_250","unit_251","unit_309","unit_325","unit_332","unit_338","unit_38","unit_400","unit_406","unit_415","unit_417","unit_42","unit_430","unit_438","unit_454","unit_482","unit_515","unit_566","unit_588","unit_605","unit_618","unit_621","unit_648","unit_651","unit_665","unit_666","unit_668","unit_670","unit_677","unit_695","unit_739","unit_771","unit_784","unit_88","unit_89","unit_98"]</span></span></code></pre></div>
+<span><span class="co">##    solution n_units mean_suitability mean_richness max_richness passing</span></span>
+<span><span class="co">## 1         1      30        0.3665954     10.000000           25       1</span></span>
+<span><span class="co">## 2         2      30        0.4033268     10.000000           25       1</span></span>
+<span><span class="co">## 3         3      32        0.4318763      9.375000           25       1</span></span>
+<span><span class="co">## 4         4      29        0.4048654     10.344828           26       1</span></span>
+<span><span class="co">## 5         5      33        0.3668606      9.090909           25       1</span></span>
+<span><span class="co">## 6         6      29        0.3597939     10.344828           26       1</span></span>
+<span><span class="co">## 7         7      32        0.4004126      9.375000           26       1</span></span>
+<span><span class="co">## 8         8      35        0.3773514      8.571429           25       1</span></span>
+<span><span class="co">## 9         9      31        0.3777751      9.677419           26       1</span></span>
+<span><span class="co">## 10       10      31        0.3895276      9.677419           25       1</span></span>
+<span><span class="co">##                                                                                                                                                                                                                                                                                                                                                                                             units</span></span>
+<span><span class="co">## 1                                                           ["unit_11","unit_172","unit_190","unit_191","unit_247","unit_279","unit_28","unit_294","unit_323","unit_337","unit_364","unit_371","unit_39","unit_401","unit_41","unit_440","unit_445","unit_454","unit_482","unit_515","unit_534","unit_572","unit_619","unit_631","unit_633","unit_636","unit_649","unit_70","unit_708","unit_87"]</span></span>
+<span><span class="co">## 2                                                        ["unit_118","unit_120","unit_127","unit_130","unit_14","unit_161","unit_208","unit_223","unit_235","unit_295","unit_308","unit_322","unit_337","unit_353","unit_381","unit_410","unit_446","unit_456","unit_514","unit_529","unit_531","unit_559","unit_574","unit_588","unit_589","unit_664","unit_678","unit_708","unit_82","unit_86"]</span></span>
+<span><span class="co">## 3                                  ["unit_101","unit_129","unit_130","unit_189","unit_191","unit_222","unit_237","unit_291","unit_30","unit_325","unit_326","unit_387","unit_396","unit_402","unit_412","unit_456","unit_469","unit_513","unit_515","unit_559","unit_59","unit_605","unit_621","unit_653","unit_664","unit_679","unit_684","unit_698","unit_712","unit_725","unit_739","unit_86"]</span></span>
+<span><span class="co">## 4                                                                 ["unit_102","unit_103","unit_147","unit_159","unit_195","unit_206","unit_210","unit_217","unit_234","unit_236","unit_277","unit_297","unit_384","unit_415","unit_439","unit_474","unit_483","unit_486","unit_497","unit_512","unit_518","unit_528","unit_573","unit_652","unit_665","unit_679","unit_681","unit_694","unit_86"]</span></span>
+<span><span class="co">## 5                     ["unit_101","unit_115","unit_134","unit_148","unit_149","unit_194","unit_209","unit_217","unit_220","unit_237","unit_238","unit_295","unit_328","unit_329","unit_386","unit_398","unit_411","unit_412","unit_424","unit_425","unit_499","unit_506","unit_518","unit_527","unit_531","unit_572","unit_589","unit_617","unit_649","unit_651","unit_682","unit_721","unit_73"]</span></span>
+<span><span class="co">## 6                                                                 ["unit_101","unit_113","unit_115","unit_118","unit_149","unit_236","unit_238","unit_266","unit_278","unit_322","unit_340","unit_353","unit_365","unit_385","unit_400","unit_425","unit_457","unit_528","unit_530","unit_586","unit_588","unit_632","unit_651","unit_664","unit_722","unit_753","unit_767","unit_768","unit_87"]</span></span>
+<span><span class="co">## 7                                 ["unit_11","unit_131","unit_160","unit_162","unit_175","unit_194","unit_267","unit_281","unit_283","unit_295","unit_299","unit_306","unit_326","unit_332","unit_363","unit_423","unit_430","unit_458","unit_474","unit_545","unit_557","unit_571","unit_573","unit_587","unit_594","unit_601","unit_622","unit_648","unit_68","unit_694","unit_711","unit_730"]</span></span>
+<span><span class="co">## 8  ["unit_10","unit_115","unit_133","unit_163","unit_208","unit_210","unit_222","unit_247","unit_281","unit_286","unit_308","unit_310","unit_321","unit_328","unit_354","unit_384","unit_40","unit_408","unit_41","unit_410","unit_438","unit_486","unit_501","unit_516","unit_56","unit_573","unit_574","unit_576","unit_592","unit_594","unit_617","unit_633","unit_635","unit_751","unit_753"]</span></span>
+<span><span class="co">## 9                                              ["unit_10","unit_11","unit_117","unit_162","unit_178","unit_179","unit_187","unit_223","unit_249","unit_297","unit_326","unit_381","unit_383","unit_386","unit_396","unit_424","unit_427","unit_456","unit_497","unit_592","unit_604","unit_665","unit_677","unit_694","unit_70","unit_701","unit_710","unit_723","unit_724","unit_784","unit_86"]</span></span>
+<span><span class="co">## 10                                            ["unit_116","unit_119","unit_131","unit_148","unit_164","unit_176","unit_187","unit_203","unit_209","unit_224","unit_269","unit_311","unit_337","unit_367","unit_415","unit_426","unit_468","unit_483","unit_486","unit_546","unit_55","unit_56","unit_602","unit_606","unit_634","unit_663","unit_679","unit_71","unit_710","unit_738","unit_789"]</span></span></code></pre></div>
 <p>The summary data can be use to find the range of footprint size
 across all solutions and extract a subset. In this case, will will plot
 the distribution of the number of units selected per footprint:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sol_summary</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
 <span>    Frequency <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -413,11 +446,11 @@ the distribution of the number of units selected per footprint:</p>
 <p>Then we can use the helper function, <code><a href="../reference/extract_solutions.html">extract_solutions()</a></code>
 to extract the solution data for the smallest 10% for footprints base on
 the n_units summary attribute:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">min_10_pct</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">sol_summary</span><span class="op">$</span><span class="va">n_units</span>, probs <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">min_10_pct</span></span>
-<span><span class="co">#&gt; 10% </span></span>
-<span><span class="co">#&gt;  40</span></span>
+<span><span class="co">## 10% </span></span>
+<span><span class="co">##  28</span></span>
 <span><span class="va">sols_1_to_10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_solutions.html">extract_solutions</a></span><span class="op">(</span></span>
 <span>  solutions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">sol_summary</span><span class="op">$</span><span class="va">n_units</span> <span class="op">&lt;=</span> <span class="va">min_10_pct</span><span class="op">)</span>,</span>
 <span>  dir <span class="op">=</span> <span class="va">projectDir</span>,</span>
@@ -434,40 +467,40 @@ spatial data frame. In each case, the unique planning unit ids must be
 included in the first column of the attribute table. The function will
 return the input summary data frame with 3 new columns: area,
 perrimeter, and their ratio (pa_ratio).</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sol_summary_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spatial_stats.html">spatial_stats</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">sol_summary</span>,</span>
 <span>  spatial <span class="op">=</span> <span class="va">example_spatial</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">Summarizing spatial data for 10000 solutions...</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">Summarizing spatial data for 10000 solutions...</span></span></span>
 <span><span class="va">sol_summary_spatial</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">7</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;    solution     area perimeter pa_ratio</span></span>
-<span><span class="co">#&gt; 1         1 155.8846  274.8187 1.762963</span></span>
-<span><span class="co">#&gt; 2         2 148.9564  267.8905 1.798450</span></span>
-<span><span class="co">#&gt; 3         3 162.8128  300.2221 1.843972</span></span>
-<span><span class="co">#&gt; 4         4 169.7410  295.6033 1.741497</span></span>
-<span><span class="co">#&gt; 5         5 162.8128  284.0563 1.744681</span></span>
-<span><span class="co">#&gt; 6         6 145.4923  263.2717 1.809524</span></span>
-<span><span class="co">#&gt; 7         7 152.4205  279.4375 1.833333</span></span>
-<span><span class="co">#&gt; 8         8 148.9564  277.1281 1.860465</span></span>
-<span><span class="co">#&gt; 9         9 145.4923  258.6529 1.777778</span></span>
-<span><span class="co">#&gt; 10       10 155.8846  270.1999 1.733333</span></span>
-<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    units</span></span>
-<span><span class="co">#&gt; 1                                             ["unit_101","unit_135","unit_144","unit_146","unit_160","unit_161","unit_189","unit_192","unit_223","unit_224","unit_234","unit_238","unit_239","unit_264","unit_265","unit_27","unit_299","unit_323","unit_328","unit_354","unit_356","unit_370","unit_371","unit_385","unit_39","unit_393","unit_427","unit_440","unit_445","unit_453","unit_484","unit_499","unit_501","unit_530","unit_54","unit_545","unit_572","unit_602","unit_603","unit_620","unit_634","unit_649","unit_681","unit_8","unit_84"]</span></span>
-<span><span class="co">#&gt; 2                                                                  ["unit_10","unit_101","unit_115","unit_145","unit_176","unit_178","unit_179","unit_204","unit_207","unit_235","unit_236","unit_267","unit_269","unit_281","unit_295","unit_310","unit_354","unit_355","unit_398","unit_408","unit_423","unit_468","unit_498","unit_515","unit_516","unit_54","unit_543","unit_544","unit_588","unit_602","unit_604","unit_606","unit_618","unit_634","unit_653","unit_664","unit_665","unit_69","unit_693","unit_73","unit_743","unit_760","unit_84"]</span></span>
-<span><span class="co">#&gt; 3                     ["unit_100","unit_116","unit_128","unit_147","unit_161","unit_165","unit_174","unit_188","unit_206","unit_209","unit_221","unit_222","unit_267","unit_277","unit_296","unit_312","unit_313","unit_328","unit_349","unit_356","unit_357","unit_362","unit_366","unit_39","unit_398","unit_409","unit_458","unit_467","unit_514","unit_515","unit_543","unit_561","unit_573","unit_574","unit_588","unit_60","unit_604","unit_605","unit_609","unit_633","unit_672","unit_693","unit_71","unit_728","unit_743","unit_75","unit_771"]</span></span>
-<span><span class="co">#&gt; 4  ["unit_102","unit_105","unit_113","unit_116","unit_118","unit_119","unit_144","unit_163","unit_205","unit_234","unit_246","unit_253","unit_277","unit_279","unit_295","unit_296","unit_298","unit_310","unit_323","unit_324","unit_340","unit_386","unit_408","unit_409","unit_41","unit_482","unit_486","unit_515","unit_560","unit_562","unit_572","unit_576","unit_587","unit_588","unit_591","unit_603","unit_619","unit_633","unit_653","unit_656","unit_663","unit_665","unit_69","unit_70","unit_770","unit_84","unit_85","unit_87","unit_89"]</span></span>
-<span><span class="co">#&gt; 5                      ["unit_102","unit_105","unit_127","unit_143","unit_145","unit_146","unit_147","unit_157","unit_159","unit_189","unit_205","unit_222","unit_223","unit_233","unit_252","unit_279","unit_28","unit_29","unit_296","unit_319","unit_323","unit_356","unit_368","unit_371","unit_401","unit_423","unit_441","unit_471","unit_483","unit_485","unit_496","unit_501","unit_543","unit_545","unit_557","unit_559","unit_572","unit_588","unit_590","unit_592","unit_633","unit_648","unit_699","unit_70","unit_724","unit_84","unit_88"]</span></span>
-<span><span class="co">#&gt; 6                                                                               ["unit_10","unit_114","unit_132","unit_145","unit_146","unit_149","unit_163","unit_180","unit_222","unit_252","unit_268","unit_278","unit_280","unit_310","unit_338","unit_353","unit_370","unit_394","unit_399","unit_42","unit_427","unit_428","unit_454","unit_483","unit_497","unit_516","unit_544","unit_55","unit_572","unit_58","unit_603","unit_619","unit_633","unit_651","unit_652","unit_662","unit_664","unit_69","unit_692","unit_695","unit_70","unit_87"]</span></span>
-<span><span class="co">#&gt; 7                                                         ["unit_160","unit_161","unit_174","unit_191","unit_194","unit_221","unit_224","unit_234","unit_236","unit_249","unit_25","unit_267","unit_27","unit_283","unit_284","unit_29","unit_308","unit_327","unit_353","unit_354","unit_369","unit_408","unit_429","unit_452","unit_454","unit_468","unit_498","unit_518","unit_532","unit_542","unit_543","unit_559","unit_560","unit_587","unit_602","unit_605","unit_651","unit_664","unit_684","unit_695","unit_772","unit_87","unit_9","unit_99"]</span></span>
-<span><span class="co">#&gt; 8                                                                  ["unit_115","unit_128","unit_130","unit_147","unit_161","unit_162","unit_174","unit_193","unit_206","unit_220","unit_224","unit_252","unit_26","unit_310","unit_311","unit_324","unit_328","unit_370","unit_371","unit_379","unit_385","unit_411","unit_453","unit_486","unit_515","unit_543","unit_557","unit_559","unit_56","unit_57","unit_59","unit_603","unit_620","unit_621","unit_631","unit_649","unit_664","unit_680","unit_693","unit_696","unit_718","unit_746","unit_88"]</span></span>
-<span><span class="co">#&gt; 9                                                                          ["unit_102","unit_131","unit_134","unit_144","unit_145","unit_160","unit_164","unit_190","unit_204","unit_207","unit_224","unit_250","unit_251","unit_252","unit_255","unit_267","unit_269","unit_270","unit_281","unit_298","unit_310","unit_312","unit_340","unit_353","unit_366","unit_373","unit_425","unit_452","unit_482","unit_514","unit_54","unit_545","unit_560","unit_574","unit_587","unit_592","unit_603","unit_621","unit_647","unit_664","unit_678","unit_72"]</span></span>
-<span><span class="co">#&gt; 10                                           ["unit_100","unit_117","unit_127","unit_146","unit_147","unit_148","unit_162","unit_221","unit_236","unit_250","unit_251","unit_309","unit_325","unit_332","unit_338","unit_38","unit_400","unit_406","unit_415","unit_417","unit_42","unit_430","unit_438","unit_454","unit_482","unit_515","unit_566","unit_588","unit_605","unit_618","unit_621","unit_648","unit_651","unit_665","unit_666","unit_668","unit_670","unit_677","unit_695","unit_739","unit_771","unit_784","unit_88","unit_89","unit_98"]</span></span></code></pre></div>
+<span><span class="co">##    solution     area perimeter pa_ratio</span></span>
+<span><span class="co">## 1         1 103.9230  189.3709 1.822222</span></span>
+<span><span class="co">## 2         2 103.9230  187.0615 1.800000</span></span>
+<span><span class="co">## 3         3 110.8513  205.5367 1.854167</span></span>
+<span><span class="co">## 4         4 100.4589  187.0615 1.862069</span></span>
+<span><span class="co">## 5         5 114.3154  221.7025 1.939394</span></span>
+<span><span class="co">## 6         6 100.4589  191.6803 1.908046</span></span>
+<span><span class="co">## 7         7 110.8513  200.9179 1.812500</span></span>
+<span><span class="co">## 8         8 121.2436  217.0837 1.790476</span></span>
+<span><span class="co">## 9         9 107.3872  200.9179 1.870968</span></span>
+<span><span class="co">## 10       10 107.3872  198.6085 1.849462</span></span>
+<span><span class="co">##                                                                                                                                                                                                                                                                                                                                                                                             units</span></span>
+<span><span class="co">## 1                                                           ["unit_11","unit_172","unit_190","unit_191","unit_247","unit_279","unit_28","unit_294","unit_323","unit_337","unit_364","unit_371","unit_39","unit_401","unit_41","unit_440","unit_445","unit_454","unit_482","unit_515","unit_534","unit_572","unit_619","unit_631","unit_633","unit_636","unit_649","unit_70","unit_708","unit_87"]</span></span>
+<span><span class="co">## 2                                                        ["unit_118","unit_120","unit_127","unit_130","unit_14","unit_161","unit_208","unit_223","unit_235","unit_295","unit_308","unit_322","unit_337","unit_353","unit_381","unit_410","unit_446","unit_456","unit_514","unit_529","unit_531","unit_559","unit_574","unit_588","unit_589","unit_664","unit_678","unit_708","unit_82","unit_86"]</span></span>
+<span><span class="co">## 3                                  ["unit_101","unit_129","unit_130","unit_189","unit_191","unit_222","unit_237","unit_291","unit_30","unit_325","unit_326","unit_387","unit_396","unit_402","unit_412","unit_456","unit_469","unit_513","unit_515","unit_559","unit_59","unit_605","unit_621","unit_653","unit_664","unit_679","unit_684","unit_698","unit_712","unit_725","unit_739","unit_86"]</span></span>
+<span><span class="co">## 4                                                                 ["unit_102","unit_103","unit_147","unit_159","unit_195","unit_206","unit_210","unit_217","unit_234","unit_236","unit_277","unit_297","unit_384","unit_415","unit_439","unit_474","unit_483","unit_486","unit_497","unit_512","unit_518","unit_528","unit_573","unit_652","unit_665","unit_679","unit_681","unit_694","unit_86"]</span></span>
+<span><span class="co">## 5                     ["unit_101","unit_115","unit_134","unit_148","unit_149","unit_194","unit_209","unit_217","unit_220","unit_237","unit_238","unit_295","unit_328","unit_329","unit_386","unit_398","unit_411","unit_412","unit_424","unit_425","unit_499","unit_506","unit_518","unit_527","unit_531","unit_572","unit_589","unit_617","unit_649","unit_651","unit_682","unit_721","unit_73"]</span></span>
+<span><span class="co">## 6                                                                 ["unit_101","unit_113","unit_115","unit_118","unit_149","unit_236","unit_238","unit_266","unit_278","unit_322","unit_340","unit_353","unit_365","unit_385","unit_400","unit_425","unit_457","unit_528","unit_530","unit_586","unit_588","unit_632","unit_651","unit_664","unit_722","unit_753","unit_767","unit_768","unit_87"]</span></span>
+<span><span class="co">## 7                                 ["unit_11","unit_131","unit_160","unit_162","unit_175","unit_194","unit_267","unit_281","unit_283","unit_295","unit_299","unit_306","unit_326","unit_332","unit_363","unit_423","unit_430","unit_458","unit_474","unit_545","unit_557","unit_571","unit_573","unit_587","unit_594","unit_601","unit_622","unit_648","unit_68","unit_694","unit_711","unit_730"]</span></span>
+<span><span class="co">## 8  ["unit_10","unit_115","unit_133","unit_163","unit_208","unit_210","unit_222","unit_247","unit_281","unit_286","unit_308","unit_310","unit_321","unit_328","unit_354","unit_384","unit_40","unit_408","unit_41","unit_410","unit_438","unit_486","unit_501","unit_516","unit_56","unit_573","unit_574","unit_576","unit_592","unit_594","unit_617","unit_633","unit_635","unit_751","unit_753"]</span></span>
+<span><span class="co">## 9                                              ["unit_10","unit_11","unit_117","unit_162","unit_178","unit_179","unit_187","unit_223","unit_249","unit_297","unit_326","unit_381","unit_383","unit_386","unit_396","unit_424","unit_427","unit_456","unit_497","unit_592","unit_604","unit_665","unit_677","unit_694","unit_70","unit_701","unit_710","unit_723","unit_724","unit_784","unit_86"]</span></span>
+<span><span class="co">## 10                                            ["unit_116","unit_119","unit_131","unit_148","unit_164","unit_176","unit_187","unit_203","unit_209","unit_224","unit_269","unit_311","unit_337","unit_367","unit_415","unit_426","unit_468","unit_483","unit_486","unit_546","unit_55","unit_56","unit_602","unit_606","unit_634","unit_663","unit_679","unit_71","unit_710","unit_738","unit_789"]</span></span></code></pre></div>
 <p>Spatial data can also be used to generate a map of a given solution.
-In this example we generate a map of one of the footprints in subset
-with smallest total area and lowest perrimeter to area ratio, showing
+In this example we generate a map of one of the footprints with lowest
+total area (smallest 5%) and lowest perrimeter to area ratio, showing
 the species richness for each selected unit:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Find a minimal solution</span></span>
 <span><span class="va">min_solution</span> <span class="op">&lt;-</span> <span class="va">sol_summary_spatial</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">area</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">area</span>, probs <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -499,7 +532,7 @@ the species richness for each selected unit:</p>
 <p><img src="Introduction_files/figure-html/map%20a%20footprint-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>Or, to create a map of planning unit selection frequency across all
 solutions:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate unit frequency</span></span>
 <span><span class="va">unit_frequency</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_solutions.html">extract_solutions</a></span><span class="op">(</span></span>
 <span>  dir <span class="op">=</span> <span class="va">projectDir</span>,</span>
