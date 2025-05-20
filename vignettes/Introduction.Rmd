@@ -8,13 +8,6 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::knit_hooks$set(error = function(x, options) {
-  # wrap the error text in a div with wrapping enabled
-  sprintf(
-    '<div style="white-space: pre-wrap; word-wrap: break-word;">%s</div>\n',
-    x
-  )
-})
 knitr::opts_chunk$set(
   collapse = TRUE,
   error = TRUE
@@ -66,13 +59,13 @@ We can then run the minimal example, which will generate output files prefixed w
 optimTFE(
   targets = example_targets[, 1, drop = FALSE],
   suitability = example_suitability,
-  min_spp_suit_score = 0.2, # Set suitability scores lower than 0.2 to 0
-  rand_tolerance = 10, # Range of species richness to consider at each step
-  n = 5000, # number of solutions to generate
+  min_spp_suit_score = 0.1, # Set suitability scores lower than 0.1 to 0
+  rand_tolerance = 5, # Range of species richness to consider at each step
+  n = 10000, # number of solutions to generate
   out_dir = projectDir,
   run_id = run_id,
   output_csv = TRUE,
-  cores = 4, # number of processing threads to use
+  cores = 8, # number of processing threads to use
   seed = 101010 # Seed for reproducible output
 )
 ```
@@ -216,7 +209,7 @@ sol_summary_spatial <- spatial_stats(
 sol_summary_spatial[1:10, c(1, 7:10)]
 ```
 
-Spatial data can also be used to generate a map of a given solution. In this example we generate a map of one of the footprints in subset with smallest total area and lowest perrimeter to area ratio, showing the species richness for each selected unit:
+Spatial data can also be used to generate a map of a given solution. In this example we generate a map of one of the footprints with lowest total area (smallest 5%) and lowest perrimeter to area ratio, showing the species richness for each selected unit:
 
 ```{r map a footprint, fig.height = 5, fig.width = 7, fig.align = "center"}
 # Find a minimal solution
