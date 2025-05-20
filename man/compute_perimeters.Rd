@@ -21,3 +21,4 @@ numeric vector of perimeters
 \description{
 Compute perimeters for many subsets in C++
 }
+\keyword{internal}

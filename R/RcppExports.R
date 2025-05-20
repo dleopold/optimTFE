@@ -7,6 +7,7 @@
 #' @param lengths numeric vector of segment lengths
 #' @param Pmax integer maximum polygon ID
 #' @return numeric vector of perimeters
+#' @keywords internal
 #' @export
 compute_perimeters <- function(subsets, keyPolygonIds, lengths, Pmax) {
     .Call(`_optimTFE_compute_perimeters`, subsets, keyPolygonIds, lengths, Pmax)
@@ -45,6 +46,7 @@ compute_perimeters <- function(subsets, keyPolygonIds, lengths, Pmax) {
 #' @return A data frame with columns: solution, order, unit_id, passing, and
 #'   one column per species indicating which species targets are satisfied
 #'   in each planning unit.
+#' @keywords internal
 #' @export
 solutions_gen <- function(solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat = NULL) {
     .Call(`_optimTFE_solutions_gen`, solution_ids, suitability, spp_targets, unit_regions, unit_counts, regional_min, regional_max, populations, population_counts, single_pu_pop, rand_tolerance, max_spp_selected, spp_names, seed, incompat)

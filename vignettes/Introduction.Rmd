@@ -59,14 +59,13 @@ We can then run the minimal example, which will generate output files prefixed w
 optimTFE(
   targets = example_targets[, 1, drop = FALSE],
   suitability = example_suitability,
-  min_spp_suit_score = 0.25, # Set suitability scores lower than 0.25 to 0
-  rand_tolerance = 5, # Range of species richness to consider at each step
+  min_spp_suit_score = 0.2, # Set suitability scores lower than 0.2 to 0
+  rand_tolerance = 10, # Range of species richness to consider at each step
   n = 10000, # number of solutions to generate
   out_dir = projectDir,
   run_id = run_id,
   output_csv = TRUE,
-  cores = 8, # number of parallel threads to use
-  seed = 1234 # Seed for reproducible output
+  seed = 101010 # Seed for reproducible output
 )
 ```
 
@@ -200,7 +199,7 @@ Spatial data can also be used to generate a map of a given solution. In this exa
 ```{r map a footprint, fig.height = 5, fig.width = 7, fig.align = "center"}
 # Find a minimal solution
 min_solution <- sol_summary_spatial |>
-  filter(area <= quantile(area, probs = 0.1)) |>
+  filter(area <= quantile(area, probs = 0.05)) |>
   arrange(pa_ratio) |>
   slice(1) |>
   pull(solution) |>
@@ -211,7 +210,6 @@ min_solution <- sol_summary_spatial |>
   )
 
 # Join with spatial data and plot
-min_area <- quantile(sol_summary_spatial$area, probs = 0.05)
 left_join(
   example_spatial,
   min_solution,

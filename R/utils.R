@@ -43,21 +43,6 @@ not_na <- Negate(is.na)
   }
 }
 
-# #' Generate Multiple Solutions as a Data Frame
-# #'
-# #' This function is a wrapper fot the C++ function interce that is not intended
-# #' to be called directly.
-# #'
-# #' @inheritParams optimTFE
-# #' @export
-# #' @noRd
-# solutions_gen <- function(solution_ids, suitability, ...) {
-#   .Call(
-#     `_optimTFE_solutions_gen`,
-#     solution_ids, suitability, ...
-#   )
-# }
-
 #' Extract specific solutions from solution dataset
 #'
 #' Retrieves specific solutions from a parquet dataset of optimization solutions.

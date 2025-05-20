@@ -72,3 +72,4 @@ and combines all results into a single data frame. The solution generation
 process implements a greedy algorithm that iteratively selects planning units
 with high species richness to satisfy species targets across subregions.
 }
+\keyword{internal}
