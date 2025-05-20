@@ -73,6 +73,7 @@
 #'   (default = TRUE)
 #' @param return_df return all generated solutions as a data frame in the
 #'   current R session (default = FALSE)
+#' @param dry_run validate inpute without generating solutions (default = FALSE)
 #' @param force_overwrite overwrite existing output files (default = FALSE)
 #'
 #' @import progressr
@@ -103,6 +104,7 @@ optimTFE <- function(
   run_id = "optimTFE",
   output_csv = TRUE,
   return_df = FALSE,
+  dry_run = FALSE,
   force_overwrite = FALSE
 ) {
 
@@ -125,7 +127,7 @@ optimTFE <- function(
 
   # Output Files ----
   ## If no output directory provided, write to tmp and return all solutions as a data frame
-  if (is.null(out_dir)) {
+  if (!dry_run && is.null(out_dir)) {
     return_df = TRUE
     out_dir <- tempdir()
     run_id <- uuid::UUIDgenerate()
@@ -139,7 +141,7 @@ optimTFE <- function(
   }
 
   # Prevent overwriting existing output ----
-  if (dir.exists(file.path(out_dir, run_id))) {
+  if (!dry_run && dir.exists(file.path(out_dir, run_id))) {
     if (!force_overwrite) {
       stop(
         crayon::bold(crayon::red(
@@ -643,10 +645,11 @@ optimTFE <- function(
     }
   }
   if (length(impossible_targets) > 0) {
-    stop(crayon::bold(crayon::red(
-      "Not enough units to meet all targets: ",
-      paste(impossible_targets, collapse = ", ")
-    )))
+    message(crayon::bold(crayon::red("Not enough units to meet all targets:")))
+    for(target in impossible_targets) {
+      message(crayon::red(paste("--  ", target)))
+    }
+    return(invisible())
   }
 
   # Load optional species incompatibility data ----
@@ -718,6 +721,11 @@ optimTFE <- function(
   # DEBUG ----
   # list2env(as.list(environment()), envir = .GlobalEnv)
   # return()
+
+  if(isTRUE(dry_run)) {
+    message(crayon::bold(crayon::green("Dry run complete -- all inputs valid")))
+    return(invisible())
+  }
 
   # Generate Solutions ----
   # Batch

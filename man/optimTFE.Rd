@@ -23,6 +23,7 @@ optimTFE(
   run_id = "optimTFE",
   output_csv = TRUE,
   return_df = FALSE,
+  dry_run = FALSE,
   force_overwrite = FALSE
 )
 }
@@ -100,6 +101,8 @@ will be returned as a data frame and temporary files will be used.}
 
 \item{return_df}{return all generated solutions as a data frame in the
 current R session (default = FALSE)}
+
+\item{dry_run}{validate inpute without generating solutions (default = FALSE)}
 
 \item{force_overwrite}{overwrite existing output files (default = FALSE)}
 }
