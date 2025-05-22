@@ -28,6 +28,7 @@ Retrieves specific solutions from a parquet dataset of optimization solutions.
 }
 \seealso{
 Other utils: 
+\code{\link{create_interactive_map}()},
 \code{\link{spatial_stats}()}
 }
 \concept{utils}

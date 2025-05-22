@@ -125,21 +125,6 @@ optimTFE <- function(
     seed = seed
   )
 
-  # Output Files ----
-  ## If no output directory provided, write to tmp and return all solutions as a data frame
-  if (!dry_run && is.null(out_dir)) {
-    return_df = TRUE
-    out_dir <- tempdir()
-    run_id <- uuid::UUIDgenerate()
-    on.exit({
-      unlink(
-        list.files(out_dir, pattern = run_id),
-        recursive = TRUE,
-        force = TRUE
-      )
-    })
-  }
-
   # Prevent overwriting existing output ----
   if (!dry_run && dir.exists(file.path(out_dir, run_id))) {
     if (!force_overwrite) {
@@ -154,7 +139,7 @@ optimTFE <- function(
       )
     }
     unlink(
-      list.files(out_dir, pattern = run_id),
+      list.files(out_dir, pattern = run_id, include.dirs = TRUE, full.names = TRUE),
       recursive = TRUE,
       force = TRUE
     )
