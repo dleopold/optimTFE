@@ -41,6 +41,7 @@ when dealing with large datasets.
 \seealso{
 Other utils: 
 \code{\link{create_interactive_map}()},
+\code{\link{criteria_explorer}()},
 \code{\link{extract_solutions}()}
 }
 \concept{utils}

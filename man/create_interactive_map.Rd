@@ -30,7 +30,7 @@ create_interactive_map(
 
 \item{auxiliary_layers}{Named list, paths to additional spatial files to add as overlay layers.}
 
-\item{html_out}{Character, file path to save the HTML output for sharing with collaborators.}
+\item{html_out}{Character, file path to save a self contained, sharable HTML file.}
 }
 \value{
 A leaflet map object.
@@ -41,6 +41,7 @@ additional layers specified by the user.
 }
 \seealso{
 Other utils: 
+\code{\link{criteria_explorer}()},
 \code{\link{extract_solutions}()},
 \code{\link{spatial_stats}()}
 }
