@@ -10,7 +10,7 @@
 #' @param provider_tiles Character, name of the leaflet provider tiles. Default is "Esri.WorldTopoMap".
 #' @param spp_layers Character vector, names of species to add as separate overlay layers.
 #' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
-#' @param html_out Character, file path to save the HTML output for sharing with collaborators.
+#' @param html_out Character, file path to save a self contained, sharable HTML file.
 #'
 #' @return A leaflet map object.
 #'
