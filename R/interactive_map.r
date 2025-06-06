@@ -66,7 +66,7 @@ create_interactive_map <- function(
       "Spatial input must only contain POLYGON geometries."
     )))
   }
-  if (!all(spatial[[1]] %iin% meta$unit_ids)) {
+  if (!all(meta$unit_ids %in% spatial[[1]])) {
     stop(crayon::bold(crayon::red(
       "Spatial input must include all unit ids from the solutions data."
     )))
@@ -267,7 +267,7 @@ create_interactive_map <- function(
   # Aux layers ----
   if (length(auxiliary_layers) > 0) {
     map <- map |>
-      addMapPane("aux", zIndex = 100)
+      addMapPane("aux", zIndex = 400)
     for (i in seq_along(auxiliary_layers)) {
       layer <- tryCatch(
         read_sf(auxiliary_layers[i]) |>
