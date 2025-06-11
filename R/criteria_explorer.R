@@ -10,6 +10,7 @@
 #'   Defaults to current working directory (".").
 #' @param run_id Character string identifying the optimization run. Used to construct
 #'   file paths when `data` is NULL. Defaults to "optimTFE".
+#'  @param provider_tiles Character, name of the leaflet provider tiles. Default is "Esri.WorldTopoMap".
 #'
 #' @details
 #' The application provides:
@@ -25,7 +26,6 @@
 #' # Launch with default settings
 #' criteria_explorer(
 #'   spatial = "path/to/spatial.gpkg",
-#'   dir = ".", # Directory containing optimTFE output
 #'   run_id = "optimTFE" # optimTFE run id
 #' )
 #' }
@@ -44,7 +44,8 @@ criteria_explorer <- function(
   spatial = NULL,
   data = NULL,
   dir = ".",
-  run_id = "optimTFE"
+  run_id = "optimTFE",
+  provider_tiles = "Esri.WorldTopoMap"
 ) {
   # Load summary data ----
   if (is.null(data)) {
@@ -97,6 +98,13 @@ criteria_explorer <- function(
   }
   colnames(spatial)[1] <- "unit"
 
+  # Attempt to force to WGS84 for consistency with most provider tiles
+  spatial <- tryCatch(
+    st_transform(spatial, "EPSG:4326"),
+    error = \(e) spatial
+  )
+
+
   # App UI ----
   ui <- function(request) {
     tagList(
@@ -128,7 +136,8 @@ criteria_explorer <- function(
       selected_stats = NULL, # Currently elected summary stat columns
       observers = NULL, # list of stats that currently have slider inputs
       ranks = NULL, # current ranks of the solutions based on the selected stats
-      selected_solution = NULL # currently selected solution(s) to display
+      selected_solution = NULL, # currently selected solution(s) to display
+      provider_tiles = provider_tiles
     )
 
     # Module servers ----

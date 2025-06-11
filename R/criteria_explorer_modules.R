@@ -223,7 +223,7 @@ ce_map_server <- function(id, rv) {
     # Render map ----
     output$map <- renderLeaflet({
       bounds <- sf::st_bbox(req(rv$spatial))
-      leaflet(
+      map <- leaflet(
         options = leafletOptions(
           attributionControl = FALSE
         )
@@ -241,8 +241,12 @@ ce_map_server <- function(id, rv) {
           lat1 = bounds[[2]],
           lng2 = bounds[[3]],
           lat2 = bounds[[4]]
-        ) |>
-        addProviderTiles(providers$Stadia.StamenTerrainBackground)
+        )
+      if(length(rv$provider_tiles)==0L) {reutrn(map)}
+      map <- tryCatch(
+        addProviderTiles(map, providers[rv$provider_tiles]),
+        error = \(e) map
+      )
     })
     outputOptions(output, "map", suspendWhenHidden = FALSE)
 
