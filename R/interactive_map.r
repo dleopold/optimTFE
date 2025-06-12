@@ -103,6 +103,7 @@ create_interactive_map <- function(
         meta$populations[meta$unit_ids == cur$unit_id, ] > 0
     }
     targets <- cur[meta$spp_names]
+    targets[is.na(targets)] <- 0
     tagList(
       span(
         style = "display: flex; gap : 1em;",
@@ -117,8 +118,8 @@ create_interactive_map <- function(
           )
         ),
         div(
-          style = "display: flex; flex-flow: column nowrap; max-height: 8em; overflow-y: scroll;",
-          purrr::map(names(targets)[!is.na(targets[1])], ~ span(.x))
+          style = "display: flex; flex-flow: column nowrap; max-height: 8em; overflow-y: auto;",
+          purrr::map(names(targets)[targets > 0], ~ span(.x))
         )
       ),
       tags$details(
@@ -300,7 +301,7 @@ create_interactive_map <- function(
     }
   }
 
-  # Layers control
+  # Layers control ----
   map <- map |>
     addLayersControl(
       overlayGroups = groups,
