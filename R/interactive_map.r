@@ -7,7 +7,8 @@
 #' @param dir Character, directory containing the optimTFE output. Default is current directory.
 #' @param run_id Character, identifier for the optimTFE run. Default is "optimTFE".
 #' @param spatial SF or Spatial object, containing planning unit polygons with unit_id field.
-#' @param provider_tiles Character, name of the leaflet provider tiles. Default is "Esri.WorldTopoMap".
+#' @param map_tiles Character, name of the leaflet provider background tiles. Default is
+#'   "Esri.WorldTopoMap". Set to NULL to use no background map tiles.
 #' @param spp_layers Character vector, names of species to add as separate overlay layers.
 #' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
 #' @param html_out Character, file path to save a self contained, sharable HTML file.
@@ -29,7 +30,7 @@ create_interactive_map <- function(
   dir = ".",
   run_id = "optimTFE",
   spatial = NULL,
-  provider_tiles = "Esri.WorldTopoMap",
+  map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
   html_out = NULL
@@ -224,10 +225,10 @@ create_interactive_map <- function(
     hideGroup("Target species richness")
 
   # Add background tiles ----
-  if (!is.null(provider_tiles)) {
+  if (!is.null(map_tiles)) {
     map <- map %>%
       addProviderTiles(
-        providers[[provider_tiles]],
+        providers[[map_tiles]],
         group = "Contour background"
       )
   }

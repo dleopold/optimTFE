@@ -9,7 +9,7 @@ create_interactive_map(
   dir = ".",
   run_id = "optimTFE",
   spatial = NULL,
-  provider_tiles = "Esri.WorldTopoMap",
+  map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
   html_out = NULL
@@ -24,7 +24,8 @@ create_interactive_map(
 
 \item{spatial}{SF or Spatial object, containing planning unit polygons with unit_id field.}
 
-\item{provider_tiles}{Character, name of the leaflet provider tiles. Default is "Esri.WorldTopoMap".}
+\item{map_tiles}{Character, name of the leaflet provider background tiles. Default is
+"Esri.WorldTopoMap". Set to NULL to use no background map tiles.}
 
 \item{spp_layers}{Character vector, names of species to add as separate overlay layers.}
 
