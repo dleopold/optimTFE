@@ -4,7 +4,13 @@
 \alias{criteria_explorer}
 \title{Launch the Criteria Explorer Shiny Application}
 \usage{
-criteria_explorer(spatial = NULL, data = NULL, dir = ".", run_id = "optimTFE")
+criteria_explorer(
+  spatial = NULL,
+  data = NULL,
+  dir = ".",
+  run_id = "optimTFE",
+  map_tiles = "Esri.WorldTopoMap"
+)
 }
 \arguments{
 \item{spatial}{Either a file path to spatial data (e.g., GeoPackage, Shapefile) or
@@ -20,6 +26,9 @@ Defaults to current working directory (".").}
 
 \item{run_id}{Character string identifying the optimization run. Used to construct
 file paths when `data` is NULL. Defaults to "optimTFE".}
+
+\item{map_tiles}{Character, name of the leaflet provider tiles. Default is "Esri.
+WorldTopoMap". Set to NULL to use no background map tiles.}
 }
 \description{
 Launch the Criteria Explorer Shiny Application
@@ -38,7 +47,6 @@ The application provides:
 # Launch with default settings
 criteria_explorer(
   spatial = "path/to/spatial.gpkg",
-  dir = ".", # Directory containing optimTFE output
   run_id = "optimTFE" # optimTFE run id
 )
 }

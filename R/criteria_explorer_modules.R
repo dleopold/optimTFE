@@ -54,7 +54,7 @@ ce_sidebar_server <- function(id, rv) {
         inputId = "selected_solution",
         choices = rv$solutions$solution,
         choicesOpt = list(
-          subtext = stringr::str_glue("(Rank: {rv$ranks$rank})")
+          subtext = stringr::str_glue("")
         ),
         selected = 1
       )
@@ -125,59 +125,51 @@ ce_sidebar_server <- function(id, rv) {
     # update rank order ----
     init("calculate_ranks")
     on("calculate_ranks", {
-      rv$ranks <- req(rv$solutions) |>
-        dplyr::select(
-          solution,
-          dplyr::all_of(rv$selected_stats)
-        ) |>
-        tidyr::pivot_longer(
-          cols = -solution,
-          names_to = "stat",
-          values_to = "value"
-        ) |>
-        dplyr::left_join(
-          {
-            req(rv$weights) |>
-              purrr::imap_dfr(
-                ~ {
-                  data.frame(
-                    stat = .y,
-                    val = .x$val,
-                    desc = .x$desc
-                  )
-                }
-              )
-          },
-          by = "stat"
-        ) |>
-        dplyr::mutate(
-          value = scale(value) * val * desc,
-          .by = "stat"
-        ) |>
-        dplyr::summarize(
-          score = sum(value),
-          .by = solution
-        ) |>
-        dplyr::arrange(score) |>
-        dplyr::mutate(
-          rank = dplyr::row_number()
+      w <- rv$selected_stats |>
+        purrr::set_names() |>
+        purrr::imap(
+          ~ {
+            rv$weights[[.y]][["val"]] * rv$weights[[.y]][["desc"]]
+          }
         )
+      weighted_solutions <- req(criteria) |>
+        collapse::fsubset(
+          variable %iin% rv$selected_stats
+        ) |>
+        collapse::fmutate(
+          value = value * unlist(w[variable])
+        ) |>
+        collapse::fgroup_by(solution) |>
+        collapse::fsummarize(
+          score = collapse::fsum(value)
+        ) |>
+        collapse::fungroup() |>
+        collapse::roworder(score)
+      ranked <- glue::glue(
+        "{weighted_solutions$solution} (Rank: ",
+        "{match(weighted_solutions$score, unique(weighted_solutions$score))})"
+      )
+
 
       # Update solution picker
-      rv$selected_solution <- rv$ranks$solution[1]
+      rv$selected_solution <- ranked[1] |>
+        stringr::str_extract("^\\d+")
 
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "selected_solution",
-        selected = rv$selected_solution
+        selected = ranked[1],
+        choices = ranked
       )
       trigger("update_histograms")
     })
 
     # Select solution ----
     observeEvent(input$selected_solution, ignoreNULL = F, ignoreInit = T, {
-      if (!identical(rv$selected_solution, input$selected_solution)) {
-        rv$selected_solution <- input$selected_solution
+      selected_solution <- input$selected_solution |>
+        stringr::str_extract("^\\d+")
+      if (!identical(rv$selected_solution, selected_solution)) {
+        rv$selected_solution <- selected_solution
         trigger("update_histograms")
       }
     })
@@ -242,7 +234,9 @@ ce_map_server <- function(id, rv) {
           lng2 = bounds[[3]],
           lat2 = bounds[[4]]
         )
-      if(length(rv$provider_tiles)==0L) {reutrn(map)}
+      if (length(rv$provider_tiles) == 0L) {
+        return(map)
+      }
       map <- tryCatch(
         addProviderTiles(map, providers[rv$provider_tiles]),
         error = \(e) map

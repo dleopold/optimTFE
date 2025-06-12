@@ -10,7 +10,8 @@
 #'   Defaults to current working directory (".").
 #' @param run_id Character string identifying the optimization run. Used to construct
 #'   file paths when `data` is NULL. Defaults to "optimTFE".
-#'  @param provider_tiles Character, name of the leaflet provider tiles. Default is "Esri.WorldTopoMap".
+#' @param map_tiles Character, name of the leaflet provider tiles. Default is "Esri.
+#' WorldTopoMap". Set to NULL to use no background map tiles.
 #'
 #' @details
 #' The application provides:
@@ -45,7 +46,7 @@ criteria_explorer <- function(
   data = NULL,
   dir = ".",
   run_id = "optimTFE",
-  provider_tiles = "Esri.WorldTopoMap"
+  map_tiles = "Esri.WorldTopoMap"
 ) {
   # Load summary data ----
   if (is.null(data)) {
@@ -71,6 +72,19 @@ criteria_explorer <- function(
 
   units <- data$units |> lapply(jsonlite::fromJSON)
   unit_ids <- purrr::flatten(units) |> unlist() |> unique()
+
+  # long format scaled selectioncriteria for fast weighted ranking
+  criteria <- data |>
+    collapse::fselect(-units) |>
+    collapse::pivot(
+      "solution",
+      factor = NULL
+    ) |>
+    collapse::fgroup_by("variable") |>
+    collapse::fmutate(
+      value = collapse::fscale(value)
+    ) |>
+    collapse::fungroup()
 
   # Load spatial data ---
   if (is.character(spatial) && file.exists(spatial)) {
@@ -104,7 +118,6 @@ criteria_explorer <- function(
     error = \(e) spatial
   )
 
-
   # App UI ----
   ui <- function(request) {
     tagList(
@@ -133,11 +146,12 @@ criteria_explorer <- function(
     rv <- reactiveValues(
       spatial = spatial, # Spatial data
       solutions = data, # Solution summary data
+      criteria = criteria, # Scaled criteria data
       selected_stats = NULL, # Currently elected summary stat columns
       observers = NULL, # list of stats that currently have slider inputs
       ranks = NULL, # current ranks of the solutions based on the selected stats
       selected_solution = NULL, # currently selected solution(s) to display
-      provider_tiles = provider_tiles
+      provider_tiles = map_tiles
     )
 
     # Module servers ----
