@@ -10,6 +10,16 @@
 ce_sidebar <- function(id) {
   ns <- NS(id)
   tagList(
+    tags$style(HTML(
+      "
+    .bs-select-all {
+      display: none !important;
+    }
+    .bs-actionsbox .btn-group button {
+      width: 100% !important;
+    }
+  "
+    )),
     div(
       id = ns("ctrls"),
       shinyWidgets::pickerInput(
@@ -24,7 +34,12 @@ ce_sidebar <- function(id) {
         label = "Selected Footprint(s):",
         choices = character(0),
         options = shinyWidgets::pickerOptions(
-          size = 5
+          size = 5,
+          actionsBox = TRUE,
+          liveSearch = TRUE,
+          selectAllText = NULL,
+          virtualScroll = TRUE,
+          deselectAllText = "Clear Selection"
         ),
         multiple = TRUE
       )
@@ -53,15 +68,21 @@ ce_sidebar_server <- function(id, rv) {
         session = session,
         inputId = "selected_solution",
         choices = rv$solutions$solution,
-        choicesOpt = list(
-          subtext = stringr::str_glue("")
-        ),
         selected = 1
       )
       rv$selected_solution <- 1
     })
     observeEvent(input$stats, ignoreNULL = F, {
       rv$selected_stats <- input$stats
+      if (length(rv$selected_stats) == 0) {
+        shinyWidgets::updatePickerInput(
+          session = session,
+          inputId = "selected_solution",
+          choices = rv$solutions$solution,
+          selected = 1
+        )
+        trigger("update_histograms")
+      }
     })
 
     # dynamic inputs ----
@@ -149,7 +170,6 @@ ce_sidebar_server <- function(id, rv) {
         "{weighted_solutions$solution} (Rank: ",
         "{match(weighted_solutions$score, unique(weighted_solutions$score))})"
       )
-
 
       # Update solution picker
       rv$selected_solution <- ranked[1] |>
