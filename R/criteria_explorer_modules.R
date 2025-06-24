@@ -153,7 +153,7 @@ ce_sidebar_server <- function(id, rv) {
             rv$weights[[.y]][["val"]] * rv$weights[[.y]][["desc"]]
           }
         )
-      weighted_solutions <- req(criteria) |>
+      weighted_solutions <- req(rv$criteria) |>
         collapse::fsubset(
           variable %iin% rv$selected_stats
         ) |>
