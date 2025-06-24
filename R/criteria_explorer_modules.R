@@ -59,7 +59,7 @@ ce_sidebar_server <- function(id, rv) {
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "stats",
-        choices = rv$solutions |>
+        choices = req(rv$solutions) |>
           dplyr::select(-units, -solution) |>
           colnames(),
         selected = character(0)
@@ -258,7 +258,7 @@ ce_map_server <- function(id, rv) {
         return(map)
       }
       map <- tryCatch(
-        addProviderTiles(map, providers[rv$provider_tiles]),
+        addProviderTiles(map, providers[[rv$provider_tiles]]),
         error = \(e) map
       )
     })
