@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-ce_sidebar <- function(id) {
+ce_sidebar_ui <- function(id, footprints) {
   ns <- NS(id)
   tagList(
     tags$style(HTML(
@@ -20,29 +20,26 @@ ce_sidebar <- function(id) {
     }
   "
     )),
-    div(
-      id = ns("ctrls"),
-      shinyWidgets::pickerInput(
-        inputId = ns("stats"),
-        label = "Choose Evaluation Criteria:",
-        choices = character(0),
-        multiple = TRUE
+    shinyWidgets::pickerInput(
+      inputId = ns("stats"),
+      label = "Choose Evaluation Criteria:",
+      choices = character(0),
+      multiple = TRUE
+    ),
+    uiOutput(ns("sliders")),
+    shinyWidgets::pickerInput(
+      inputId = ns("selected_solution"),
+      label = "Selected Footprint(s):",
+      choices = footprints,
+      options = shinyWidgets::pickerOptions(
+        size = 5,
+        actionsBox = TRUE,
+        liveSearch = TRUE,
+        selectAllText = NULL,
+        virtualScroll = TRUE,
+        deselectAllText = "Clear Selection"
       ),
-      uiOutput(ns("sliders")),
-      shinyWidgets::pickerInput(
-        inputId = ns("selected_solution"),
-        label = "Selected Footprint(s):",
-        choices = character(0),
-        options = shinyWidgets::pickerOptions(
-          size = 5,
-          actionsBox = TRUE,
-          liveSearch = TRUE,
-          selectAllText = NULL,
-          virtualScroll = TRUE,
-          deselectAllText = "Clear Selection"
-        ),
-        multiple = TRUE
-      )
+      multiple = TRUE
     )
   )
 }
@@ -55,22 +52,15 @@ ce_sidebar_server <- function(id, rv) {
     ns <- session$ns
 
     # Stat picker ----
-    observeEvent(rv$solutions, {
+    observeEvent(rv$solutions, once = TRUE, {
       shinyWidgets::updatePickerInput(
         session = session,
         inputId = "stats",
-        choices = req(rv$solutions) |>
+        choices = rv$solutions |>
           dplyr::select(-units, -solution) |>
           colnames(),
-        selected = character(0)
+        selected = names(rv$weights)
       )
-      shinyWidgets::updatePickerInput(
-        session = session,
-        inputId = "selected_solution",
-        choices = rv$solutions$solution,
-        selected = 1
-      )
-      rv$selected_solution <- 1
     })
     observeEvent(input$stats, ignoreNULL = F, {
       rv$selected_stats <- input$stats
@@ -87,26 +77,31 @@ ce_sidebar_server <- function(id, rv) {
 
     # dynamic inputs ----
     output$sliders <- renderUI({
-      req(rv$selected_stats) |>
-        purrr::map(
-          ~ {
-            bslib::card(
-              sliderInput(
-                ns(paste0("slider_", .x)),
-                label = .x,
-                min = 0,
-                max = 1,
-                value = 1,
-                step = 0.05, # this is where we change 'percentage' for scale
-                width = "100%"
-              ),
-              checkboxInput(
-                ns(paste0("desc_", .x)),
-                "Use descending rank order"
-              )
+      req(rv$selected_stats)
+      isolate({
+        weights <- as.list(rv$weights)
+      })
+      sliders <- purrr::map(
+        rv$selected_stats,
+        ~ {
+          bslib::card(
+            sliderInput(
+              ns(paste0("slider_", .x)),
+              label = .x,
+              min = 0,
+              max = 1,
+              value = weights[[.x]][['val']] %||% 1,
+              step = 0.05,
+              width = "100%"
+            ),
+            checkboxInput(
+              ns(paste0("desc_", .x)),
+              "Descending",
+              value = (weights[[.x]][['desc']] %||% 1) == -1
             )
-          }
-        ) |>
+          )
+        }
+      ) |>
         tagList()
     })
 
@@ -127,17 +122,39 @@ ce_sidebar_server <- function(id, rv) {
         stat <- rv$selected_stats[[i]]
         if (is.null(observers[[stat]])) {
           rv$observers <- c(rv$observers, stat)
-          sliderId <- paste0("slider_", stat)
-          rv[["weights"]][[stat]][["val"]] <- 1
-          observers[[stat]][["val"]] <- observeEvent(input[[sliderId]], {
-            rv[["weights"]][[stat]][["val"]] <- input[[sliderId]]
-            trigger("calculate_ranks")
+          if (length(rv[["weights"]][[stat]][["val"]]) == 0) {
+            rv[["weights"]][[stat]][["val"]] <- 1
+          }
+          # Create observers with local variables to avoid closure issues
+          local({
+            current_stat <- stat
+            sliderId <- paste0("slider_", current_stat)
+            observers[[current_stat]][["val"]] <<- observeEvent(
+              input[[sliderId]],
+              {
+                rv[["weights"]][[current_stat]][["val"]] <- input[[sliderId]]
+                trigger("calculate_ranks")
+              }
+            )
           })
-          descId <- paste0("desc_", stat)
-          rv[["weights"]][[stat]][["desc"]] <- 1
-          observers[[stat]][["desc"]] <- observeEvent(input[[descId]], {
-            rv[["weights"]][[stat]][["desc"]] <- ifelse(input[[descId]], -1, 1)
-            trigger("calculate_ranks")
+          if (length(rv[["weights"]][[stat]][["desc"]]) == 0) {
+            rv[["weights"]][[stat]][["desc"]] <- 1
+          }
+          # Create observers with local variables to avoid closure issues
+          local({
+            current_stat <- stat
+            descId <- paste0("desc_", current_stat)
+            observers[[current_stat]][["desc"]] <<- observeEvent(
+              input[[descId]],
+              {
+                rv[["weights"]][[current_stat]][["desc"]] <- ifelse(
+                  input[[descId]],
+                  -1,
+                  1
+                )
+                trigger("calculate_ranks")
+              }
+            )
           })
         }
       }
@@ -388,9 +405,9 @@ ce_histograms_server <- function(id, rv) {
               theme(
                 axis.title = element_blank(),
               )
-            if (rv$weights[[.x]][["desc"]] == -1) {
-              plot <- plot + scale_x_reverse()
-            }
+            # if (rv$weights[[.x]][["desc"]] == -1) {
+            #   plot <- plot + scale_x_reverse()
+            # }
             output[[paste0("hist_", .x)]] <- renderPlot({
               plot
             })

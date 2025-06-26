@@ -10,6 +10,12 @@
 #'   Defaults to current working directory (".").
 #' @param run_id Character string identifying the optimization run. Used to construct
 #'   file paths when `data` is NULL. Defaults to "optimTFE".
+#' @param criteria_include Character vector specifying column names to include as selection
+#'   criteria. If NULL (the default), all columns from the input data will be used.
+#' @param criteria_presets Named list specifying a set of selection criteria to be preselected
+#'   when the application is launched. Must be a named list where the names specific the
+#'   criteria to be preselected. Each element should be a list with 2 elements, weight (0>1) and
+#'   descending (T/F). For example: `list(accessibility = list(weight = 0.5, descending = T))`
 #' @param map_tiles Character, name of the leaflet provider tiles. Default is "Esri.
 #' WorldTopoMap". Set to NULL to use no background map tiles.
 #'
@@ -46,6 +52,8 @@ criteria_explorer <- function(
   data = NULL,
   dir = ".",
   run_id = "optimTFE",
+  criteria_include = NULL,
+  criteria_presets = NULL,
   map_tiles = "Esri.WorldTopoMap"
 ) {
   # Load summary data ----
@@ -68,6 +76,58 @@ criteria_explorer <- function(
     stop(crayon::bold(crayon::red(
       "Summary data must include a 'units' column."
     )))
+  }
+
+  if (!is.null(criteria_include)) {
+    if (any(criteria_include %nin% colnames(data))) {
+      stop(crayon::bold(crayon::red(
+        "Column names provided to the criteria parameter do not match the column name in the data."
+      )))
+    }
+    data <- data |>
+      dplyr::select(units, dplyr::any_of(c(criteria_include, "units", "solution")))
+  }
+
+  # Parse criteria presets ----
+  if(!is.null(criteria_presets)){
+    if(!is.list(criteria_presets)){
+      stop(crayon::bold(crayon::red(
+        "Invalid input provided to the criteria_presets parameter."
+      )))
+    }
+    check_criteria <- purrr::imap_lgl(
+      criteria_presets,
+      ~ {
+        if (.y %nin% colnames(data)) {
+          return(FALSE)
+        }
+        if(!all(all(names(.x) %in% c("weight", "descending")))){
+          return(FALSE)
+        }
+        if (!is.numeric(.x$weight) || .x$weight < 0 || .x$weight > 1) {
+          return(FALSE)
+        }
+        if(!is.logical(.x$descending)){
+          return(FALSE)
+        }
+        return(TRUE)
+      }
+    ) |>
+      all()
+    if (!all(check_criteria)) {
+      stop(crayon::bold(crayon::red(
+        "Improper input provided to the criteria_presets parameter."
+      )))
+    }
+    criteria_presets <- purrr::imap(
+      criteria_presets,
+      ~ {
+        list(
+          val = .x$weight,
+          desc = ifelse(.x$descending, -1, 1)
+        )
+      }
+    )
   }
 
   units <- data$units |> lapply(jsonlite::fromJSON)
@@ -129,7 +189,10 @@ criteria_explorer <- function(
           bootswatch = "yeti"
         ),
         sidebar = bslib::sidebar(
-          ce_sidebar("sidebar"),
+          ce_sidebar_ui(
+            "sidebar",
+            footprints = unique(data$solution)
+          ),
           width = 320
         ),
         ce_map_ui("map"),
@@ -151,7 +214,8 @@ criteria_explorer <- function(
       observers = NULL, # list of stats that currently have slider inputs
       ranks = NULL, # current ranks of the solutions based on the selected stats
       selected_solution = NULL, # currently selected solution(s) to display
-      provider_tiles = map_tiles
+      provider_tiles = map_tiles,
+      weights = criteria_presets
     )
 
     # Module servers ----
