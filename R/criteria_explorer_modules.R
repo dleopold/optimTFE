@@ -3,6 +3,7 @@
 #' @description A shiny Module.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
+#' @param footprints Character vector of footprint names
 #'
 #' @noRd
 #'

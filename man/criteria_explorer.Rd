@@ -9,6 +9,8 @@ criteria_explorer(
   data = NULL,
   dir = ".",
   run_id = "optimTFE",
+  criteria_include = NULL,
+  criteria_presets = NULL,
   map_tiles = "Esri.WorldTopoMap"
 )
 }
@@ -26,6 +28,14 @@ Defaults to current working directory (".").}
 
 \item{run_id}{Character string identifying the optimization run. Used to construct
 file paths when `data` is NULL. Defaults to "optimTFE".}
+
+\item{criteria_include}{Character vector specifying column names to include as selection
+criteria. If NULL (the default), all columns from the input data will be used.}
+
+\item{criteria_presets}{Named list specifying a set of selection criteria to be preselected
+when the application is launched. Must be a named list where the names specific the
+criteria to be preselected. Each element should be a list with 2 elements, weight (0>1) and
+descending (T/F). For example: `list(accessibility = list(weight = 0.5, descending = T))`}
 
 \item{map_tiles}{Character, name of the leaflet provider tiles. Default is "Esri.
 WorldTopoMap". Set to NULL to use no background map tiles.}
