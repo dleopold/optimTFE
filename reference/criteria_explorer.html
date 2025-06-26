@@ -47,6 +47,8 @@
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dir <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  run_id <span class="op">=</span> <span class="st">"optimTFE"</span>,</span>
+<span>  criteria_include <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  criteria_presets <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  map_tiles <span class="op">=</span> <span class="st">"Esri.WorldTopoMap"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -75,6 +77,18 @@ Defaults to current working directory (".").</p></dd>
 <dt id="arg-run-id">run_id<a class="anchor" aria-label="anchor" href="#arg-run-id"></a></dt>
 <dd><p>Character string identifying the optimization run. Used to construct
 file paths when `data` is NULL. Defaults to "optimTFE".</p></dd>
+
+
+<dt id="arg-criteria-include">criteria_include<a class="anchor" aria-label="anchor" href="#arg-criteria-include"></a></dt>
+<dd><p>Character vector specifying column names to include as selection
+criteria. If NULL (the default), all columns from the input data will be used.</p></dd>
+
+
+<dt id="arg-criteria-presets">criteria_presets<a class="anchor" aria-label="anchor" href="#arg-criteria-presets"></a></dt>
+<dd><p>Named list specifying a set of selection criteria to be preselected
+when the application is launched. Must be a named list where the names specific the
+criteria to be preselected. Each element should be a list with 2 elements, weight (0&gt;1) and
+descending (T/F). For example: `list(accessibility = list(weight = 0.5, descending = T))`</p></dd>
 
 
 <dt id="arg-map-tiles">map_tiles<a class="anchor" aria-label="anchor" href="#arg-map-tiles"></a></dt>
