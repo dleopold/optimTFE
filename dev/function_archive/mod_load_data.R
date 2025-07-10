@@ -6,8 +6,8 @@ mod_load_data_server <- function(id, rv) {
     ns <- session$ns
 
     # Select / load data ----
-    init("select_data")
-    on("select_data", {
+    gargoyle::init("select_data")
+    gargoyle::on("select_data", {
       modalDialog(
         title = "Select Input Data",
         size = "l",
@@ -26,14 +26,17 @@ mod_load_data_server <- function(id, rv) {
           multiple = TRUE,
           width = "100%"
         ),
-        p("If uploading a shapefile, all accessory files must be selected. At a minimum, the '.shp', '.shx', and '.dbf' are required."),
+        p(
+          "If uploading a shapefile, all accessory files must be selected. At a minimum, the '.shp', '.shx', and '.dbf' are required."
+        ),
         footer = tagList(
           actionButton(
             ns("done"),
             "Done",
           )
         )
-      ) |> showModal()
+      ) |>
+        showModal()
     })
     # Close modal ----
     observeEvent(input$done, {

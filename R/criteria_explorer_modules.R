@@ -72,7 +72,7 @@ ce_sidebar_server <- function(id, rv) {
           choices = rv$solutions$solution,
           selected = 1
         )
-        trigger("update_histograms")
+        gargoyle::trigger("update_histograms")
       }
     })
 
@@ -134,7 +134,7 @@ ce_sidebar_server <- function(id, rv) {
               input[[sliderId]],
               {
                 rv[["weights"]][[current_stat]][["val"]] <- input[[sliderId]]
-                trigger("calculate_ranks")
+                gargoyle::trigger("calculate_ranks")
               }
             )
           })
@@ -153,7 +153,7 @@ ce_sidebar_server <- function(id, rv) {
                   -1,
                   1
                 )
-                trigger("calculate_ranks")
+                gargoyle::trigger("calculate_ranks")
               }
             )
           })
@@ -162,8 +162,8 @@ ce_sidebar_server <- function(id, rv) {
     })
 
     # update rank order ----
-    init("calculate_ranks")
-    on("calculate_ranks", {
+    gargoyle::init("calculate_ranks")
+    gargoyle::on("calculate_ranks", {
       w <- rv$selected_stats |>
         purrr::set_names() |>
         purrr::imap(
@@ -199,7 +199,7 @@ ce_sidebar_server <- function(id, rv) {
         selected = ranked[1],
         choices = ranked
       )
-      trigger("update_histograms")
+      gargoyle::trigger("update_histograms")
     })
 
     # Select solution ----
@@ -208,7 +208,7 @@ ce_sidebar_server <- function(id, rv) {
         stringr::str_extract("^\\d+")
       if (!identical(rv$selected_solution, selected_solution)) {
         rv$selected_solution <- selected_solution
-        trigger("update_histograms")
+        gargoyle::trigger("update_histograms")
       }
     })
   })
@@ -375,8 +375,8 @@ ce_histograms_server <- function(id, rv) {
     })
 
     # render outputs ----
-    init("update_histograms")
-    on("update_histograms", {
+    gargoyle::init("update_histograms")
+    gargoyle::on("update_histograms", {
       req(rv$selected_solution)
       req(rv$selected_stats) |>
         purrr::walk(

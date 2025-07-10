@@ -45,43 +45,45 @@ mod_histograms_server <- function(id, rv) {
     })
 
     # render outputs ----
-    init("update_histograms")
-    on("update_histograms", {
+    gargoyle::init("update_histograms")
+    gargoyle::on("update_histograms", {
       req(rv$selected_solution)
       req(rv$selected_stats) |>
-        purrr::walk(~ {
-          dat <- rv$solutions |>
-            dplyr::transmute(
-              solution,
-              stat = !!rlang::sym(.x)
-            )
-          plot <- dat |>
-            ggplot() +
-            aes(x = stat) +
-            geom_histogram(
-              fill = "#008cba",
-              binwidth = \(x) (max(x) - min(x)) / 100,
-            ) +
-            geom_vline(
-              data = {
-                dat |>
-                  dplyr::filter(solution %in% rv$selected_solution)
-              },
-              aes(xintercept = stat),
-              color = "#A4031F",
-              linetype = "dashed"
-            ) +
-            ggthemes::theme_few() +
-            theme(
-              axis.title = element_blank(),
-            )
-          if (rv$weights[[.x]][["desc"]] == -1) {
-            plot <- plot + scale_x_reverse()
+        purrr::walk(
+          ~ {
+            dat <- rv$solutions |>
+              dplyr::transmute(
+                solution,
+                stat = !!rlang::sym(.x)
+              )
+            plot <- dat |>
+              ggplot() +
+              aes(x = stat) +
+              geom_histogram(
+                fill = "#008cba",
+                binwidth = \(x) (max(x) - min(x)) / 100,
+              ) +
+              geom_vline(
+                data = {
+                  dat |>
+                    dplyr::filter(solution %in% rv$selected_solution)
+                },
+                aes(xintercept = stat),
+                color = "#A4031F",
+                linetype = "dashed"
+              ) +
+              ggthemes::theme_few() +
+              theme(
+                axis.title = element_blank(),
+              )
+            if (rv$weights[[.x]][["desc"]] == -1) {
+              plot <- plot + scale_x_reverse()
+            }
+            output[[paste0("hist_", .x)]] <- renderPlot({
+              plot
+            })
           }
-          output[[paste0("hist_", .x)]] <- renderPlot({
-            plot
-          })
-        })
+        )
     })
   })
 }

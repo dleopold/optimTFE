@@ -49,7 +49,7 @@ mod_sidebar_server <- function(id, rv) {
 
     # Open data loading module ----
     observeEvent(input$chooseInput, {
-      trigger("select_data")
+      gargoyle::trigger("select_data")
     })
 
     # Stat picker ----
@@ -114,24 +114,25 @@ mod_sidebar_server <- function(id, rv) {
           rv[["weights"]][[stat]][["val"]] <- 1
           observers[[stat]][["val"]] <- observeEvent(input[[sliderId]], {
             rv[["weights"]][[stat]][["val"]] <- input[[sliderId]]
-            trigger("calculate_ranks")
+            gargoyle::trigger("calculate_ranks")
           })
           descId <- paste0("desc_", stat)
           rv[["weights"]][[stat]][["desc"]] <- 1
           observers[[stat]][["desc"]] <- observeEvent(input[[descId]], {
             rv[["weights"]][[stat]][["desc"]] <- ifelse(input[[descId]], -1, 1)
-            trigger("calculate_ranks")
+            gargoyle::trigger("calculate_ranks")
           })
         }
       }
     })
 
     # update rank order ----
-    init("calculate_ranks")
-    on("calculate_ranks", {
+    gargoyle::init("calculate_ranks")
+    gargoyle::on("calculate_ranks", {
       rv$ranks <- req(rv$solutions) |>
         dplyr::select(
-          solution, dplyr::all_of(rv$selected_stats)
+          solution,
+          dplyr::all_of(rv$selected_stats)
         ) |>
         tidyr::pivot_longer(
           cols = -solution,
@@ -141,13 +142,15 @@ mod_sidebar_server <- function(id, rv) {
         dplyr::left_join(
           {
             req(rv$weights) |>
-              purrr::imap_dfr(~ {
-                data.frame(
-                  stat = .y,
-                  val = .x$val,
-                  desc = .x$desc
-                )
-              })
+              purrr::imap_dfr(
+                ~ {
+                  data.frame(
+                    stat = .y,
+                    val = .x$val,
+                    desc = .x$desc
+                  )
+                }
+              )
           },
           by = "stat"
         ) |>
@@ -175,14 +178,14 @@ mod_sidebar_server <- function(id, rv) {
         ),
         selected = rv$selected_solution
       )
-      trigger("update_histograms")
+      gargoyle::trigger("update_histograms")
     })
 
     # Select solution ----
     observeEvent(input$selected_solution, ignoreNULL = F, ignoreInit = T, {
       if (!identical(rv$selected_solution, input$selected_solution)) {
         rv$selected_solution <- input$selected_solution
-        trigger("update_histograms")
+        gargoyle::trigger("update_histograms")
       }
     })
   })
