@@ -11,6 +11,8 @@
 #'   "Esri.WorldTopoMap". Set to NULL to use no background map tiles.
 #' @param spp_layers Character vector, names of species to add as separate overlay layers.
 #' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
+#' @param solution_color Character, color for the solution layer. Default is "green".
+#' @param solution_opacity Numeric, opacity for the solution layer. Default is 0.5.
 #' @param html_out Character, file path to save a self contained, sharable HTML file.
 #'
 #' @return A leaflet map object.
@@ -33,6 +35,8 @@ create_interactive_map <- function(
   map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
+  solution_color = "green",
+  solution_opacity = 0.5,
   html_out = NULL
 ) {
   # Load footprint ----
@@ -178,8 +182,8 @@ create_interactive_map <- function(
       data = solution[!is.na(solution$richness), ],
       weight = 2,
       color = "black",
-      fillColor = "green",
-      fillOpacity = 1,
+      fillColor = solution_color,
+      fillOpacity = solution_opacity,
       options = pathOptions(
         pane = "units",
         group = "Conservation footprint",
