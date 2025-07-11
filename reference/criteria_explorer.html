@@ -50,7 +50,8 @@
 <span>  criteria_include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  criteria_presets <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  map_tiles <span class="op">=</span> <span class="st">"Esri.WorldTopoMap"</span>,</span>
-<span>  auxiliary_layers <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  auxiliary_layers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  auxiliary_palette <span class="op">=</span> <span class="st">"Set1"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,7 +99,12 @@ WorldTopoMap". Set to NULL to use no background map tiles.</p></dd>
 
 
 <dt id="arg-auxiliary-layers">auxiliary_layers<a class="anchor" aria-label="anchor" href="#arg-auxiliary-layers"></a></dt>
-<dd><p>Named list, paths to additional spatial files to add as overlay layers.</p></dd>
+<dd><p>Named list of paths to additional spatial files (or pre-loaded sf
+objects) to add as overlay layers.</p></dd>
+
+
+<dt id="arg-auxiliary-palette">auxiliary_palette<a class="anchor" aria-label="anchor" href="#arg-auxiliary-palette"></a></dt>
+<dd><p>RColorBrewer palette to use for auxiliary layers (default is "Set1").</p></dd>
 
 </dl></div>
     <div class="section level2">
