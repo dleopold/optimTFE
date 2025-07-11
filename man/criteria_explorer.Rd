@@ -11,7 +11,8 @@ criteria_explorer(
   run_id = "optimTFE",
   criteria_include = NULL,
   criteria_presets = NULL,
-  map_tiles = "Esri.WorldTopoMap"
+  map_tiles = "Esri.WorldTopoMap",
+  auxiliary_layers = NULL
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ descending (T/F). For example: `list(accessibility = list(weight = 0.5, descendi
 
 \item{map_tiles}{Character, name of the leaflet provider tiles. Default is "Esri.
 WorldTopoMap". Set to NULL to use no background map tiles.}
+
+\item{auxiliary_layers}{Named list, paths to additional spatial files to add as overlay layers.}
 }
 \description{
 Launch the Criteria Explorer Shiny Application
