@@ -95,11 +95,20 @@ ce_sidebar_server <- function(id, rv) {
               step = 0.05,
               width = "100%"
             ),
-            checkboxInput(
+            shinyWidgets::switchInput(
               ns(paste0("desc_", .x)),
-              "Descending",
+              onLabel = "Maximize",
+              offLabel = "Minimize",
+              onStatus = "primary",
+              offStatus = "primary",
+              size = "mini",
               value = (weights[[.x]][['desc']] %||% 1) == -1
             )
+            # checkboxInput(
+            #   ns(paste0("desc_", .x)),
+            #   "Descending",
+            #   value = (weights[[.x]][['desc']] %||% 1) == -1
+            # )
           )
         }
       ) |>

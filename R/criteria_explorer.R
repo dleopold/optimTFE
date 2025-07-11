@@ -18,6 +18,7 @@
 #'   descending (T/F). For example: `list(accessibility = list(weight = 0.5, descending = T))`
 #' @param map_tiles Character, name of the leaflet provider tiles. Default is "Esri.
 #' WorldTopoMap". Set to NULL to use no background map tiles.
+#' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
 #'
 #' @details
 #' The application provides:
@@ -54,7 +55,8 @@ criteria_explorer <- function(
   run_id = "optimTFE",
   criteria_include = NULL,
   criteria_presets = NULL,
-  map_tiles = "Esri.WorldTopoMap"
+  map_tiles = "Esri.WorldTopoMap",
+  auxiliary_layers = NULL
 ) {
   # Load summary data ----
   if (is.null(data)) {
