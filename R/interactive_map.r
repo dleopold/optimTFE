@@ -10,8 +10,9 @@
 #' @param map_tiles Character, name of the leaflet provider background tiles. Default is
 #'   "Esri.WorldTopoMap". Set to NULL to use no background map tiles.
 #' @param spp_layers Character vector, names of species to add as separate overlay layers.
-#' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
-#' @param auxiliary_pallet RColorBrewer palette to use for auxiliary layers (default is "Set2").
+#' @param auxiliary_layers Named list of paths to additional spatial files (or pre-loaded sf
+#'   objects) to add as overlay layers.
+#' @param auxiliary_palette RColorBrewer palette to use for auxiliary layers (default is "Set1").
 #' @param solution_color Character, color for the solution layer. Default is "green".
 #' @param solution_opacity Numeric, opacity for the solution layer. Default is 0.5.
 #' @param html_out Character, file path to save a self contained, sharable HTML file.
@@ -36,7 +37,7 @@ create_interactive_map <- function(
   map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
-  auxiliary_pallet = "Set2",
+  auxiliary_palette = "Set1",
   solution_color = "green",
   solution_opacity = 0.5,
   html_out = NULL
@@ -274,26 +275,49 @@ create_interactive_map <- function(
 
   # Aux layers ----
   if (length(auxiliary_layers) > 0) {
-    pal <- RColorBrewer::brewer.pal(length(auxiliary_layers), auxillary_palette)
+    pal <- RColorBrewer::brewer.pal(
+      max(length(auxiliary_layers), 3),
+      auxiliary_palette
+    )
     if (length(pal) < length(auxiliary_layers)) {
       stop(crayon::bold(crayon::red(
-        "The number of colors in the auxillary layerpalette must be greater than or equal to the number of auxiliary layers."
+        "The number of colors in the auxiliary layerpalette must be greater than or equal to the number of auxiliary layers."
       )))
     }
     map <- map |>
       addMapPane("aux", zIndex = 400)
     for (i in seq_along(auxiliary_layers)) {
-      layer <- tryCatch(
-        read_sf(auxiliary_layers[i]) |>
-          st_transform("EPSG:4326"),
-        error = function(e) {
-          return(NULL)
-        }
-      )
+      layer <- auxiliary_layers[[i]]
+      if (is.character(layer) && file.exists(layer)) {
+        layer <- tryCatch(
+          sf::read_sf(layer) |>
+            sf::st_transform("EPSG:4326"),
+          error = function(e) {
+            return(NULL)
+          }
+        )
+      } else {
+        layer <- tryCatch(
+          sf::st_transform(layer, "EPSG:4326"),
+          error = function(e) {
+            return(NULL)
+          }
+        )
+      }
+
       if (is.null(layer)) {
         message("failed to load auxiliary layer")
         next
       }
+
+      if (!inherits(layer, "sf") && !inherits(layer, "Spatial")) {
+        stop(crayon::bold(crayon::red(
+          glue::glue(
+            "failed to load auxiliary layer: {names(auxiliary_layers)[i]}"
+          )
+        )))
+      }
+
       layer_name <- names(auxiliary_layers)[i] %||%
         paste("Auxiliary layer", i)
       map <- map |>

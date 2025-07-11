@@ -274,35 +274,34 @@ ce_map_server <- function(id, rv) {
           opacity = 0.7,
           fillOpacity = 0
         ) |>
-        addMapPane("solutions", zIndex = 500) |>
+        addMapPane("solutions", zIndex = 400) |>
         fitBounds(
           lng1 = bounds[[1]],
           lat1 = bounds[[2]],
           lng2 = bounds[[3]],
           lat2 = bounds[[4]]
         )
-      if (length(rv$provider_tiles) == 0L) {
-        return(map)
+      if (length(rv$provider_tiles) != 0L) {
+        map <- tryCatch(
+          addProviderTiles(map, providers[[rv$provider_tiles]]),
+          error = \(e) map
+        )
       }
-      map <- tryCatch(
-        addProviderTiles(map, providers[[rv$provider_tiles]]),
-        error = \(e) map
-      )
 
-      # add auxillary layers ----
+      # add auxiliary layers ----
       if (length(rv$auxiliary_layers) > 0) {
-        pal <- RColorBrewer::brewer.pal(length(rv$auxiliary_layers), auxillary_palette)
-        if(length(pal) < length(rv$auxiliary_layers)) {
+        pal <- RColorBrewer::brewer.pal(
+          max(length(rv$auxiliary_layers),3),
+          rv$auxiliary_palette
+        )
+        if (length(pal) < length(rv$auxiliary_layers)) {
           stop(crayon::bold(crayon::red(
-            "The number of colors in the auxillary layerpalette must be greater than or equal to the number of auxiliary layers."
+            "The number of colors in the auxiliary layerpalette must be greater than or equal to
+            the number of auxiliary layers."
           )))
         }
         map <- map |>
-          addMapPane("aux", zIndex = 400) |>
-          addLayersControl(
-            overlayGroups = names(rv$auxiliary_layers),
-            position = "bottomleft"
-          )
+          addMapPane("aux", zIndex = 500)
         for (i in seq_along(rv$auxiliary_layers)) {
           map <- map |>
             addPolygons(
@@ -319,6 +318,11 @@ ce_map_server <- function(id, rv) {
             ) |>
             hideGroup(names(rv$auxiliary_layers)[i])
         }
+        map <- map |>
+          addLayersControl(
+            overlayGroups = names(rv$auxiliary_layers),
+            position = "bottomleft"
+          )
       }
       return(map)
     })

@@ -17,9 +17,10 @@
 #'   criteria to be preselected. Each element should be a list with 2 elements, weight (0>1) and
 #'   descending (T/F). For example: `list(accessibility = list(weight = 0.5, descending = T))`
 #' @param map_tiles Character, name of the leaflet provider tiles. Default is "Esri.
-#' WorldTopoMap". Set to NULL to use no background map tiles.
-#' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
-#' @param auxiliary_pallet RColorBrewer palette to use for auxiliary layers (default is "Set2").
+#'   WorldTopoMap". Set to NULL to use no background map tiles.
+#' @param auxiliary_layers Named list of paths to additional spatial files (or pre-loaded sf
+#'   objects) to add as overlay layers.
+#' @param auxiliary_palette RColorBrewer palette to use for auxiliary layers (default is "Set1").
 #'
 #' @details
 #' The application provides:
@@ -58,7 +59,7 @@ criteria_explorer <- function(
   criteria_presets = NULL,
   map_tiles = "Esri.WorldTopoMap",
   auxiliary_layers = NULL,
-  auxiliary_pallet = "Set2"
+  auxiliary_palette = "Set1"
 ) {
   # Load summary data ----
   if (is.null(data)) {
@@ -195,18 +196,32 @@ criteria_explorer <- function(
     auxiliary_layers <- purrr::imap(
       auxiliary_layers,
       ~ {
-        layer <- tryCatch(
-          sf::read_sf(.x) |>
-            sf::st_transform("EPSG:4326"),
-          error = function(e) {
-            return(NULL)
-          }
-        )
-        if (is.null(layer)) {
-          stop(glue::glue("failed to load auxiliary layer: {.y}"))
-          return(NULL)
+
+        if(is.character(.x) && file.exists(.x)) {
+          layer <- tryCatch(
+            sf::read_sf(.x) |>
+              sf::st_transform("EPSG:4326"),
+            error = function(e) {
+              return(NULL)
+            }
+          )
+        }else{
+          layer <- tryCatch(
+              sf::st_transform(.x, "EPSG:4326"),
+            error = function(e) {
+              return(NULL)
+            }
+          )
         }
+
+        if (!inherits(layer, "sf") && !inherits(layer, "Spatial")) {
+          stop(crayon::bold(crayon::red(
+            glue::glue("failed to load auxiliary layer: {.y}")
+          )))
+        }
+
         return(layer)
+
       }
     )
   }
@@ -250,7 +265,7 @@ criteria_explorer <- function(
       provider_tiles = map_tiles,
       weights = criteria_presets,
       auxiliary_layers = auxiliary_layers,
-      auxiliary_pallet = auxiliary_pallet
+      auxiliary_palette = auxiliary_palette
     )
 
     # Module servers ----
