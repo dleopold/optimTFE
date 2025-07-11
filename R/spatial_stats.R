@@ -90,7 +90,7 @@ spatial_stats <- function(
       "Spatial input must only contain POLYGON geometries."
     )))
   }
-  if (!all(unit_ids %iin% spatial[[1]])) {
+  if (!all(unit_ids %in% spatial[[1]])) {
     stop(crayon::bold(crayon::red(
       "Spatial input must include all unit ids from the solutions data."
     )))
