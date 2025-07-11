@@ -12,7 +12,7 @@ create_interactive_map(
   map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
-  auxiliary_pallet = "Set2",
+  auxiliary_palette = "Set1",
   solution_color = "green",
   solution_opacity = 0.5,
   html_out = NULL
@@ -32,9 +32,10 @@ create_interactive_map(
 
 \item{spp_layers}{Character vector, names of species to add as separate overlay layers.}
 
-\item{auxiliary_layers}{Named list, paths to additional spatial files to add as overlay layers.}
+\item{auxiliary_layers}{Named list of paths to additional spatial files (or pre-loaded sf
+objects) to add as overlay layers.}
 
-\item{auxiliary_pallet}{RColorBrewer palette to use for auxiliary layers (default is "Set2").}
+\item{auxiliary_palette}{RColorBrewer palette to use for auxiliary layers (default is "Set1").}
 
 \item{solution_color}{Character, color for the solution layer. Default is "green".}
 
