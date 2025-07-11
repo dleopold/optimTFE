@@ -288,6 +288,39 @@ ce_map_server <- function(id, rv) {
         addProviderTiles(map, providers[[rv$provider_tiles]]),
         error = \(e) map
       )
+
+      # add auxillary layers ----
+      if (length(rv$auxiliary_layers) > 0) {
+        pal <- RColorBrewer::brewer.pal(length(rv$auxiliary_layers), auxillary_palette)
+        if(length(pal) < length(rv$auxiliary_layers)) {
+          stop(crayon::bold(crayon::red(
+            "The number of colors in the auxillary layerpalette must be greater than or equal to the number of auxiliary layers."
+          )))
+        }
+        map <- map |>
+          addMapPane("aux", zIndex = 400) |>
+          addLayersControl(
+            overlayGroups = names(rv$auxiliary_layers),
+            position = "bottomleft"
+          )
+        for (i in seq_along(rv$auxiliary_layers)) {
+          map <- map |>
+            addPolygons(
+              data = rv$auxiliary_layers[[i]],
+              color = pal[i],
+              weight = 0.75,
+              opacity = 0.5,
+              fillOpacity = 0.25,
+              group = names(rv$auxiliary_layers)[i],
+              options = pathOptions(
+                pane = "aux",
+                clickable = FALSE
+              )
+            ) |>
+            hideGroup(names(rv$auxiliary_layers)[i])
+        }
+      }
+      return(map)
     })
     outputOptions(output, "map", suspendWhenHidden = FALSE)
 

@@ -11,6 +11,7 @@
 #'   "Esri.WorldTopoMap". Set to NULL to use no background map tiles.
 #' @param spp_layers Character vector, names of species to add as separate overlay layers.
 #' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
+#' @param auxiliary_pallet RColorBrewer palette to use for auxiliary layers (default is "Set2").
 #' @param solution_color Character, color for the solution layer. Default is "green".
 #' @param solution_opacity Numeric, opacity for the solution layer. Default is 0.5.
 #' @param html_out Character, file path to save a self contained, sharable HTML file.
@@ -35,6 +36,7 @@ create_interactive_map <- function(
   map_tiles = "Esri.WorldTopoMap",
   spp_layers = NULL,
   auxiliary_layers = NULL,
+  auxiliary_pallet = "Set2",
   solution_color = "green",
   solution_opacity = 0.5,
   html_out = NULL
@@ -272,6 +274,12 @@ create_interactive_map <- function(
 
   # Aux layers ----
   if (length(auxiliary_layers) > 0) {
+    pal <- RColorBrewer::brewer.pal(length(auxiliary_layers), auxillary_palette)
+    if (length(pal) < length(auxiliary_layers)) {
+      stop(crayon::bold(crayon::red(
+        "The number of colors in the auxillary layerpalette must be greater than or equal to the number of auxiliary layers."
+      )))
+    }
     map <- map |>
       addMapPane("aux", zIndex = 400)
     for (i in seq_along(auxiliary_layers)) {
@@ -291,9 +299,9 @@ create_interactive_map <- function(
       map <- map |>
         addPolygons(
           data = layer,
-          weight = 1,
-          col = "black",
-          fillColor = "blue",
+          weight = 0.75,
+          color = pal[i],
+          opacity = 0.5,
           fillOpacity = 0.25,
           options = pathOptions(
             pane = "aux",

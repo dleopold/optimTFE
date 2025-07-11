@@ -19,6 +19,7 @@
 #' @param map_tiles Character, name of the leaflet provider tiles. Default is "Esri.
 #' WorldTopoMap". Set to NULL to use no background map tiles.
 #' @param auxiliary_layers Named list, paths to additional spatial files to add as overlay layers.
+#' @param auxiliary_pallet RColorBrewer palette to use for auxiliary layers (default is "Set2").
 #'
 #' @details
 #' The application provides:
@@ -56,7 +57,8 @@ criteria_explorer <- function(
   criteria_include = NULL,
   criteria_presets = NULL,
   map_tiles = "Esri.WorldTopoMap",
-  auxiliary_layers = NULL
+  auxiliary_layers = NULL,
+  auxiliary_pallet = "Set2"
 ) {
   # Load summary data ----
   if (is.null(data)) {
@@ -87,12 +89,15 @@ criteria_explorer <- function(
       )))
     }
     data <- data |>
-      dplyr::select(units, dplyr::any_of(c(criteria_include, "units", "solution")))
+      dplyr::select(
+        units,
+        dplyr::any_of(c(criteria_include, "units", "solution"))
+      )
   }
 
   # Parse criteria presets ----
-  if(!is.null(criteria_presets)){
-    if(!is.list(criteria_presets)){
+  if (!is.null(criteria_presets)) {
+    if (!is.list(criteria_presets)) {
       stop(crayon::bold(crayon::red(
         "Invalid input provided to the criteria_presets parameter."
       )))
@@ -103,13 +108,13 @@ criteria_explorer <- function(
         if (.y %nin% colnames(data)) {
           return(FALSE)
         }
-        if(!all(all(names(.x) %in% c("weight", "descending")))){
+        if (!all(all(names(.x) %in% c("weight", "descending")))) {
           return(FALSE)
         }
         if (!is.numeric(.x$weight) || .x$weight < 0 || .x$weight > 1) {
           return(FALSE)
         }
-        if(!is.logical(.x$descending)){
+        if (!is.logical(.x$descending)) {
           return(FALSE)
         }
         return(TRUE)
@@ -180,6 +185,32 @@ criteria_explorer <- function(
     error = \(e) spatial
   )
 
+  # Auxiliary layers ----
+  if (length(auxiliary_layers) > 0) {
+    if(length(names(auxiliary_layers)) != length(auxiliary_layers) || any(names(auxiliary_layers) == "")) {
+      stop(crayon::bold(crayon::red(
+        "Invalid auxiliary layer names."
+      )))
+    }
+    auxiliary_layers <- purrr::imap(
+      auxiliary_layers,
+      ~ {
+        layer <- tryCatch(
+          sf::read_sf(.x) |>
+            sf::st_transform("EPSG:4326"),
+          error = function(e) {
+            return(NULL)
+          }
+        )
+        if (is.null(layer)) {
+          stop(glue::glue("failed to load auxiliary layer: {.y}"))
+          return(NULL)
+        }
+        return(layer)
+      }
+    )
+  }
+
   # App UI ----
   ui <- function(request) {
     tagList(
@@ -217,7 +248,9 @@ criteria_explorer <- function(
       ranks = NULL, # current ranks of the solutions based on the selected stats
       selected_solution = NULL, # currently selected solution(s) to display
       provider_tiles = map_tiles,
-      weights = criteria_presets
+      weights = criteria_presets,
+      auxiliary_layers = auxiliary_layers,
+      auxiliary_pallet = auxiliary_pallet
     )
 
     # Module servers ----
