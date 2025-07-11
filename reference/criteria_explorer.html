@@ -49,7 +49,8 @@
 <span>  run_id <span class="op">=</span> <span class="st">"optimTFE"</span>,</span>
 <span>  criteria_include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  criteria_presets <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  map_tiles <span class="op">=</span> <span class="st">"Esri.WorldTopoMap"</span></span>
+<span>  map_tiles <span class="op">=</span> <span class="st">"Esri.WorldTopoMap"</span>,</span>
+<span>  auxiliary_layers <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,6 +95,10 @@ descending (T/F). For example: `list(accessibility = list(weight = 0.5, descendi
 <dt id="arg-map-tiles">map_tiles<a class="anchor" aria-label="anchor" href="#arg-map-tiles"></a></dt>
 <dd><p>Character, name of the leaflet provider tiles. Default is "Esri.
 WorldTopoMap". Set to NULL to use no background map tiles.</p></dd>
+
+
+<dt id="arg-auxiliary-layers">auxiliary_layers<a class="anchor" aria-label="anchor" href="#arg-auxiliary-layers"></a></dt>
+<dd><p>Named list, paths to additional spatial files to add as overlay layers.</p></dd>
 
 </dl></div>
     <div class="section level2">
